@@ -13,6 +13,9 @@ on:
     secrets:
       CHARMCRAFT_CREDENTIALS:
         required: true
+      PAT:
+        required: true
+        description: "Github PAT that can create pull requests for the repo being bumped.  If this is a default GITHUB_TOKEN, the PRs generated will not trigger push/pull_request CI workflows"
   workflow_dispatch:
     inputs:
       charmcraft_channel:
@@ -99,6 +102,7 @@ jobs:
           signoff: false
           delete-branch: true
           branch: "automated-update-charm-libs${{ steps.compile-inputs.outputs.branch-suffix }}"
+          token: "${{ secrets.PAT }}"
 
       - name: Print Created Pull Request
         if: ${{ steps.create-pull-request.outputs.pull-request-number }}
