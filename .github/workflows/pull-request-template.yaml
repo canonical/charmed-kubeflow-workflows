@@ -38,6 +38,9 @@ jobs:
   quality-checks:
     name: Quality Checks
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_quality-checks.yaml@all
+    with:
+      charm-path: ${{ inputs.charm-path }}
+      charm-name: ${{ inputs.charm-name }}
 
   tests:
     name: Tests
