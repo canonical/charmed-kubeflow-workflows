@@ -9,15 +9,6 @@ on:
         type: string
 
 jobs:
-  unit:
-    name: Unit tests
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - run: python3 -m pip install tox
-      - run: tox -e ${{ inputs.charm-name }}-unit
-
-
   integration:
     name: Integration tests
     runs-on: ubuntu-20.04

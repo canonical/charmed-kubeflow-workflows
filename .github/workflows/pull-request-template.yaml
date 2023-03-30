@@ -13,27 +13,7 @@ on:
         required: true
         type: string
 
-      run-bundle:
-        description: "Run the bundle test"
-        default: false
-        required: false
-        type: boolean
 
-      run-observability:
-        description: "Run the observability test"
-        default: false
-        required: false
-        type: boolean
-
-      publish:
-        description: "Publish the charm"
-        default: true
-        required: false
-        type: boolean
-
-    secrets:
-       CHARMCRAFT_CREDENTIALS:
-         required: false
 jobs:
   quality-checks:
     name: Quality Checks
@@ -47,23 +27,3 @@ jobs:
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_tests.yaml@all
     with:
       charm-name: ${{ inputs.charm-name }}
-
-  bundle:
-    name: Bundle
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/_bundle.yaml@all
-    if: ${{ inputs.run-bundle }}
-    with:
-        charm-name: ${{ inputs.charm-name }}
-
-  observability:
-    name: Observability
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/_observability.yaml@all
-    if: ${{ inputs.run-observability }}
-    with:
-      charm-name: ${{ inputs.charm-name }}
-
-  publish:
-    name: Publish
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/_publish.yaml@all
-    if: ${{ inputs.publish }}
-    secrets: inherit

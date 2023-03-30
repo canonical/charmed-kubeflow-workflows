@@ -1,0 +1,18 @@
+# this CI is for internal import from another template
+name: Unit and Integration Tests
+
+on:
+  workflow_call:
+    inputs:
+      charm-name:
+        required: true
+        type: string
+
+jobs:
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: python3 -m pip install tox
+      - run: tox -e ${{ inputs.charm-name }}-unit
