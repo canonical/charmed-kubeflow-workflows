@@ -46,21 +46,21 @@ jobs:
     name: Tests
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_tests.yaml@all
     with:
-      charm-path: ${{ inputs.charm-path }}
+      charm-name: ${{ inputs.charm-name }}
 
   bundle:
     name: Bundle
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_bundle.yaml@all
     if: ${{ inputs.run-bundle }}
     with:
-        charm-path: ${{ inputs.charm-name }}
+        charm-name: ${{ inputs.charm-name }}
 
   observability:
     name: Observability
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_observability.yaml@all
     if: ${{ inputs.run-observability }}
     with:
-      charm-path: ${{ inputs.charm-name }}
+      charm-name: ${{ inputs.charm-name }}
 
   publish:
     name: Publish
