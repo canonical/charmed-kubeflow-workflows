@@ -1,0 +1,38 @@
+# this CI is for internal import from another template
+name: Observability Test
+
+on:
+  workflow_call:
+    inputs:
+      charm-name:
+        required: true
+        type: string
+
+jobs:
+  integration-observability:
+    name: Observability Integration Test
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@main
+        with:
+          provider: microk8s
+          channel: 1.24/stable
+          # Pinning juju agent to 2.9.42 to keep compatibility with pythonlib-juju<3
+          bootstrap-options: --agent-version="2.9.42"
+      - run: juju add-model cos-test
+
+      - name: Run integration tests
+        run: tox -vve cos-integration -- --model cos-test --destructive-mode
+        env:
+          KUBECONFIG: /home/runner/.kube/config
+
+      - run: kubectl get all -A
+        if: failure()
+
+      - run: juju status
+        if: failure()

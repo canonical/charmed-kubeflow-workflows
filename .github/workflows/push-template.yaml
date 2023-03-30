@@ -28,6 +28,7 @@ on:
     secrets:
        CHARMCRAFT_CREDENTIALS:
          required: false
+
 jobs:
   quality-checks:
     name: Quality Checks
@@ -55,4 +56,5 @@ jobs:
 
   publish:
     name: Publish
+    needs: tests
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_publish.yaml@all
