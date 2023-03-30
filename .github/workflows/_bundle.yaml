@@ -3,10 +3,6 @@ name: Bundle Test
 
 on:
   workflow_call:
-    inputs:
-      charm-name:
-        required: true
-        type: string
 
 jobs:
   test-bundle:
