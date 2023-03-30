@@ -66,3 +66,4 @@ jobs:
     name: Publish
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_publish.yaml@all
     if: ${{ inputs.publish }}
+    secrets: inherit
