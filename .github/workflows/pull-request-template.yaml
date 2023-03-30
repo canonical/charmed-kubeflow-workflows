@@ -25,6 +25,12 @@ on:
         required: false
         type: boolean
 
+      publish:
+        description: "Publish the charm"
+        default: true
+        required: false
+        type: boolean
+
     secrets:
        CHARMCRAFT_CREDENTIALS:
          required: false
@@ -35,20 +41,20 @@ jobs:
 
   tests:
     name: Tests
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/tests.yaml@all
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/_tests.yaml@all
     with:
       charm-path: ${{ inputs.charm-path }}
 
   bundle:
     name: Bundle
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/bundle.yaml@all
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/_bundle.yaml@all
     if: ${{ inputs.run-bundle }}
     with:
         charm-path: ${{ inputs.charm-name }}
 
   observability:
     name: Observability
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/observability.yaml@all
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/_observability.yaml@all
     if: ${{ inputs.run-observability }}
     with:
       charm-path: ${{ inputs.charm-name }}
@@ -56,3 +62,4 @@ jobs:
   publish:
     name: Publish
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/_publish.yaml@all
+    if: ${{ inputs.publish }}
