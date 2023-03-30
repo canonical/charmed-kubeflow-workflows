@@ -27,18 +27,17 @@ on:
 
 jobs:
   get-charm-paths:
-    name: Generate the Charm Matrix
-    runs-on: ubuntu-20.04
+    name: Generate the Charm Matrix content (bash)
+    runs-on: ubuntu-latest
     outputs:
-      charm_paths_list: ${{ steps.get-charm-paths.outputs.CHARM_PATHS_LIST }}
+      charm_paths: ${{ steps.get-charm-paths.outputs.charm-paths }}
     steps:
-      - uses: actions/checkout@v3
-        with:
+      - uses: actions/checkout@v2
+        with: 
           fetch-depth: 0
-          ref: ${{ inputs.source_branch }}
-      - name: Get paths for all charms in repo
+      - name: Get paths for all charms in this repo
         id: get-charm-paths
-        run: bash .github/workflows/get-charm-paths.sh
+        uses: ca-scribner/github-actions-recipes/get-charm-paths@master
 
 
   publish-charm:
@@ -48,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        charm-path: ${{ fromJson(needs.get-charm-paths.outputs.charm_paths_list) }}
+        charm-path: ${{ fromJson(needs.get-charm-paths.outputs.charm_paths) }}
 
     steps:
       - name: Checkout
