@@ -20,7 +20,6 @@ jobs:
           fetch-depth: 0
       - name: Install tools
         run: |
-          sudo apt install -y zip
           sudo snap install jq
           sudo snap install yq
       - name: Build ROCK
@@ -28,17 +27,20 @@ jobs:
         with:
           path: ${{ inputs.rock }}
       - name: Copy ROCK to Docker
+        id: rock_in_docker
         run: |
           NAME=$(yq eval ".name" rockcraft.yaml)
           VERSION=$(yq eval ".version" rockcraft.yaml)
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
           sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
+          echo "$ROCK:$VERSION" > $GITHUB_OUTPUT
         working-directory: ${{ inputs.rock }}
       - name: Scan for vulnerabilities
+        id: scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: '$ROCK:$VERSION'
+          image-ref: ${{ steps.rock_in_docker.output }}
           format: 'json'
           output: 'trivy-report-${{ inputs.rock }}.json'
         #working-directory: ${{ inputs.rock }}
