@@ -12,7 +12,7 @@ on:
 jobs:
   build-scan-rock:
     runs-on: ubuntu-20.04
-    name: Build and scan ROCKs
+    name: Build and scan ROCK
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -20,7 +20,9 @@ jobs:
           fetch-depth: 0
       - name: Install tools
         run: |
-          ./tools/install-tools.sh
+          sudo apt install -y zip
+          sudo snap install jq
+          sudo snap install yq
       - name: Build ROCK
         uses: canonical/craft-actions/rockcraft-pack@main
         with:
@@ -32,7 +34,7 @@ jobs:
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
           sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
-        #working-directory: ${{ inputs.rock }}
+        working-directory: ${{ inputs.rock }}
       - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
@@ -47,7 +49,7 @@ jobs:
       - name: Prepare artifacts
         run: |
           tar zcvf trivy-report-${{ inputs.rock }}.tar.gz ./trivy-reports
-        #working-directory: ${{ inputs.rock }}
+        working-directory: ${{ inputs.rock }}
       # - name: Upload Trivy reports
       #   uses: actions/upload-artifact@v3
       #   with:
