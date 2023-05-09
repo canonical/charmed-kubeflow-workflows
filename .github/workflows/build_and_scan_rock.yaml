@@ -43,9 +43,8 @@ jobs:
           scan-type: 'image'
           image-ref: '${{ steps.rock_in_docker.outputs.image }}'
           format: 'json'
-          output: 'trivy-report-${{ inputs.rock }}.json'
+          output: '${{ inputs.rock }}/trivy-report-${{ inputs.rock }}.json'
           ignore-unfixed: true
-        working-directory: ${{ inputs.rock }}
       # - name: Send vulnerability records
       #   run: |
       #     ../tools/send-scan.sh ./trivy-reports ${{ secrets.JIRA_URL }}
