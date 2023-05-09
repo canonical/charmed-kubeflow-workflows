@@ -1,4 +1,4 @@
-name: Build and scan ROCKs, save and send scan reports
+name: Build and scan ROCK, save and send scan report
 
 on:
   workflow_call:
