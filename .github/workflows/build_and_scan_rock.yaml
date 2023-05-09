@@ -4,6 +4,8 @@ on:
   workflow_call:
     inputs:
       rock:
+        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
+        default: "."
         required: true
         type: string
 
