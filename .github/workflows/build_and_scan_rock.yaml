@@ -26,14 +26,12 @@ jobs:
         with:
           path: ${{ inputs.rock }}
       - name: Copy ROCK to Docker
-        id: rock_in_docker
         run: |
           NAME=$(yq eval ".name" rockcraft.yaml)
           VERSION=$(yq eval ".version" rockcraft.yaml)
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
           sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
-        working-directory: ${{ inputs.rock }}
       - name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
