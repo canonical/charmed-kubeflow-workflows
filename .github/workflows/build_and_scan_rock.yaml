@@ -41,7 +41,7 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
-          image-ref: '${{ steps.rock_in_docker.output.image }}'
+          image-ref: '${{ steps.rock_in_docker.outputs.image }}'
           format: 'json'
           output: 'trivy-report-${{ inputs.rock }}.json'
           ignore-unfixed: true
