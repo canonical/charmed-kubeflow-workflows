@@ -40,9 +40,11 @@ jobs:
         id: scan
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.rock_in_docker.output.image }}
+          scan-type: 'image'
+          image-ref: '${{ steps.rock_in_docker.output.image }}'
           format: 'json'
           output: 'trivy-report-${{ inputs.rock }}.json'
+          ignore-unfixed: true
         #working-directory: ${{ inputs.rock }}
       # - name: Send vulnerability records
       #   run: |
