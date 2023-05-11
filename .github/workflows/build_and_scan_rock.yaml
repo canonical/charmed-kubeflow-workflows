@@ -2,6 +2,9 @@ name: Build and scan ROCK, save and send scan report
 
 on:
   workflow_call:
+    secrets:
+      JIRA_URL:
+        required: true
     inputs:
       rock:
         description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
