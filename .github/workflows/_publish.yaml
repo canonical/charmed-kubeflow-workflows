@@ -1,6 +1,7 @@
 # reusable workflow for publishing all charms in a repo
 name: Publish
 
+
 on:
   workflow_call:
     inputs:
@@ -26,7 +27,10 @@ on:
         type: string
 
 jobs:
-  get-charm-paths:
+  get-charm-paths:    
+    # forks don't have access to keyrings and cannot publish, we just skip these jobs from forks
+    if: github.event.pull_request.head.repo.fork == false
+    
     name: Generate the Charm Matrix content (bash)
     runs-on: ubuntu-latest
     outputs:
