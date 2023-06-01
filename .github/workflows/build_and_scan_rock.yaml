@@ -2,9 +2,7 @@ name: Build and scan ROCK, save and send scan report
 
 on:
   workflow_call:
-    secrets:
-      JIRA_URL:
-        required: true
+    secrets: inherit
     inputs:
       rock:
         description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
@@ -61,7 +59,7 @@ jobs:
             cd -
 
             # send scans from supplied directory
-            ./kubeflow-ci/scripts/cve-reports/send-scan.py --report-path="${{ inputs.rock }}" --jira-url="${{ secrets.JIRA_URL }}"
+            ./kubeflow-ci/scripts/cve-reports/send-scan.py --report-path=\"${{ inputs.rock }}\" --jira-url=\"${{ secrets.JIRA_URL }}\"
         working-directory: ${{ inputs.rock }}
       - name: Prepare artifacts
         run: |
