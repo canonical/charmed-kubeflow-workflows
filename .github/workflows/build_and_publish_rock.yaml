@@ -14,8 +14,11 @@ on:
         default: 'charmedkubeflow'
         required: true
         type: string
-    # secrets should include credentials for CKF_REGISTRY: CKF_REGISTRY_USERNAME and CKF_REGISTRY_PASSWORD
-    secrets: inherit
+    secrets:
+      CKF_REGISTRY_USERNAME:
+        required: true
+      CKF_REGISTRY_PASSWORD:
+        required: true
 
 jobs:
   build-and-publish-rock:
