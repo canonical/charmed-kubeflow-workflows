@@ -15,7 +15,6 @@ on:
 jobs:
   build-scan-rock:
     runs-on: ubuntu-20.04
-    secrets: inherit
     name: Build and scan ROCK
     steps:
       - name: Checkout
