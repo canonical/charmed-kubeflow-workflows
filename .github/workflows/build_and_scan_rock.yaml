@@ -61,7 +61,7 @@ jobs:
             cd -
 
             # send scans from supplied directory
-            ./kubeflow-ci/scripts/cve-reports/send-scan.py --report-path=\"${{ inputs.rock }}\" --jira-url=\"${{ secrets.JIRA_URL }}\"
+            ./kubeflow-ci/scripts/cve-reports/send-scan.py --report-path=${{ inputs.rock }} --jira-url=${{ secrets.JIRA_URL }}
       - name: Prepare artifacts
         run: |
           tar zcvf trivy-report-${{ inputs.rock }}.tar.gz trivy-report-${{ inputs.rock }}.json
