@@ -27,5 +27,5 @@ jobs:
           tox -e bundle-integration -- --model kubeflow
 
       - name: Collect charm debug artifacts
-        uses: canonical/kubeflow-ci/dump-charm-debug-artifacts@version
+        uses: canonical/kubeflow-ci/dump-charm-debug-artifacts@main
         if: always()
