@@ -33,5 +33,5 @@ jobs:
           sg microk8s -c "tox -e ${{ inputs.charm-name }}-integration"
 
       - name: Collect charm debug artifacts
-          uses: canonical/kubeflow-ci/dump-charm-debug-artifacts@version
-          if: always()
+        uses: canonical/kubeflow-ci/dump-charm-debug-artifacts@version
+        if: always()
