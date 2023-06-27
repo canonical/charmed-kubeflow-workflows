@@ -1,11 +1,6 @@
 # this CI is for internal import from another template
 name: Unit Tests
 
-# cancel all previous jobs in the same branch if new commits are pushed
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 on:
   workflow_call:
     inputs:
