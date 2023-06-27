@@ -15,27 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@main
+        uses: charmed-kubernetes/actions-operator@1.1.0
         with:
           provider: microk8s
           channel: 1.24/stable
-          charmcraft-channel: latest/candidate
-          # Pinning juju agent to 2.9.42 to keep compatibility with pythonlib-juju<3
-          bootstrap-options: --agent-version="2.9.42"
+          bootstrap-options: --agent-version="2.9.43"
+          microk8s-addons: "dns storage rbac metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
-      # TODO: Remove once the actions-operator does this automatically
-      - name: Configure kubectl
-        run: |
-          sg microk8s -c "microk8s config > ~/.kube/config"
-
-      - run: sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
       - run: |
+          # Requires the model to be called kubeflow
+          juju add-model kubeflow
           sg microk8s -c "tox -e ${{ inputs.charm-name }}-integration"
 
-      # Collect debug logs if failed
-      - name: Dump Juju/k8s logs on failure
-        uses: canonical/charm-logdump-action@main
-        if: failure()
-        with:
-          app: ${{ inputs.charm-name }}
-          model: testing
+      - name: Collect charm debug artifacts
+          uses: canonical/kubeflow-ci/dump-charm-debug-artifacts@version
+          if: always()

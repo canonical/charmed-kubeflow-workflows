@@ -13,40 +13,19 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
       - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@main
+        uses: charmed-kubernetes/actions-operator@1.1.0
         with:
           provider: microk8s
           channel: 1.24/stable
-          # Pinning juju agent to 2.9.42 to keep compatibility with pythonlib-juju<3
-          bootstrap-options: --agent-version="2.9.34"
+          bootstrap-options: --agent-version="2.9.43"
+          microk8s-addons: "dns storage rbac metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
-      # Required until https://github.com/charmed-kubernetes/actions-operator/pull/33 is merged
-      - run: sg microk8s -c "microk8s enable metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
-
-      # TODO: Remove once the actions-operator does this automatically
-      - name: Configure kubectl
-        run: |
-          sg microk8s -c "microk8s config > ~/.kube/config"
       - name: Run test
         run: |
-          # Requires the model to be called kubeflow due to kfp-viewer
+          # Requires the model to be called kubeflow
           juju add-model kubeflow
-          # Remove destructive-mode once these bugs are fixed:
-          # https://github.com/canonical/charmcraft/issues/554
-          # https://github.com/canonical/craft-providers/issues/96
-          tox -e bundle-integration -- --model kubeflow --destructive-mode
-      - name: Get all
-        run: kubectl get all -A
-        if: failure()
+          tox -e bundle-integration -- --model kubeflow
 
-      - name: Get juju status
-        run: juju status
-        if: failure()
-
-      - name: Get workload logs
-        run: kubectl logs --tail 100 -nkubeflow -ljuju-app
-        if: failure()
-
-      - name: Get operator logs
-        run: kubectl logs --tail 100 -nkubeflow -ljuju-operator
-        if: failure()
+      - name: Collect charm debug artifacts
+        uses: canonical/kubeflow-ci/dump-charm-debug-artifacts@version
+        if: always()

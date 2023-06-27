@@ -25,7 +25,6 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           charm-path: "${{ inputs.charm-path }}"
-          charmcraft-channel: "latest/edge"
 
   lint:
     name: Lint

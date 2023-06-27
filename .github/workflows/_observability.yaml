@@ -14,21 +14,18 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@main
+        uses: charmed-kubernetes/actions-operator@1.1.0
         with:
           provider: microk8s
           channel: 1.24/stable
-          # Pinning juju agent to 2.9.42 to keep compatibility with pythonlib-juju<3
-          bootstrap-options: --agent-version="2.9.34"
-      - run: juju add-model cos-test
+          bootstrap-options: --agent-version="2.9.43"
+          microk8s-addons: "dns storage rbac metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
       - name: Run integration tests
-        run: tox -vve cos-integration -- --model cos-test --destructive-mode
-        env:
-          KUBECONFIG: /home/runner/.kube/config
+        run: |
+          juju add-model cos-test
+          tox -vve cos-integration -- --model cos-test
 
-      - run: kubectl get all -A
-        if: failure()
-
-      - run: juju status
-        if: failure()
+      - name: Collect charm debug artifacts
+        uses: canonical/kubeflow-ci/dump-charm-debug-artifacts@version
+        if: always()
