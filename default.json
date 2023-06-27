@@ -18,7 +18,7 @@
         "lockFileMaintenance": {
             "enabled": true,
             "schedule": [
-                "on the 2nd and 4th day instance on sunday after 9pm"
+                "on the 2nd and 4th day instance on sunday"
             ]
         }
     },
@@ -48,6 +48,6 @@
         }
     ],
     "schedule": [
-        "on the 2nd and 4th day instance on sunday after 9pm"
+        "on the 2nd and 4th day instance on sunday"
     ]
 }
