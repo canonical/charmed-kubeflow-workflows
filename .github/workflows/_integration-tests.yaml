@@ -23,7 +23,14 @@ jobs:
           bootstrap-options: --agent-version="2.9.43"
           microk8s-addons: "dns storage rbac metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
-      - run: |
+
+      # TODO: Remove once https://bugs.launchpad.net/juju/+bug/2024897 is fixed
+      - name: Refresh Juju snap
+        run: |
+          sudo snap refresh juju --revision 22345
+
+      - name: Run integration test
+        run: |
           # Requires the model to be called kubeflow
           juju add-model kubeflow
           sg microk8s -c "tox -e ${{ inputs.charm-name }}-integration"
