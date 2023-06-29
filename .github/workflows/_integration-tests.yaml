@@ -36,7 +36,7 @@ jobs:
 
       - name: Download packed charm(s)
         uses: actions/download-artifact@v3
-        if: charms-artefact-name
+        if: ${{ inputs.charms-artefact-name }}
         with:
           name: ${{ inputs.charms-artefact-name }}
 
