@@ -36,12 +36,10 @@ jobs:
       - name: Run test
         run: |
           # Requires the model to be called kubeflow
-          export CI_PACKED_CHARMS=${{ inputs.packed-charms }}
-          echo ${{ inputs.packed-charms }}
           juju add-model kubeflow
           tox -e bundle-integration -- --model kubeflow
-          # env:
-          #   CI_PACKED_CHARMS: ${{ inputs.packed-charms }}
+          env:
+            CI_PACKED_CHARMS: ${{ fromJSON(inputs.packed-charms) }}
 
       - name: Collect charm debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
