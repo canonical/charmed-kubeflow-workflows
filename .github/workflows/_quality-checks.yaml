@@ -1,5 +1,5 @@
 # this CI is for internal import from another template
-name: Pull Request
+name: Quality Checks
 
 on:
   workflow_call:
@@ -7,9 +7,10 @@ on:
       charm-path:
         required: true
         type: string
-    secrets:
-      CHARMCRAFT_CREDENTIALS:
+      charm-name:
         required: true
+        type: string
+
 jobs:
   lib-check:
     name: Check libraries
@@ -20,8 +21,15 @@ jobs:
         with:
           fetch-depth: 1
       - name: Check libs
-        uses: canonical/charming-actions/check-libraries@2.2.3
+        uses: canonical/charming-actions/check-libraries@2.2.5
         with:
-          credentials: "${{ secrets.CHARMCRAFT_CREDENTIALS }}"
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           charm-path: "${{ inputs.charm-path }}"
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - run: python3 -m pip install tox
+      - run: tox -e ${{ inputs.charm-name }}-lint
