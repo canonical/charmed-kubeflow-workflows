@@ -3,7 +3,10 @@ name: Bundle Test
 
 on:
   workflow_call:
-
+    inputs:
+      packed-charms:
+        description: List of packed charms by the build_charms_with_cache action.
+        type: environment
 jobs:
   test-bundle:
     name: Test the bundle
@@ -26,6 +29,8 @@ jobs:
           # Requires the model to be called kubeflow
           juju add-model kubeflow
           tox -e bundle-integration -- --model kubeflow
+        env:
+          CI_PACKED_CHARMS: ${{ inputs.packed_charms }}
 
       - name: Collect charm debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main

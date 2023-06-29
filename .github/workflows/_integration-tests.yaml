@@ -7,6 +7,9 @@ on:
       charm-name:
         required: true
         type: string
+      packed-charms:
+        description: List of packed charms by the build_charms_with_cache action.
+        type: environment
 
 jobs:
   integration:
@@ -34,6 +37,8 @@ jobs:
           # Requires the model to be called kubeflow
           juju add-model kubeflow
           sg microk8s -c "tox -e ${{ inputs.charm-name }}-integration"
+        env:
+          CI_PACKED_CHARMS: ${{ inputs.packed_charms }}
 
       - name: Collect charm debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
