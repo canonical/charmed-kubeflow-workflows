@@ -7,9 +7,6 @@ on:
       charm-path:
         required: true
         type: string
-      charm-name:
-        required: true
-        type: string
 
 jobs:
   lib-check:
@@ -32,4 +29,4 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: python3 -m pip install tox
-      - run: tox -e ${{ inputs.charm-name }}-lint
+      - run: tox -c ${{ inputs.charm-path }} -e lint
