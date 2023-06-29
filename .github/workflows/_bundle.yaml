@@ -5,8 +5,11 @@ on:
   workflow_call:
     inputs:
       packed-charms:
-        description: List of packed charms by the build_charms_with_cache action.
-        type: environment
+        description: List of packed charms by the build_charms_with_cache action (JSON string).
+        type: string
+      charms-artefact-name:
+        description: GitHub artefact name where charms are uploaded.
+        type: string
 jobs:
   test-bundle:
     name: Test the bundle
@@ -23,6 +26,12 @@ jobs:
           juju-channel: 2.9/stable
           bootstrap-options: --agent-version="2.9.43"
           microk8s-addons: "dns storage rbac metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
+
+      - name: Download packed charm(s)
+        uses: actions/download-artifact@v3
+        if: charms-artefact-name
+        with:
+          name: ${{ inputs.charms-artefact-name }}
 
       - name: Run test
         run: |
