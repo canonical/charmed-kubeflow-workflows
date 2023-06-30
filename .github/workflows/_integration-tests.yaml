@@ -46,7 +46,7 @@ jobs:
           juju add-model kubeflow
           sg microk8s -c "tox -e ${{ inputs.charm-name }}-integration"
         env:
-          CI_PACKED_CHARMS: ${{ fromJSON(inputs.packed-charms) }}
+          CI_PACKED_CHARMS: ${{ toJSON(inputs.packed-charms) }}
 
       - name: Collect charm debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
