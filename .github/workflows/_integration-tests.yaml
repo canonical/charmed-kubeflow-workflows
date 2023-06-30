@@ -4,9 +4,13 @@ name: Integration Tests
 on:
   workflow_call:
     inputs:
-      charm-name:
+      charm-path:
+        description: The path where the charm src code lives.
         required: true
         type: string
+      tox-environments:
+        description: The environment(s) set in tox.ini that hold integration tests.
+        required: true
 
 jobs:
   integration:
@@ -33,7 +37,7 @@ jobs:
         run: |
           # Requires the model to be called kubeflow
           juju add-model kubeflow
-          sg microk8s -c "tox -e ${{ inputs.charm-name }}-integration"
+          sg microk8s -c "tox -c ${{ inputs.charm-path }} -e ${{ inputs.tox-environments }}"
 
       - name: Collect charm debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
