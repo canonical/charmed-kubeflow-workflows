@@ -28,4 +28,4 @@ runs:
       id: generate-and-compare
       shell: bash
       run: |
-        ${{ github.action_path }}/generate_and_compare.sh "${{ inputs.contributing_update_dir }}"
+        bash ${{ github.action_path }}/generate_and_compare.sh "${{ inputs.contributing_update_dir }}"
