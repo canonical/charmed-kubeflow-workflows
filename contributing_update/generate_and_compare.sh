@@ -4,7 +4,7 @@
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 # Define the path to the template file relative to SCRIPT_DIR
-TEMPLATE_FILE="$SCRIPT_DIR/contributing.md.template"
+TEMPLATE_FILE="$CONTRIBUTING_UPDATE_DIR/contributing.md.template"
 
 # Define the path to the inputs file relative to the current working directory
 INPUTS_FILE="contributing_inputs.toml"
