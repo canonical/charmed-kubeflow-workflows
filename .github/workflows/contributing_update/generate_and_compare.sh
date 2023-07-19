@@ -7,7 +7,7 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 TEMPLATE_FILE="$SCRIPT_DIR/contributing.md.template"
 
 # Define the path to the inputs file relative to the current working directory
-INPUTS_FILE="contributing_inputs.yaml"
+INPUTS_FILE="contributing_inputs.toml"
 
 # Read and display the contents of the template file
 if [[ -f "$TEMPLATE_FILE" ]]; then
