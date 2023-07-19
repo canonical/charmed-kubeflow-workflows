@@ -19,7 +19,7 @@ eval "$(grep -E "^\w+=" "$INPUTS_FILE" | sed 's/=/="/; s/$/"/')"
 template=$(cat "$TEMPLATE_FILE")
 
 # Replace placeholders in the template with corresponding values from TOML
-for key in "${!template[@]}"; do
+for key in $(grep -E "^\w+=" "$INPUTS_FILE" | cut -d'=' -f1); do
   template=${template//\{\{$key\}\}/${!key}}
 done
 
