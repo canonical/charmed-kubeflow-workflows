@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Get the directory containing the script
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+# Read the directory path from the first argument
+DIR_PATH="$1"
 
-# Define the path to the template file relative to SCRIPT_DIR
-TEMPLATE_FILE="$CONTRIBUTING_UPDATE_DIR/contributing.md.template"
+# Define the path to the template file relative to DIR_PATH
+TEMPLATE_FILE="$DIR_PATH/contributing.md.template"
 
 # Define the path to the inputs file relative to the current working directory
 INPUTS_FILE="contributing_inputs.toml"

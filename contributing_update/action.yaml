@@ -26,5 +26,4 @@ runs:
       id: generate-and-compare
       shell: bash
       run: |
-        export CONTRIBUTING_UPDATE_DIR=$CONTRIBUTING_UPDATE_DIR
-        bash ${{ github.action_path }}/generate_and_compare.sh
+        bash ${{ github.action_path }}/generate_and_compare.sh "$CONTRIBUTING_UPDATE_DIR"
