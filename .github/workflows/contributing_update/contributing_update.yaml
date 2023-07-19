@@ -1,0 +1,16 @@
+# Workflow to publish ROCK
+name: Publish ROCK
+
+on:
+  workflow_call:
+
+jobs:
+  check-and-update:
+    name: Contributing Check and Update
+    runs-on: ubuntu-22.04
+    steps:
+        - uses: 'actions/checkout@v2'
+        - name: 'Run Contributing Check Bash'
+          id: contributing-check-bash
+          shell: bash
+          run: bash ${{ github.action_path }}/contributing_update.sh  
