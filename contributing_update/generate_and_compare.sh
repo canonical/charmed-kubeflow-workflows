@@ -13,7 +13,7 @@ INPUTS_FILE="contributing_inputs.toml"
 OUTPUT_FILE="$DIR_PATH/contributing.md"
 
 # Read the values from the inputs file (TOML)
-source <(tomlq -r "$INPUTS_FILE")
+eval "$(grep -E "^\w+=" "$INPUTS_FILE" | sed 's/=/="/; s/$/"/')"
 
 # Read the template file contents
 template=$(cat "$TEMPLATE_FILE")
