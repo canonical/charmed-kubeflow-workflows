@@ -1,13 +1,11 @@
-on:
-  workflow_call:
+name: 'Contributing Check and Update'
+description: Checks contributing file in calling repo and creates a PR if it's outdated
 
-jobs:
-  check-and-update:
-    name: Contributing Check and Update
-    runs-on: ubuntu-22.04
+runs:
+  using: 'composite'
     steps:
-        - uses: 'actions/checkout@v3'
-        - name: 'Generate and compare'
-          id: contributing-check-bash
-          shell: bash
-          run: bash ${{ github.action_path }}/generate_and_compare.sh  
+      - uses: 'actions/checkout@v3'
+      - name: 'Generate and compare'
+        id: generate-and-compare
+        shell: bash
+        run: bash ${{ github.action_path }}/generate_and_compare.sh  
