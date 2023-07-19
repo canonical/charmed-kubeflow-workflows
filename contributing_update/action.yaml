@@ -17,7 +17,7 @@ runs:
     - name: 'Make temporary dir for this job'
       shell: bash
       run: |
-        mkdir -p $CONTRIBUTING_UPDATE_DIR
+        mkdir -p "${{ env.CONTRIBUTING_UPDATE_DIR }}"
     - name: 'Download template file'
       shell: bash
       run: |
@@ -26,4 +26,4 @@ runs:
       id: generate-and-compare
       shell: bash
       run: |
-        bash ${{ github.action_path }}/generate_and_compare.sh $CONTRIBUTING_UPDATE_DIR
+        bash ${{ github.action_path }}/generate_and_compare.sh "${{ env.CONTRIBUTING_UPDATE_DIR }}"
