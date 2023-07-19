@@ -21,7 +21,7 @@ while IFS= read -r line; do
     key="${BASH_REMATCH[1]}"
     value="${BASH_REMATCH[2]}"
     echo "Replacing $key with $value"
-    template=${template//\{\{$key\}\}/$value}
+    template=${template//\{\{[[:space:]]*$key[[:space:]]*\}\}/$value}
   fi
 done < "$INPUTS_FILE"
 
