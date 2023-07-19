@@ -27,5 +27,5 @@ done
 # Write the modified template to the output file
 echo "$template" > "$OUTPUT_FILE"
 
-echo "Generated contributing file from template. Contents: \n\n"
+echo -e "Generated contributing file from template. Contents: \n"
 cat "$OUTPUT_FILE"
