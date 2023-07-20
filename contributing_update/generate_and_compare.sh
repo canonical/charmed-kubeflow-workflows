@@ -30,3 +30,12 @@ echo "$template" > "$OUTPUT_FILE"
 
 echo -e "Generated contributing file from template. Contents: \n"
 cat "$OUTPUT_FILE"
+
+# Check if there are any remaining {{ }} expressions in the generated template
+remaining_expr=$(grep -o '{{[^}]*}}' <<< "$template")
+
+if [ -n "$remaining_expr" ]; then
+  echo "Error: Some {{ }} expressions are still present in the generated template:"
+  echo "$remaining_expr"
+  exit 1
+fi
