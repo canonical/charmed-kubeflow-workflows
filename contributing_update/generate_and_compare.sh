@@ -3,6 +3,9 @@
 # Read the temp path from the first argument
 TEMP_PATH="$1"
 
+# Read the charm path from the second argument
+CHARM_PATH="$2"
+
 # Define the path to the template file relative to TEMP_PATH
 TEMPLATE_FILE="$TEMP_PATH/contributing.md.template"
 
@@ -12,11 +15,11 @@ INPUTS_FILE="contributing_inputs.yaml"
 # Create a new file called contributing.md in the specified directory
 OUTPUT_FILE="$TEMP_PATH/contributing.md"
 
-# Check if contributing.md already exists in the root directory
-if [ -f "$DIR_PATH/contributing.md" ]; then
-  existingContributingContents=$(cat "$DIR_PATH/contributing.md")
+# Check if contributing.md already exists in the charm path
+if [ -f "$CHARM_PATH/contributing.md" ]; then
+  existingContributingContents=$(cat "$CHARM_PATH/contributing.md")
 else
-  echo "Error: contributing.md not found in the root directory."
+  echo "Error: contributing.md not found in the charm path: $CHARM_PATH"
   exit 1
 fi
 
