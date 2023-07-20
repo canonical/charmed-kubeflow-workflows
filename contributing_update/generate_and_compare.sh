@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Read the directory path from the first argument
-DIR_PATH="$1"
+# Read the temp path from the first argument
+TEMP_PATH="$1"
 
-# Define the path to the template file relative to DIR_PATH
-TEMPLATE_FILE="$DIR_PATH/contributing.md.template"
+# Define the path to the template file relative to TEMP_PATH
+TEMPLATE_FILE="$TEMP_PATH/contributing.md.template"
 
 # Define the path to the inputs file relative to the current working directory
 INPUTS_FILE="contributing_inputs.yaml"
 
 # Create a new file called contributing.md in the specified directory
-OUTPUT_FILE="$DIR_PATH/contributing.md"
+OUTPUT_FILE="$TEMP_PATH/contributing.md"
 
 # Read the template file contents
 template=$(cat "$TEMPLATE_FILE")
