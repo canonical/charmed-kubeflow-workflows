@@ -7,7 +7,7 @@ DIR_PATH="$1"
 TEMPLATE_FILE="$DIR_PATH/contributing.md.template"
 
 # Define the path to the inputs file relative to the current working directory
-INPUTS_FILE="contributing_inputs.toml"
+INPUTS_FILE="contributing_inputs.yaml"
 
 # Create a new file called contributing.md in the specified directory
 OUTPUT_FILE="$DIR_PATH/contributing.md"
@@ -15,15 +15,15 @@ OUTPUT_FILE="$DIR_PATH/contributing.md"
 # Read the template file contents
 template=$(cat "$TEMPLATE_FILE")
 
-# Read the values from the inputs file (TOML) and replace placeholders in the template
-while IFS= read -r line; do
-  if [[ "$line" =~ ^[[:space:]]*([^=[:space:]]+)[[:space:]]*=[[:space:]]*\"([^\"]*)\" ]]; then
-    key="${BASH_REMATCH[1]}"
-    value="${BASH_REMATCH[2]}"
-    echo "Replacing $key with $value"
-    template=${template//\{\{[[:space:]]*$key[[:space:]]*\}\}/$value}
-  fi
-done < "$INPUTS_FILE"
+# Use yq to get the list of keys from the inputs file
+keys=$(yq eval 'keys | .[]' "$INPUTS_FILE")
+
+# Iterate over the keys and extract the values using yq
+for key in $keys; do
+  value=$(yq eval ".$key" "$INPUTS_FILE")
+  echo "Replacing $key with $value"
+  template=${template//\{\{[[:space:]]*$key[[:space:]]*\}\}/"$value"}
+done
 
 # Write the modified template to the output file
 echo "$template" > "$OUTPUT_FILE"
