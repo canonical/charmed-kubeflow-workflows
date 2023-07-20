@@ -12,6 +12,14 @@ INPUTS_FILE="contributing_inputs.yaml"
 # Create a new file called contributing.md in the specified directory
 OUTPUT_FILE="$TEMP_PATH/contributing.md"
 
+# Check if contributing.md already exists in the root directory
+if [ -f "$DIR_PATH/contributing.md" ]; then
+  existingContributingContents=$(cat "$DIR_PATH/contributing.md")
+else
+  echo "Error: contributing.md not found in the root directory."
+  exit 1
+fi
+
 # Read the template file contents
 template=$(cat "$TEMPLATE_FILE")
 
