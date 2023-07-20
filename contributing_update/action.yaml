@@ -33,3 +33,14 @@ runs:
       shell: bash
       run: |
         bash ${{ github.action_path }}/generate_and_compare.sh "${{ inputs.contributing_update_dir }}"
+    - name: 'Open PR'
+      id: create-pull-request
+      if: steps.generate-and-compare.outputs.comparison_result == '1'
+      uses: peter-evans/create-pull-request@v4
+      with:
+        title: "(Automated) Update Contributing.md"
+        body: "Updated contributing.md file based on auto-generate file from template"
+        commit-message: "Updated contributing.md file based on auto-generate file from template"
+        signoff: false
+        delete-branch: true
+        branch: "automated-update-contributing"      
