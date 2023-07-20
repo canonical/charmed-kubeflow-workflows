@@ -47,3 +47,12 @@ if [ -n "$remaining_expr" ]; then
   echo "$remaining_expr"
   exit 1
 fi
+
+# Compare the substituted template with the existing contributing contents
+if [ "$template" = "$existingContributingContents" ]; then
+  echo "comparison_result=0" >> $GITHUB_ENV
+else
+  echo "comparison_result=1" >> $GITHUB_ENV
+fi
+
+echo "updated_contributing_contents=$template" >> $GITHUB_ENV
