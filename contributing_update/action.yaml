@@ -21,7 +21,8 @@ runs:
         mkdir -p "${HOME}/bin"
         wget -q https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O "${HOME}/bin/yq"
         chmod +x "${HOME}/bin/yq"
-        echo "::add-path::${HOME}/bin"
+    - name: 'Set yq path in environment file'
+      run: echo "${HOME}/bin" >> $GITHUB_PATH
     - uses: 'actions/checkout@v3'
     - name: 'Make temporary dir for this job'
       shell: bash
