@@ -15,6 +15,7 @@ runs:
   using: 'composite'
   steps:
     - name: 'Install yq'
+      shell: bash
       run: |
         # Download and install yq binary
         mkdir -p "${HOME}/bin"
