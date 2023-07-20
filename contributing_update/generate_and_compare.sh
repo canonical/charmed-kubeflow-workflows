@@ -22,7 +22,7 @@ keys=$(yq eval 'keys | .[]' "$INPUTS_FILE")
 for key in $keys; do
   value=$(yq eval ".$key" "$INPUTS_FILE")
   echo "Replacing $key with $value"
-  template=${template//\{\{[[:space:]]*$key[[:space:]]*\}\}/"$value"}
+  template=$(awk -v key="$key" -v value="$value" '{ gsub("{{[[:space:]]*" key "[[:space:]]*}}", value) }1' <<< "$template")
 done
 
 # Write the modified template to the output file
