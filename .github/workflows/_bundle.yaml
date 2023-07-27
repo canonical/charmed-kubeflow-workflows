@@ -19,6 +19,7 @@ jobs:
           channel: 1.24/stable
           juju-channel: 2.9/stable
           bootstrap-options: --agent-version="2.9.43"
+          charmcraft-channel: latest/beta
           microk8s-addons: "dns storage rbac metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
       - name: Run test
