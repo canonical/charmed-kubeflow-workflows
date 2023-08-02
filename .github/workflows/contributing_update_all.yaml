@@ -46,4 +46,4 @@ jobs:
     steps:
       - run: echo "Got charm path ${{ matrix.charm-path }}"
       - name: Call Contributing Update
-        uses: ./contributing_update
+        uses: canonical/charmed-kubeflow-workflows/.github/workflows/contributing_update@KF-4012-contributing-template #Update to main when this PR is merged
