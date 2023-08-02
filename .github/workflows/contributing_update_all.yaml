@@ -9,6 +9,11 @@ on:
         required: false
         default: 'main'
         type: 'string'
+      charm_paths_action_branch:
+        description: 'The branch to use for the get-charm-paths action'
+        required: false
+        default: 'main'
+        type: 'string'
     outputs:
       charm_paths:
         description: 'Charm paths'
@@ -26,7 +31,8 @@ jobs:
           fetch-depth: 0
       - name: Get paths for all charms in this repo
         id: get-charm-paths
-        uses: canonical/kubeflow-ci/actions/get-charm-paths@main
+        uses: canonical/kubeflow-ci/actions/get-charm-paths@${{ github.event.inputs.charm_paths_action_branch }}
+
 
   echo-charm-paths:
     name: Echo charm paths emitted
