@@ -49,3 +49,4 @@ jobs:
         uses: canonical/charmed-kubeflow-workflows/contributing_update@KF-4012-contributing-template #Update to main when this PR is merged
         with:
             branch: ${{ inputs.branch }}
+            charm_path: ${{ matrix.charm-path }}
