@@ -1,5 +1,5 @@
+#Updates contributing files for all charms in calling repo as necessary, creating a PR for any that are outdated
 name: 'Update all Contributing Files'
-description: 'Updates contributing files for all charms in calling repo as necessary, creating a PR for any that are outdated'
 
 on:
   workflow_call:
