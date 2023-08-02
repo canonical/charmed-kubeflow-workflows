@@ -45,3 +45,5 @@ jobs:
         charm-path: ${{ fromJson(needs.get-charm-paths.outputs.charm_paths) }}
     steps:
       - run: echo "Got charm path ${{ matrix.charm-path }}"
+      - name: Call Contributing Update
+        uses: ./contributing_update
