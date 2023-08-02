@@ -29,9 +29,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Print charm path action branch
+        run: echo ${{ inputs.charm-paths-action-branch }}
       - name: Get paths for all charms in this repo
         id: get-charm-paths        
-        uses: canonical/kubeflow-ci/actions/get-charm-paths@add-get-charm-paths #${{ inputs.charm-paths-action-branch }}
+        uses: canonical/kubeflow-ci/actions/get-charm-paths@add-get-charm-paths
 
   echo-charm-paths:
     name: Echo charm paths emitted
