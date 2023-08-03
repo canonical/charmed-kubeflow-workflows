@@ -44,9 +44,8 @@ runs:
       id: gen-branch-suffix
       shell: bash
       run: |
-        transformed_path=$(echo "${{ inputs.charm_path }}" | sed 's/[^a-zA-Z]/-/g')
-        epoch_seconds=$(date +%s)
-        echo "suffix=${transformed_path}-${epoch_seconds}" >> $GITHUB_OUTPUT
+        transformed_path=$(echo "${{ inputs.charm_path }}" | sed 's/[^a-zA-Z]/-/g' | sed 's/-$//')
+        echo "suffix=${transformed_path}" >> $GITHUB_OUTPUT
     - name: Move and Cleanup
       shell: bash
       run: |
