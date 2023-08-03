@@ -21,8 +21,8 @@ if [ -f "$CHARM_PATH/contributing.md" ]; then
 else
   echo "Error: contributing.md not found in the charm path: $CHARM_PATH"
   echo "Current working directory: $(pwd)"
-  echo "Files in current working directory: "
-  ls
+  echo "Files in charm path: "
+  ls $CHARM_PATH
   exit 1
 fi
 
