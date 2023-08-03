@@ -51,7 +51,7 @@ runs:
       if: steps.generate-and-compare.outputs.comparison_result == '1'
       uses: peter-evans/create-pull-request@v5
       with:
-        title: "(Automated) Update Contributing.md"
+        title: "(Automated) Update Contributing.md (${{ steps.gen-branch-suffix.outputs.suffix }})"
         body: "Updated contributing.md file based on auto-generate file from template"
         commit-message: "Updated contributing.md file based on auto-generate file from template"
         signoff: false
