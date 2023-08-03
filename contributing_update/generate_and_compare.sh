@@ -40,8 +40,8 @@ for key in $keys; do
       value="\n\n${value}"
   fi
 
-  echo "Replacing $key with $value"
-  template=$(awk -v key="$key" -v value="$value" '{ gsub("{{[[:space:]]*" key "[[:space:]]*}}", value) }1' <<< "$template")
+  echo "Replacing $key with $value"  
+  template=$(perl -pe "s|{{\s*$key\s*}}|$value|g" <<< "$template")
 done
 
 # Write the modified template to the output file
