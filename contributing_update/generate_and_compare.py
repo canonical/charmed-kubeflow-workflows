@@ -2,6 +2,7 @@ import sys
 import os
 import re
 import yaml
+import difflib
 
 def set_github_output(name, value):
     os.system(f'echo "{name}={value}" >> $GITHUB_OUTPUT')
@@ -73,13 +74,22 @@ def main():
         existing_contributing_contents = ""
         print("No existing contributing file found")
 
-    # Compare the substituted template with the existing contributing contents
-    if template == existing_contributing_contents:
-        print("Contributing file is up to date. No need for a PR.")
-        set_github_output("comparison_result", "0")
-    else:
+    # Generate a diff between the template and existing contents
+    diff = list(difflib.ndiff(template.splitlines(), existing_contributing_contents.splitlines()))
+
+    # Check if there are any differences
+    differences = [line for line in diff if line.startswith('+ ') or line.startswith('- ')]
+
+    if differences:
         print("Contributing file does not exist or is outdated - a PR is needed.")
         set_github_output("comparison_result", "1")
+        
+        print("Diff of contributing file vs. generated file: ")
+        for line in diff:
+            print(line)
+    else:
+        print("Contributing file is up to date. No need for a PR.")
+        set_github_output("comparison_result", "0")
 
 if __name__ == "__main__":
     main()
