@@ -35,18 +35,10 @@ def main():
         inputs_data = yaml.safe_load(f)
         keys = list(inputs_data.keys())
 
-    # Section placeholders are special, and will get two newlines prepended to them if non-empty
-    section_placeholders = ["charm_specific_text"]
-
     # Iterate over the keys and extract the values using yq
     for key in keys:
         value = inputs_data[key]
         print(f"Replacing {key} with {value}")
-
-        # If the key is in section_placeholders array and the value non-empty, prepend two newlines
-        if contains_element(key, section_placeholders) and value:
-            value = "\n\n" + value
-
         template = template.replace(f"{{{{ {key} }}}}", value)
 
     # Write the modified template to the output file
