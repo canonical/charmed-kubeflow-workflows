@@ -50,4 +50,4 @@ runs:
         commit-message: "Updated contributing.md file based on auto-generate file from template"
         signoff: false
         delete-branch: true
-        branch: "automated-update-contributing"      
+        branch: "automated-update-contributing-${{ inputs.charm_path }}"      
