@@ -46,6 +46,11 @@ runs:
       run: |
         transformed_path=$(echo "${{ inputs.charm_path }}" | sed 's/[^a-zA-Z]/-/g')
         echo "suffix=$transformed_path" >> $GITHUB_OUTPUT
+    - name: Move and Cleanup
+      shell: bash
+      run: |
+        mv -f "${{ inputs.contributing_update_dir }}/contributing.md" "${{ inputs.charm_path }}/contributing.md"
+        rm -rf "${{ inputs.contributing_update_dir }}"
     - name: 'Open PR'
       id: create-pull-request
       if: steps.generate-and-compare.outputs.comparison_result == '1'
