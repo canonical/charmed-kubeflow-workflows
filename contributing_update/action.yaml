@@ -40,6 +40,11 @@ runs:
       run: |
         echo "Comparison result is: ${{ steps.generate-and-compare.outputs.comparison_result }}"
       shell: bash
+    - name: Generate branch suffix
+      id: gen-branch-suffix
+      run: |
+        transformed_path=$(echo "${{ inputs.charm_path }}" | sed 's/[^a-zA-Z]/-/g')
+        echo "suffix=$transformed_path" >> $GITHUB_OUTPUT
     - name: 'Open PR'
       id: create-pull-request
       if: steps.generate-and-compare.outputs.comparison_result == '1'
@@ -50,4 +55,4 @@ runs:
         commit-message: "Updated contributing.md file based on auto-generate file from template"
         signoff: false
         delete-branch: true
-        branch: "automated-update-contributing-${{ inputs.charm_path }}"      
+        branch: "automated-update-contributing-${{ steps.gen-branch-suffix.outputs.suffix }}"      
