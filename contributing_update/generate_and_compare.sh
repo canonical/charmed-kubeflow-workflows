@@ -76,5 +76,3 @@ else
   echo "Contributing file does not exist or is outdated - a PR is needed."
   echo "comparison_result=1" >> $GITHUB_ENV
 fi
-
-echo "updated_contributing_contents=$template" >> $GITHUB_ENV
