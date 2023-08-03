@@ -35,15 +35,15 @@ containsElement () {
 for key in $keys; do
   value=$(yq eval ".$key" "$INPUTS_FILE")
 
-  # If the key is in section_placeholders array and the value non-empty, prepend two newlines
-  if containsElement "$key" "${section_placeholders[@]}" && [ ! -z "$value" ]; then
-      value="\n\n${value}"
-  fi  
-
   echo "Replacing $key with $value"
 
   # Double the backslashes - escape them for awk
   value=$(echo "$value" | sed 's/\\/\\\\/g')
+
+  # If the key is in section_placeholders array and the value non-empty, prepend two newlines
+  if containsElement "$key" "${section_placeholders[@]}" && [ ! -z "$value" ]; then
+      value="\n\n${value}"
+  fi  
 
   template=$(awk -v key="$key" -v value="$value" '{ gsub("{{[[:space:]]*" key "[[:space:]]*}}", value) }1' <<< "$template")
 done
