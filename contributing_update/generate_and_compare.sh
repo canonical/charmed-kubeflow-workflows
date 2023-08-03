@@ -47,8 +47,7 @@ done
 # Write the modified template to the output file
 echo "$template" > "$OUTPUT_FILE"
 
-echo -e "Generated contributing file from template. Contents: \n"
-cat "$OUTPUT_FILE"
+echo "Generated contributing file from template."
 
 # Check if there are any remaining {{ }} expressions in the generated template
 remaining_expr=$(grep -o '{{[^}]*}}' <<< "$template")
@@ -62,9 +61,11 @@ fi
 # Check if contributing.md already exists in the charm path
 if [ -f "$CHARM_PATH/contributing.md" ]; then
   existingContributingContents=$(cat "$CHARM_PATH/contributing.md")
+  echo "Existing contributing file found with contents: $existingContributingContents"
 else
   # If the file is not found, we treat it the same as a file with empty contents
   existingContributingContents=""
+  echo "No existing contributing file found"
 fi
 
 # Compare the substituted template with the existing contributing contents
