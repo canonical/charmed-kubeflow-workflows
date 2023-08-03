@@ -20,6 +20,7 @@ if [ -f "$CHARM_PATH/contributing.md" ]; then
   existingContributingContents=$(cat "$CHARM_PATH/contributing.md")
 else
   echo "Error: contributing.md not found in the charm path: $CHARM_PATH"
+  echo "Current working directory: $(pwd)"
   exit 1
 fi
 
