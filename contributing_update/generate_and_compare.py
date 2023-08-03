@@ -75,7 +75,7 @@ def main():
         print("No existing contributing file found")
 
     # Generate a diff between the template and existing contents
-    diff = list(difflib.ndiff(template.splitlines(), existing_contributing_contents.splitlines()))
+    diff = list(difflib.ndiff(existing_contributing_contents.splitlines(), template.splitlines()))
 
     # Check if there are any differences
     differences = [line for line in diff if line.startswith('+ ') or line.startswith('- ')]
@@ -84,7 +84,7 @@ def main():
         print("Contributing file does not exist or is outdated - a PR is needed.")
         set_github_output("comparison_result", "1")
         
-        print("Diff of contributing file vs. generated file: ")
+        print("Proposed changes: ")
         for line in diff:
             print(line)
     else:
