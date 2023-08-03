@@ -21,9 +21,25 @@ template=$(cat "$TEMPLATE_FILE")
 # Use yq to get the list of keys from the inputs file
 keys=$(yq eval 'keys | .[]' "$INPUTS_FILE")
 
+# Section placeholders are special, and will get two newlines prepended to them if non-empty
+section_placeholders=("charm_specific_text")
+
+# Function to check if an element is present in an array
+containsElement () {
+  local element
+  for element in "${@:2}"; do [[ "$element" == "$1" ]] && return 0; done
+  return 1
+}
+
 # Iterate over the keys and extract the values using yq
 for key in $keys; do
   value=$(yq eval ".$key" "$INPUTS_FILE")
+
+  # If the key is in section_placeholders array and the value non-empty, prepend two newlines
+  if containsElement "$key" "${section_placeholders[@]}" && [ ! -z "$value" ]; then
+      value="\n\n${value}"
+  fi
+
   echo "Replacing $key with $value"
   template=$(awk -v key="$key" -v value="$value" '{ gsub("{{[[:space:]]*" key "[[:space:]]*}}", value) }1' <<< "$template")
 done
