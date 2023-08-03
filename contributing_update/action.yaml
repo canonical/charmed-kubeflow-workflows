@@ -45,7 +45,8 @@ runs:
       shell: bash
       run: |
         transformed_path=$(echo "${{ inputs.charm_path }}" | sed 's/[^a-zA-Z]/-/g')
-        echo "suffix=$transformed_path" >> $GITHUB_OUTPUT
+        epoch_seconds=$(date +%s)
+        echo "suffix=${transformed_path}-${epoch_seconds}" >> $GITHUB_OUTPUT
     - name: Move and Cleanup
       shell: bash
       run: |
