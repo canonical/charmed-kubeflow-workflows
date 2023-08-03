@@ -71,8 +71,8 @@ fi
 # Compare the substituted template with the existing contributing contents
 if [ "$template" = "$existingContributingContents" ]; then
   echo "Contributing file is up to date. No need for a PR."
-  echo "comparison_result=0" >> $GITHUB_ENV
+  echo "::set-output name=comparison_result::0"
 else
   echo "Contributing file does not exist or is outdated - a PR is needed."
-  echo "comparison_result=1" >> $GITHUB_ENV
+  echo "::set-output name=comparison_result::1"
 fi
