@@ -10,7 +10,7 @@ CHARM_PATH="$2"
 TEMPLATE_FILE="$TEMP_PATH/contributing.md.template"
 
 # Define the path to the inputs file relative to the current working directory
-INPUTS_FILE="contributing_inputs.yaml"
+INPUTS_FILE="$CHARM_PATH/contributing_inputs.yaml"
 
 # Create a new file called contributing.md in the specified directory
 OUTPUT_FILE="$TEMP_PATH/contributing.md"
