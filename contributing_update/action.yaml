@@ -33,7 +33,7 @@ runs:
         wget -O "${{ inputs.contributing_update_dir }}/contributing.md.template" "https://raw.githubusercontent.com/canonical/charmed-kubeflow-workflows/${{ inputs.branch }}/contributing_update/contributing.md.template"
     - name: 'Generate and compare'
       id: generate-and-compare
-      shell: python
+      shell: bash
       run: |
         python ${{ github.action_path }}/generate_and_compare.py "${{ inputs.contributing_update_dir }}" "${{ inputs.charm_path }}"
     - name: 'Echo comparison_result'
