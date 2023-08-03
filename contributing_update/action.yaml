@@ -37,6 +37,7 @@ runs:
       run: |
         bash ${{ github.action_path }}/generate_and_compare.sh "${{ inputs.contributing_update_dir }}" "${{ inputs.charm_path }}"
     - name: 'Echo GitHub Environment Variables'
+      shell: bash
       run: |
         printenv | grep GITHUB_
     - name: 'Open PR'
