@@ -61,7 +61,7 @@ fi
 # Check if contributing.md already exists in the charm path
 if [ -f "$CHARM_PATH/contributing.md" ]; then
   existingContributingContents=$(cat "$CHARM_PATH/contributing.md")
-  echo "Existing contributing file found with contents: $existingContributingContents"
+  echo "Existing contributing file found"
 else
   # If the file is not found, we treat it the same as a file with empty contents
   existingContributingContents=""
@@ -73,6 +73,7 @@ if [ "$template" = "$existingContributingContents" ]; then
   echo "Contributing file is up to date. No need for a PR."
   echo "comparison_result=0" >> $GITHUB_ENV
 else
+  echo "Contributing file does not exist or is outdated - a PR is needed."
   echo "comparison_result=1" >> $GITHUB_ENV
 fi
 
