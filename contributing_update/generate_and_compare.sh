@@ -15,17 +15,6 @@ INPUTS_FILE="$CHARM_PATH/contributing_inputs.yaml"
 # Create a new file called contributing.md in the specified directory
 OUTPUT_FILE="$TEMP_PATH/contributing.md"
 
-# Check if contributing.md already exists in the charm path
-if [ -f "$CHARM_PATH/contributing.md" ]; then
-  existingContributingContents=$(cat "$CHARM_PATH/contributing.md")
-else
-  echo "Error: contributing.md not found in the charm path: $CHARM_PATH"
-  echo "Current working directory: $(pwd)"
-  echo "Files in charm path: "
-  ls $CHARM_PATH
-  exit 1
-fi
-
 # Read the template file contents
 template=$(cat "$TEMPLATE_FILE")
 
@@ -52,6 +41,14 @@ if [ -n "$remaining_expr" ]; then
   echo "Error: Some {{ }} expressions are still present in the generated template:"
   echo "$remaining_expr"
   exit 1
+fi
+
+# Check if contributing.md already exists in the charm path
+if [ -f "$CHARM_PATH/contributing.md" ]; then
+  existingContributingContents=$(cat "$CHARM_PATH/contributing.md")
+else
+  # If the file is not found, we treat it the same as a file with empty contents
+  existingContributingContents=""
 fi
 
 # Compare the substituted template with the existing contributing contents
