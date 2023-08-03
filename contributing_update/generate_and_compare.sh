@@ -38,10 +38,14 @@ for key in $keys; do
   # If the key is in section_placeholders array and the value non-empty, prepend two newlines
   if containsElement "$key" "${section_placeholders[@]}" && [ ! -z "$value" ]; then
       value="\n\n${value}"
-  fi
+  fi  
 
-  echo "Replacing $key with $value"  
-  template=$(perl -pe "s|{{\s*$key\s*}}|$value|g" <<< "$template")
+  echo "Replacing $key with $value"
+
+  # Double the backslashes - escape them for awk
+  value=$(echo "$value" | sed 's/\\/\\\\/g')
+
+  template=$(awk -v key="$key" -v value="$value" '{ gsub("{{[[:space:]]*" key "[[:space:]]*}}", value) }1' <<< "$template")
 done
 
 # Write the modified template to the output file
