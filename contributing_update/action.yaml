@@ -36,10 +36,10 @@ runs:
       shell: bash
       run: |
         bash ${{ github.action_path }}/generate_and_compare.sh "${{ inputs.contributing_update_dir }}" "${{ inputs.charm_path }}"
-    - name: 'Echo GitHub Environment Variables'
-      shell: bash
+    - name: 'Echo comparison_result'
       run: |
-        printenv | grep GITHUB_
+        echo "Comparison result is: ${{ steps.generate-and-compare.outputs.comparison_result }}"
+      shell: bash
     - name: 'Open PR'
       id: create-pull-request
       if: steps.generate-and-compare.outputs.comparison_result == '1'
