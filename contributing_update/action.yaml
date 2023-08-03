@@ -42,6 +42,7 @@ runs:
       shell: bash
     - name: Generate branch suffix
       id: gen-branch-suffix
+      shell: bash
       run: |
         transformed_path=$(echo "${{ inputs.charm_path }}" | sed 's/[^a-zA-Z]/-/g')
         echo "suffix=$transformed_path" >> $GITHUB_OUTPUT
