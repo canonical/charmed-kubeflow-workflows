@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
       - name: Get paths for all charms in this repo
         id: get-charm-paths        
-        uses: canonical/kubeflow-ci/actions/get-charm-paths@add-get-charm-paths #Update to main when add-get-charm-paths is merged
+        uses: canonical/kubeflow-ci/actions/get-charm-paths@add-get-charm-paths #Update to main when PR is merged
 
   echo-charm-paths:
     name: Echo charm paths emitted
@@ -46,7 +46,7 @@ jobs:
     steps:
       - run: echo "Got charm path ${{ matrix.charm-path }}"
       - name: Call Contributing Update
-        uses: canonical/charmed-kubeflow-workflows/contributing_update@KF-4012-contributing-template #Update to main when this PR is merged
+        uses: canonical/kubeflow-ci/actions/contributing-update@KF-4012-contributing-update #Update to main when PR is merged
         with:
             branch: ${{ inputs.branch }}
             charm_path: ${{ matrix.charm-path }}
