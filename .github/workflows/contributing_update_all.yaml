@@ -46,7 +46,7 @@ jobs:
     steps:
       - run: echo "Got charm path ${{ matrix.charm-path }}"
       - name: Call Contributing Update
-        uses: canonical/kubeflow-ci/actions/contributing-update@KF-4012-contributing-update #Update to main when PR is merged
+        uses: canonical/kubeflow-ci/actions/contributing-update@main
         with:
             branch: ${{ inputs.branch }}
             charm_path: ${{ matrix.charm-path }}
