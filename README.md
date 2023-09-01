@@ -11,4 +11,3 @@ The [contributing_update_all workflow](/.github/workflows/contributing_update_al
 
 Repositories using this workflow shoudl call it on a regular basis, e.g. weekly, to ensure that changes to the base contributing template are reflected in those repositories.
 
-
