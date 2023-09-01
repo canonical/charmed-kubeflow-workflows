@@ -2,7 +2,7 @@
 
 A repository of reusable, importable, Github Workflows used by the [Charmed Kubeflow](https://charmed-kubeflow.io/) product in their repositories.
 
-# Contributing Update All
+## Contributing Update All
 
 The [contributing_update_all workflow](/.github/workflows/contributing_update_all.yaml) is a reusable workflow that can be called from any a repository containing charms. It works as follows:
 1. Charms will be detected by the [Get Charm Paths](/.github/workflows/get-charm-paths.sh) workflow.
