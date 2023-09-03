@@ -27,6 +27,7 @@ jobs:
       - name: Build and test ROCK
         run: |
           cd ${{ inputs.rock_dir }}
+          rockcraft pack
           tox -e unit
           tox -e integration
       - name: Publish ROCK
