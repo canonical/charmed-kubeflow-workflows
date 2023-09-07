@@ -33,5 +33,5 @@ jobs:
         if: always()
 
       - name: Collect prometheus
-        run: microk8s.kubectl get pod/prometheus-0 -o=jsonpath='{.status}' --all-namespaces
+        run: microk8s.kubectl get pod prometheus-0 -o=jsonpath='{.status}' -n cos-test
         if: always()
