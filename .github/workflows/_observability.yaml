@@ -24,8 +24,8 @@ jobs:
 
       - name: Run integration tests
         run: |
-          juju add-model cos-test
-          tox -vve cos-integration -- --model cos-test
+            sg microk8s -c "juju add-model cos-test"
+            sg microk8s -c "tox -vve cos-integration -- --model cos-test --destructive-mode"
 
       - name: Collect charm debug artifacts
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
