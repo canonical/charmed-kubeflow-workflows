@@ -1,5 +1,4 @@
 name: 'Build and publish rock'
-description: 'Builds and publishes specified ROCK'
 on:
   workflow_call:
     inputs:
