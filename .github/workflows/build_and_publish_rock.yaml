@@ -36,8 +36,8 @@ on:
       DOCKER_PASSWORD:
         required: true
 
-runs:
-  using: 'composite'
+jobs:
+  build-and-publish-rock:
   steps:
     # Ideally we'd use self-hosted runners, but this effort is still not stable.
     # This action will remove unused software (dotnet, haskell, android libs, codeql,
