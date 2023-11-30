@@ -17,23 +17,6 @@ on:
         required: true
       DOCKER_PASSWORD:
         required: true
-  workflow_dispatch:
-    inputs:
-      rockcraft-dir:
-        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
-        required: true
-        default: '.'
-        type: string
-      source-branch:
-        description: Github branch from this repo to publish.  If blank, will use the default branch
-        default: ''
-        required: false
-        type: string
-    secrets:
-      DOCKER_USERNAME:
-        required: true
-      DOCKER_PASSWORD:
-        required: true
 
 jobs:
   build-and-publish-rock:
