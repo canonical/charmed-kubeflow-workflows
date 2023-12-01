@@ -1,4 +1,4 @@
-name: CI
+name: Build, scan, and test ROCK
 
 on:
   workflow_call:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-scan-test-rocks:
-    name: Build, scan, and test rock
+    name: Build, scan, and test ${{ inputs.rock-dir}}
     runs-on: ubuntu-22.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
@@ -45,6 +45,7 @@ jobs:
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
           sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
+          echo "Copied $ROCK:$VERSION to Docker"
           echo "image=$ROCK:$VERSION" >> "$GITHUB_OUTPUT"
           docker login
         working-directory: ${{ inputs.rock-dir }}
