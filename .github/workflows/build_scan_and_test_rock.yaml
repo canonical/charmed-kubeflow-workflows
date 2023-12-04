@@ -7,13 +7,13 @@ on:
         description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
         required: true
         type: string
-      microk8s-version:
-        description: "Channel to pull microk8s from e.g. 1.26/stable"
+      microk8s-channel:
+        description: "Microk8s channel e.g. 1.26/stable"
         required: true
         default: "1.26/stable"
         type: string
-      juju-version:
-        description: "Channel to pull juju from e.g. 3.1/stable"
+      juju-channel:
+        description: "Juju channel e.g. 3.1/stable"
         required: true
         default: "3.1/stable"
         type: string
@@ -78,10 +78,10 @@ jobs:
         uses: charmed-kubernetes/actions-operator@main
         with:
             provider: microk8s
-            channel: ${{ inputs.microk8s-version }}
+            channel: ${{ inputs.microk8s-channel }}
             charmcraft-channel: latest/candidate
             microk8s-addons: "dns hostpath-storage rbac ingress metallb:10.64.140.43-10.64.140.49"
-            juju-channel: ${{ inputs.juju-version }}
+            juju-channel: ${{ inputs.juju-channel }}
 
       - name: Sanity tests
         run: |
