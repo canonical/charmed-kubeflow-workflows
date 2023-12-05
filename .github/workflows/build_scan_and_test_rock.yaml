@@ -74,6 +74,11 @@ jobs:
           output: '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
           ignore-unfixed: true
 
+      - name: Setup tmate session
+        if: always()
+        uses: mxschmitt/action-tmate@v3
+        timeout-minutes: 60
+
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
         with:
