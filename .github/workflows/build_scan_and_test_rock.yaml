@@ -66,7 +66,7 @@ jobs:
 
       - name: Scan for vulnerabilities
         id: scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.12.0
         with:
           scan-type: 'image'
           image-ref: '${{ steps.rock_in_docker.outputs.image }}'
