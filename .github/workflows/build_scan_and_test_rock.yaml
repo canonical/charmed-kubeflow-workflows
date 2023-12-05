@@ -69,6 +69,7 @@ jobs:
         id: scan
         uses: aquasecurity/trivy-action@master
         with:
+          scan-type: fs
           input: "./${{ inputs.rock-dir }}/${{ steps.rock_in_docker.outputs.image }}.tar"
           format: 'json'
           output: '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
