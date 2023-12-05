@@ -82,7 +82,7 @@ jobs:
 
       - name: Scan for vulnerabilities
         run: |
-          trivy image ${{ steps.rock_in_docker.outputs.image }} --format json --ignore-unfixed --output report.json '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
+          trivy image ${{ steps.rock_in_docker.outputs.image }} --format json --ignore-unfixed --output '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
 
       - name: Setup tmate session
         if: always()
