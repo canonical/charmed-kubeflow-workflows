@@ -1,10 +1,10 @@
 # Meant to be copied over as is in all ROCKs repositories with
-# the name `on_pull_request.yaml` after uncommenting the `on:` 
-# fields and adjusting microk8s and juju channels.
+# the name `on_pull_request.yaml` after adjusting microk8s and 
+# juju channels.
 name: On Pull Request
 
-# on:
-#   pull_request:
+on:
+  pull_request:
 
 jobs:
 
