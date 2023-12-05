@@ -54,6 +54,7 @@ jobs:
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
           sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
+          docker save $ROCK:$VERSION > $ROCK:$VERSION.tar
           echo "Copied $ROCK:$VERSION to Docker"
           echo "image=$ROCK:$VERSION" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
@@ -66,10 +67,9 @@ jobs:
 
       - name: Scan for vulnerabilities
         id: scan
-        uses: aquasecurity/trivy-action@0.12.0
+        uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'image'
-          image-ref: '${{ steps.rock_in_docker.outputs.image }}'
+          input: "./${{ inputs.rock-dir }}/${{ steps.rock_in_docker.outputs.image }}.tar"
           format: 'json'
           output: '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
           ignore-unfixed: true
