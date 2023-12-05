@@ -78,8 +78,8 @@ jobs:
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'image'
-          image-ref: '${{ steps.rock_in_docker.outputs.image }}'
-          format: 'json'
+          image-ref: ${{ steps.rock_in_docker.outputs.image }}
+          format: 'cosign-vuln'
           output: '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
           ignore-unfixed: true
 
