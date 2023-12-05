@@ -53,10 +53,18 @@ jobs:
           VERSION=$(yq eval ".version" rockcraft.yaml)
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
-          sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
-          docker save $ROCK:$VERSION > $ROCK:$VERSION.tar
+          # IMG=$ROCK:$VERSION
+          SKOPEO_IMAGE="quay.io/skopeo/stable:v1.13"
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            -v $PWD:/workdir -w /workdir \
+            $SKOPEO_IMAGE \
+            copy oci-archive:$ROCK.rock \
+            docker-daemon:$ROCK:$VERSION
+          # sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
+          # docker save $ROCK:$VERSION > $ROCK:$VERSION.tar
           echo "Copied $ROCK:$VERSION to Docker"
           echo "image=$ROCK:$VERSION" >> "$GITHUB_OUTPUT"
+          docker images
         working-directory: ${{ inputs.rock-dir }}
 
       - name: Log in to Docker Hub
@@ -65,24 +73,15 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Install Trivy manually
-          # id: scan
-          # uses: aquasecurity/trivy-action@master
-          # with:
-          #   input: "./${{ inputs.rock-dir }}/${{ steps.rock_in_docker.outputs.image }}.tar"
-          #   format: 'json'
-          #   output: '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
-          #   ignore-unfixed: true
-        run: |
-          sudo apt-get install wget apt-transport-https gnupg lsb-release
-          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | sudo tee /usr/share/keyrings/trivy.gpg > /dev/null
-          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
-          sudo apt-get update
-          sudo apt-get install trivy
-
       - name: Scan for vulnerabilities
-        run: |
-          trivy image ${{ steps.rock_in_docker.outputs.image }} --format json --ignore-unfixed --output '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
+        id: scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: '${{ steps.rock_in_docker.outputs.image }}'
+          format: 'json'
+          output: '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
+          ignore-unfixed: true
 
       - name: Setup tmate session
         if: always()
