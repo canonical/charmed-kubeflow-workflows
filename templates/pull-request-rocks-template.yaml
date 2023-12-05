@@ -1,0 +1,17 @@
+# Meant to be copied over as is in all ROCKs repositories with
+# the name `on_pull_request.yaml` after adjusting microk8s and 
+# juju channels.
+name: On Pull Request
+
+on:
+  pull_request:
+
+jobs:
+
+  get-rocks-modified-and-build-scan-test:
+    name: Get ROCKs modified and build-scan-test them
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/get_rocks_modified_and_build_scan_test.yaml@main
+    secrets: inherit
+    with:
+      microk8s-channel: 1.24/stable
+      juju-channel: 2.9/stable

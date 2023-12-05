@@ -1,0 +1,34 @@
+name: Get ROCKs modified and build-scan-test them
+
+on:
+  workflow_call:
+    inputs:
+      microk8s-channel:
+        description: "Microk8s channel e.g. 1.26/stable"
+        required: true
+        default: "1.26/stable"
+        type: string
+      juju-channel:
+        description: "Juju channel e.g. 3.1/stable"
+        required: true
+        default: "3.1/stable"
+        type: string
+
+jobs:
+  get-rock-paths-modified:
+    name: Get rockcraft paths modified
+    uses: ./.github/workflows/get_rocks_modified.yaml
+
+  build-scan-test-rock:
+    name: Build, scan and test
+    needs: get-rock-paths-modified
+    strategy:
+      fail-fast: false
+      matrix:
+        rock-dir: ${{ fromJson(needs.get-rock-paths-modified.outputs.paths) }}
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/build_scan_and_test_rock.yaml@main
+    secrets: inherit
+    with:
+      rock-dir: ${{ matrix.rock-dir }}
+      microk8s-channel: ${{ inputs.microk8s-channel }}
+      juju-channel: ${{ inputs.juju-channel }}
