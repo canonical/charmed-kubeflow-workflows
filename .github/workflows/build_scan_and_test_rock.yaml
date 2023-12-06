@@ -35,7 +35,6 @@ jobs:
           remove-haskell: 'true'
           remove-android: 'true'
           remove-codeql: 'true'
-          remove-docker-images: 'true'
 
       - name: Check out code
         uses: actions/checkout@v3
