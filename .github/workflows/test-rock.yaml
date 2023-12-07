@@ -1,0 +1,66 @@
+name: Integration tests
+
+on:
+  workflow_call:
+    inputs:
+      rock-dir:
+        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
+        required: true
+        type: string
+      rock-filename:
+          description: "Filename of .rock file produced"
+          required: true
+          type: string
+      microk8s-channel:
+        description: "Microk8s channel e.g. 1.26/stable"
+        required: true
+        default: "1.26/stable"
+        type: string
+      juju-channel:
+        description: "Juju channel e.g. 3.1/stable"
+        required: true
+        default: "3.1/stable"
+        type: string
+
+jobs:
+  tests:
+    name: Test ${{ inputs.rock-dir }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.rock-dir }}
+          path: ${{ inputs.rock-dir }}/
+
+      - name: Export ROCK to Docker
+        id: rock_in_docker
+        run: |
+          NAME=$(yq eval ".name" rockcraft.yaml)
+          VERSION=$(yq eval ".version" rockcraft.yaml)
+          DOCKER_TAGGED_IMAGE=$NAME:$VERSION
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:DOCKER_TAGGED_IMAGE
+          echo "image=$DOCKER_TAGGED_IMAGE" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ inputs.rock-dir }}
+
+
+      - name: Setup operator environment
+        uses: charmed-kubernetes/actions-operator@main
+        with:
+            provider: microk8s
+            channel: ${{ inputs.microk8s-channel }}
+            charmcraft-channel: latest/candidate
+            microk8s-addons: "dns hostpath-storage rbac ingress metallb:10.64.140.43-10.64.140.49"
+            juju-channel: ${{ inputs.juju-channel }}
+
+      - name: Sanity tests
+        run: |
+          tox -e sanity
+        working-directory: ./${{ inputs.rock-dir }}
+
+      - name: Integration tests
+        run: |
+          tox -e integration
+        working-directory: ./${{ inputs.rock-dir }}
