@@ -13,11 +13,15 @@ on:
         required: true
         default: "3.1/stable"
         type: string
+      publish:
+        description: "Define if workflow should also publish the charm"
+        default: false
+        type: boolean
 
 jobs:
   get-rock-paths-modified:
     name: Get rockcraft paths modified
-    uses: ./.github/workflows/get_rocks_modified.yaml
+    uses: ./.github/workflows/get-rocks-modified.yaml
 
   build-scan-test-rock:
     name: Build, scan and test
@@ -26,9 +30,10 @@ jobs:
       fail-fast: false
       matrix:
         rock-dir: ${{ fromJson(needs.get-rock-paths-modified.outputs.paths) }}
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/build_scan_and_test_rock.yaml@main
+    uses: ./.github/workflows/build-scan-and-test-rock.yaml
     secrets: inherit
     with:
       rock-dir: ${{ matrix.rock-dir }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
+      publish: ${{ inputs.publish }}
