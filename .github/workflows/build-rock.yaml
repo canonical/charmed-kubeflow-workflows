@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      rock-dir:
+        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
+        required: true
+        type: string
+    outputs:
+        rock-filename:
+          description: "Filename of .rock file produced"
+          value: ${{ jobs.build-rock.outputs.rock-filename}}
+
+jobs:
+  build-rock:
+    name: Build ${{ inputs.rock-dir }}
+    runs-on: ubuntu-22.04
+    outputs:
+      rock-filename: ${{ steps.rockcraft.outputs.rock }}
+    steps:
+      # Ideally we'd use self-hosted runners, but this effort is still not stable.
+      # This action will remove unused software (dotnet, haskell, android libs, codeql,
+      # and docker images) from the GH runner, which will liberate around 60 GB of storage
+      # distributed in 40GB for root and around 20 for a mnt point.
+      - name: Maximise GH runner space
+        uses: easimon/maximize-build-space@v7
+        with:
+          root-reserve-mb: 40960
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-android: 'true'
+          remove-codeql: 'true'
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: canonical/craft-actions/rockcraft-pack@main
+        id: rockcraft
+        with:
+          path: ./${{ inputs.rock-dir }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ inputs.rock-dir }}
+          path: ${{ inputs.rock-dir }}/${{ steps.rockcraft.outputs.rock }}
