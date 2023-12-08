@@ -23,14 +23,13 @@ jobs:
     name: Get rockcraft paths modified
     uses: ./.github/workflows/get-rocks-modified.yaml
 
-  build-scan-test-rock:
-    name: Build, scan and test
+  build-scan-test-publish-rock:
     needs: get-rock-paths-modified
     strategy:
       fail-fast: false
       matrix:
         rock-dir: ${{ fromJson(needs.get-rock-paths-modified.outputs.paths) }}
-    uses: ./.github/workflows/build-scan-and-test-rock.yaml
+    uses: ./.github/workflows/build-scan-test-publish-rock.yaml
     secrets: inherit
     with:
       rock-dir: ${{ matrix.rock-dir }}
