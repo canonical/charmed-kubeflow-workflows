@@ -7,6 +7,11 @@ on:
         description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
         required: true
         type: string
+      source-branch:
+        description: Github branch to checkout. If blank, it will use default values.
+        default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
+        required: false
+        type: string
     outputs:
         rock-filename:
           description: "Filename of .rock file produced"
@@ -34,6 +39,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source-branch }}
 
       - uses: canonical/craft-actions/rockcraft-pack@main
         id: rockcraft

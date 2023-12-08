@@ -11,8 +11,12 @@ on:
         description: "Filename of .rock file produced"
         required: true
         type: string
+      source-branch:
+        description: Github branch to checkout. If blank, it will use default values.
+        default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
+        required: false
+        type: string
 jobs:
-
   scan:
     name: Scan ${{ inputs.rock-dir }}
     runs-on: ubuntu-22.04
@@ -32,6 +36,8 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source-branch }}
 
       - uses: actions/download-artifact@v3
         with:
