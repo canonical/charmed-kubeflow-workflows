@@ -40,9 +40,9 @@ jobs:
         run: |
           NAME=$(yq eval ".name" rockcraft.yaml)
           VERSION=$(yq eval ".version" rockcraft.yaml)
-          DOCKER_TAGGED_IMAGE=$NAME:$VERSION
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:DOCKER_TAGGED_IMAGE
-          echo "image=$DOCKER_TAGGED_IMAGE" >> "$GITHUB_OUTPUT"
+          DOCKER_IMAGE=$NAME:$VERSION
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:DOCKER_IMAGE
+          echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
 
 
