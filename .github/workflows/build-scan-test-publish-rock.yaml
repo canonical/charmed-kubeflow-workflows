@@ -33,6 +33,7 @@ jobs:
   scan:
     needs: build
     uses: ./.github/workflows/scan-rock.yaml
+    secrets: inherit
     with:
       rock-dir: ${{ inputs.rock-dir }}
       path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}
