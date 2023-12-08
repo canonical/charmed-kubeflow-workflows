@@ -7,8 +7,8 @@ on:
         description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
         required: true
         type: string
-      rock-filename:
-        description: "Filename of .rock file produced"
+      path-to-rock-file:
+        description: "Path to .rock file produced"
         required: true
         type: string
       source-branch:
@@ -45,7 +45,8 @@ jobs:
           COMMIT_ID=$(git rev-parse --short HEAD)
           REGISTRY="charmedkubeflow"
           DOCKER_IMAGE=$NAME:$VERSION-$COMMIT_ID
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:$REGISTRY/$DOCKER_IMAGE
+          ROCK=$(echo ${{ inputs.path-to-rock-file }} | sed 's:.*/::')
+          sudo skopeo --insecure-policy copy oci-archive:$ROCK docker-daemon:$REGISTRY/$DOCKER_IMAGE
 
           # Check if image already exists on dockerhub and publish
           # Returns 0 if exists, 1 if it doesn't

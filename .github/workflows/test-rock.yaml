@@ -7,10 +7,10 @@ on:
         description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
         required: true
         type: string
-      rock-filename:
-          description: "Filename of .rock file produced"
-          required: true
-          type: string
+      path-to-rock-file:
+        description: "Path to .rock file produced"
+        required: true
+        type: string
       microk8s-channel:
         description: "Microk8s channel e.g. 1.26/stable"
         required: true
@@ -47,7 +47,8 @@ jobs:
           NAME=$(yq eval ".name" rockcraft.yaml)
           VERSION=$(yq eval ".version" rockcraft.yaml)
           DOCKER_IMAGE=$NAME:$VERSION
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:DOCKER_IMAGE
+          ROCK=$(echo ${{ inputs.path-to-rock-file }} | sed 's:.*/::')
+          sudo skopeo --insecure-policy copy oci-archive:$ROCK docker-daemon:$DOCKER_IMAGE
           echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
 

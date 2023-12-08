@@ -32,4 +32,4 @@ jobs:
     secrets: inherit
     with:
       rock-dir: ${{ inputs.rock-dir }}
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}

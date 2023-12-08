@@ -13,16 +13,16 @@ on:
         required: false
         type: string
     outputs:
-        rock-filename:
-          description: "Filename of .rock file produced"
-          value: ${{ jobs.build-rock.outputs.rock-filename}}
+        path-to-rock-file:
+          description: "Path to .rock file produced"
+          value: ${{ jobs.build-rock.outputs.path-to-rock-file}}
 
 jobs:
   build-rock:
     name: Build ${{ inputs.rock-dir }}
     runs-on: ubuntu-22.04
     outputs:
-      rock-filename: ${{ steps.rockcraft.outputs.rock }}
+      path-to-rock-file: ${{ steps.rockcraft.outputs.rock }}
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
@@ -50,4 +50,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.rock-dir }}
-          path: ${{ inputs.rock-dir }}/${{ steps.rockcraft.outputs.rock }}
+          path: ${{ steps.rockcraft.outputs.rock }}

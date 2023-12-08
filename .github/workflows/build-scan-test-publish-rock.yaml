@@ -35,14 +35,14 @@ jobs:
     uses: ./.github/workflows/scan-rock.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}
 
   integration-tests:
     needs: build
     uses: ./.github/workflows/test-rock.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
 
@@ -53,4 +53,4 @@ jobs:
     secrets: inherit
     with:
       rock-dir: ${{ inputs.rock-dir }}
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}
