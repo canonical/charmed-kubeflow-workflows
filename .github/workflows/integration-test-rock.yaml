@@ -83,6 +83,10 @@ jobs:
 
       - name: Integration tests
         run: |
-          if [[ ${{ inputs.python-version }} != '' ]]; then VERSION=${{ inputs.python-version }}; else VERSION=3.10; fi
-          python$VERSION -m tox -e integration
+          if [[ "${{ inputs.python-version }}" ]]
+          then
+            python${{ inputs.python-version }} -m tox -e integration
+          else
+            tox -e integration
+          fi
         working-directory: ./${{ inputs.tests-dir }}
