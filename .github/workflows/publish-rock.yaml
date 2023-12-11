@@ -57,7 +57,7 @@ jobs:
           # Check if image already exists on dockerhub and publish
           # Returns 0 if exists, 1 if it doesn't
           IMAGE_EXISTS=$(docker manifest inspect ${{ inputs.registry }}/${{ steps.rock_in_docker.outputs.image }} > /dev/null ; echo $?)
-          if [[ $IMAGE_EXISTS = 0 ]]
+          if [[ "$IMAGE_EXISTS" == "0" ]]
           then
             echo "Image ${{ steps.rock_in_docker.outputs.image }} already exists in dockerhub registry ${{ inputs.registry }}"
             exit 1
