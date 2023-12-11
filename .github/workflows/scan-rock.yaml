@@ -3,28 +3,20 @@ name: Scan
 on:
   workflow_call:
     inputs:
-      rock-dir:
-        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
+      rock-filename:
+        description: "Name of the .rock file inside the artifact to be scanned"
         required: true
-        type: string
-      path-to-rock-file:
-        description: "Path to .rock file produced"
-        required: true
-        type: string
-      source-branch:
-        description: Github branch to checkout. If blank, it will use default values.
-        default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
-        required: false
         type: string
 jobs:
   scan:
-    name: Scan ${{ inputs.rock-dir }}
+    name: Scan ${{ inputs.rock-filename }}
     runs-on: ubuntu-22.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
       # and docker images) from the GH runner, which will liberate around 60 GB of storage
       # distributed in 40GB for root and around 20 for a mnt point.
+      # We need it to avoid cases where scanning fails due to "no space left on device". 
       - name: Maximise GH runner space
         uses: easimon/maximize-build-space@v7
         with:
@@ -34,26 +26,15 @@ jobs:
           remove-android: 'true'
           remove-codeql: 'true'
 
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.source-branch }}
-
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.rock-dir }}
-          path: ${{ inputs.rock-dir }}/
+          name: ${{ inputs.rock-filename }}
 
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
-          NAME=$(yq eval ".name" rockcraft.yaml)
-          VERSION=$(yq eval ".version" rockcraft.yaml)
-          DOCKER_IMAGE=$NAME:$VERSION
-          ROCK=$(echo ${{ inputs.path-to-rock-file }} | sed 's:.*/::')
-          sudo skopeo --insecure-policy copy oci-archive:$ROCK docker-daemon:$DOCKER_IMAGE
-          echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
-        working-directory: ${{ inputs.rock-dir }}
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag
+          echo "image=rock:tag" >> "$GITHUB_OUTPUT"
 
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
@@ -68,14 +49,14 @@ jobs:
           scan-type: 'image'
           image-ref: '${{ steps.rock_in_docker.outputs.image }}'
           format: 'json'
-          output: '${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json'
+          output: 'trivy-report-${{ inputs.rock-filename }}.json'
           ignore-unfixed: true
 
       - name: Print vulnerabilities report
-        run: cat ${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json
+        run: cat trivy-report-${{ inputs.rock-filename }}.json
 
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
-          name: trivy-report-${{ inputs.rock-dir }}
-          path: ${{ inputs.rock-dir }}/trivy-report-${{ inputs.rock-dir }}.json
+          name: trivy-report-${{ inputs.rock-filename }}
+          path: trivy-report-${{ inputs.rock-filename }}.json
