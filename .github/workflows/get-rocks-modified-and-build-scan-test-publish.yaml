@@ -1,4 +1,4 @@
-name: Get ROCKs modified and build-scan-test them
+name: Get ROCKs modified and build-scan-test-publish them
 
 on:
   workflow_call:
@@ -12,6 +12,11 @@ on:
         description: "Juju channel e.g. 3.1/stable"
         required: true
         default: "3.1/stable"
+        type: string
+      python-version:
+        description: "Version of python to use for integration tests. If empty, it will use machine's default"
+        default: ""
+        required: false
         type: string
       publish:
         description: "Define if workflow should also publish the charm"
@@ -35,4 +40,5 @@ jobs:
       rock-dir: ${{ matrix.rock-dir }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
+      python-version: ${{ inputs.python-version }}
       publish: ${{ inputs.publish }}

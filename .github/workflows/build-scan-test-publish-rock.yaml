@@ -17,11 +17,15 @@ on:
         required: true
         default: "3.1/stable"
         type: string
+      python-version:
+        description: "Version of python to use for integration tests. If empty, it will use machine's default"
+        default: ""
+        required: false
+        type: string
       publish:
         description: "Define if workflow should also publish the charm"
         default: false
         type: boolean
-
 jobs:
 
   build:
@@ -55,6 +59,7 @@ jobs:
       rock-version: ${{ needs.build.outputs.rock-version }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
+      python-version: ${{ inputs.python-version }}
 
   publish:
     if: ${{ inputs.publish }} == true

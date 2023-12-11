@@ -30,10 +30,16 @@ on:
         default: "3.1/stable"
         type: string
       source-branch:
-        description: Github branch to checkout. If blank, it will use default values.
+        description: "Github branch to checkout. If blank, it will use default values."
         default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
         required: false
         type: string
+      python-version:
+        description: "Version of python to install. If empty, the workflow will not install and will use machine's default"
+        default: ""
+        required: false
+        type: string
+
 jobs:
   tests:
     name: Test ${{ inputs.rock-filename }}
@@ -47,6 +53,19 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.rock-filename }}
+
+      # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
+      # is resolved and applied to all ROCKs repositories
+      - name: Install python version from input
+        if: ${{ inputs.python-version }}
+        run: |
+          sudo add-apt-repository ppa:deadsnakes/ppa -y
+          sudo apt update -y
+          VERSION=${{ inputs.python-version }}
+          sudo apt install python${{ inputs.python-version }} python${{ inputs.python-version }}-distutils python${{ inputs.python-version }}-venv -y
+          wget https://bootstrap.pypa.io/get-pip.py
+          python${{ inputs.python-version }} get-pip.py
+          python${{ inputs.python-version }} -m pip install tox
 
       - name: Export ROCK to Docker
         id: rock_in_docker
@@ -66,5 +85,10 @@ jobs:
 
       - name: Integration tests
         run: |
-          tox -e integration
+          if [[ "${{ inputs.python-version }}" ]]
+          then
+            python${{ inputs.python-version }} -m tox -e integration
+          else
+            tox -e integration
+          fi
         working-directory: ./${{ inputs.tests-dir }}
