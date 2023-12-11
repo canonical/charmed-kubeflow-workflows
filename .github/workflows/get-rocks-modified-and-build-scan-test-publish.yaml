@@ -22,8 +22,6 @@ jobs:
   get-rock-paths-modified:
     name: Get rockcraft paths modified
     uses: ./.github/workflows/get-rocks-modified.yaml
-    permissions:
-      pull-requests: read
 
   build-scan-test-publish-rock:
     needs: get-rock-paths-modified
