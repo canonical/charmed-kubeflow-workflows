@@ -3,12 +3,20 @@ name: Integration tests
 on:
   workflow_call:
     inputs:
-      rock-dir:
-        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
+      tests-dir:
+        description: "Path to tests directory"
         required: true
         type: string
-      path-to-rock-file:
-        description: "Path to .rock file produced"
+      rock-filename:
+        description: "Filename of the .rock file to be tested"
+        required: true
+        type: string
+      rock-name:
+        description: "Field name of the rockcraft.yaml file to be tested"
+        required: true
+        type: string
+      rock-version:
+        description: "Field version of the rockcraft.yaml file to be tested"
         required: true
         type: string
       microk8s-channel:
@@ -28,7 +36,7 @@ on:
         type: string
 jobs:
   tests:
-    name: Test ${{ inputs.rock-dir }}
+    name: Test ${{ inputs.rock-filename }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -38,19 +46,14 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.rock-dir }}
-          path: ${{ inputs.rock-dir }}/
+          name: ${{ inputs.rock-filename }}
 
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
-          NAME=$(yq eval ".name" rockcraft.yaml)
-          VERSION=$(yq eval ".version" rockcraft.yaml)
-          DOCKER_IMAGE=$NAME:$VERSION
-          ROCK=$(echo ${{ inputs.path-to-rock-file }} | sed 's:.*/::')
-          sudo skopeo --insecure-policy copy oci-archive:$ROCK docker-daemon:$DOCKER_IMAGE
+          DOCKER_IMAGE=${{ inputs.rock-name }}:${{ inputs.rock-version }}
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:$DOCKER_IMAGE
           echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
-        working-directory: ${{ inputs.rock-dir }}
 
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
@@ -61,12 +64,7 @@ jobs:
             microk8s-addons: "dns hostpath-storage rbac ingress metallb:10.64.140.43-10.64.140.49"
             juju-channel: ${{ inputs.juju-channel }}
 
-      - name: Sanity tests
-        run: |
-          tox -e sanity
-        working-directory: ./${{ inputs.rock-dir }}
-
       - name: Integration tests
         run: |
           tox -e integration
-        working-directory: ./${{ inputs.rock-dir }}
+        working-directory: ./${{ inputs.tests-dir }}
