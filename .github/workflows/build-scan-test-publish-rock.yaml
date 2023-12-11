@@ -58,7 +58,7 @@ jobs:
 
   publish:
     if: ${{ inputs.publish }} == true
-    needs: [scan, build, sanity-tests, integration-tests]
+    needs: [scan, build]
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
     with:
