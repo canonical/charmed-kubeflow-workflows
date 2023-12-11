@@ -65,4 +65,4 @@ jobs:
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       rock-name: ${{ needs.build.outputs.rock-name }}
       rock-version: ${{ needs.build.outputs.rock-version }}
-      registry: charmedkubeflow
+      registry: "charmedkubeflow"
