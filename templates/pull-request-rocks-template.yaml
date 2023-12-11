@@ -11,6 +11,8 @@ jobs:
   get-rocks-modified-and-build-scan-test:
     name: Get ROCKs modified and build-scan-test them
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/get_rocks_modified_and_build_scan_test.yaml@main
+    permissions:
+      pull-requests: read
     secrets: inherit
     with:
       microk8s-channel: 1.24/stable
