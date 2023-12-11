@@ -25,7 +25,6 @@ on:
 jobs:
 
   build:
-    name: Build ${{ inputs.rock-dir }}
     uses: ./.github/workflows/build-rock.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
@@ -35,23 +34,35 @@ jobs:
     uses: ./.github/workflows/scan-rock.yaml
     secrets: inherit
     with:
-      rock-dir: ${{ inputs.rock-dir }}
-      path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
+
+  sanity-tests:
+    needs: build
+    uses: ./.github/workflows/sanity-test-rock.yaml
+    with:
+      tests-dir: ${{ inputs.rock-dir }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rock-name: ${{ needs.build.outputs.rock-name }}
+      rock-version: ${{ needs.build.outputs.rock-version }}
 
   integration-tests:
     needs: build
-    uses: ./.github/workflows/test-rock.yaml
+    uses: ./.github/workflows/integration-test-rock.yaml
     with:
-      rock-dir: ${{ inputs.rock-dir }}
-      path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}
+      tests-dir: ${{ inputs.rock-dir }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rock-name: ${{ needs.build.outputs.rock-name }}
+      rock-version: ${{ needs.build.outputs.rock-version }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
 
   publish:
     if: ${{ inputs.publish }} == true
-    needs: [scan, build, integration-tests]
+    needs: [scan, build, sanity-tests, integration-tests]
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
     with:
-      rock-dir: ${{ inputs.rock-dir }}
-      path-to-rock-file: ${{ needs.build.outputs.path-to-rock-file }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rock-name: ${{ needs.build.outputs.rock-name }}
+      rock-version: ${{ needs.build.outputs.rock-version }}
+      registry: charmedkubeflow
