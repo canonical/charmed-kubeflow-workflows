@@ -16,6 +16,15 @@ on:
         path-to-rock-file:
           description: "Path to .rock file produced"
           value: ${{ jobs.build-rock.outputs.path-to-rock-file}}
+        rock-filename:
+          description: "Filename of the .rock file produced"
+          value: ${{ jobs.build-rock.outputs.rock-filename}}
+        rock-name:
+          description: "Field name of the rockcraft.yaml file built"
+          value: ${{ jobs.build-rock.outputs.rock-name}}
+        rock-version:
+          description: "Field version of the rockcraft.yaml file built"
+          value: ${{ jobs.build-rock.outputs.rock-version}}
 
 jobs:
   build-rock:
@@ -23,6 +32,9 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       path-to-rock-file: ${{ steps.rockcraft.outputs.rock }}
+      rock-filename: ${{ steps.metadata.outputs.rock-filename }}
+      rock-name: ${{ steps.metadata.outputs.rock-name }}
+      rock-version: ${{ steps.metadata.outputs.rock-version }}
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
@@ -47,7 +59,18 @@ jobs:
         with:
           path: ./${{ inputs.rock-dir }}
 
+      - name: Output rock filename
+        id: metadata
+        run: |
+          NAME=$(yq eval ".name" rockcraft.yaml)
+          VERSION=$(yq eval ".version" rockcraft.yaml)
+          ROCK=$(echo ${{ steps.rockcraft.outputs.rock }} | sed 's:.*/::')
+          echo "rock-filename=$ROCK" >> "$GITHUB_OUTPUT"
+          echo "rock-name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "rock-version=$VERSION" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ inputs.rock-dir }}
+
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ inputs.rock-dir }}
+          name: ${{ steps.metadata.outputs.rock-filename }}
           path: ${{ steps.rockcraft.outputs.rock }}
