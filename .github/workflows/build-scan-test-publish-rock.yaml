@@ -22,10 +22,6 @@ on:
         default: ""
         required: false
         type: string
-      publish:
-        description: "Define if workflow should also publish the charm"
-        default: false
-        type: boolean
 jobs:
 
   build:
@@ -62,7 +58,7 @@ jobs:
       python-version: ${{ inputs.python-version }}
 
   publish:
-    if: ${{ inputs.publish }} == true
+    if: ${{ github.event_name }} == 'push'
     needs: [scan, build, sanity-tests, integration-tests]
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
