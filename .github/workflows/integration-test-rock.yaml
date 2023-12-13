@@ -7,10 +7,6 @@ on:
         description: "Path to tests directory"
         required: true
         type: string
-      rock-filename:
-        description: "Filename of the .rock file to be tested"
-        required: true
-        type: string
       rock-reference:
         description: "Rock reference to be used in order to copy the image to docker cache.
           It consists of <rock-name>:<rock-version>."
@@ -39,7 +35,7 @@ on:
 
 jobs:
   tests:
-    name: Test ${{ inputs.rock-filename }}
+    name: Test ${{ inputs.rock-reference }}
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
@@ -49,7 +45,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: artifact (${{ inputs.rock-filename }})
+          name: ${{ inputs.rock-reference }}
 
       # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
       # is resolved and applied to all ROCKs repositories
@@ -67,9 +63,8 @@ jobs:
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
-          DOCKER_IMAGE=${{ inputs.rock-reference }}
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:$DOCKER_IMAGE
-          echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-reference }}.rock docker-daemon:${{ inputs.rock-reference }}
+          echo "image=${{ inputs.rock-reference }}" >> "$GITHUB_OUTPUT"
 
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main

@@ -3,13 +3,14 @@ name: Scan
 on:
   workflow_call:
     inputs:
-      rock-filename:
-        description: "Name of the .rock file inside the artifact to be scanned"
+      rock-reference:
+        description: "Rock reference to be used in order to copy the image to docker cache.
+          It consists of <rock-name>:<rock-version>."
         required: true
         type: string
 jobs:
   scan:
-    name: Scan ${{ inputs.rock-filename }}
+    name: Scan ${{ inputs.rock-reference }}
     runs-on: ubuntu-22.04
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
@@ -28,12 +29,12 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: artifact (${{ inputs.rock-filename }})
+          name: ${{ inputs.rock-reference }}
 
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-reference }}.rock docker-daemon:rock:tag
           echo "image=rock:tag" >> "$GITHUB_OUTPUT"
 
       - name: Scan for vulnerabilities
@@ -43,14 +44,14 @@ jobs:
           scan-type: 'image'
           image-ref: '${{ steps.rock_in_docker.outputs.image }}'
           format: 'json'
-          output: 'trivy-report-${{ inputs.rock-filename }}.json'
+          output: 'trivy-report-${{ inputs.rock-reference }}.json'
           ignore-unfixed: true
 
       - name: Print vulnerabilities report
-        run: cat trivy-report-${{ inputs.rock-filename }}.json
+        run: cat trivy-report-${{ inputs.rock-reference }}.json
 
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
-          name: trivy-report-${{ inputs.rock-filename }}
-          path: trivy-report-${{ inputs.rock-filename }}.json
+          name: trivy-report-${{ inputs.rock-reference }}
+          path: trivy-report-${{ inputs.rock-reference }}.json

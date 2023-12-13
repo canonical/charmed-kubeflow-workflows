@@ -34,14 +34,13 @@ jobs:
     uses: ./.github/workflows/scan-rock.yaml
     secrets: inherit
     with:
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rock-reference: ${{ needs.build.outputs.rock-reference }}
 
   sanity-tests:
     needs: build
     uses: ./.github/workflows/sanity-test-rock.yaml
     with:
       tests-dir: ${{ inputs.rock-dir }}
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
 
   integration-tests:
@@ -49,7 +48,6 @@ jobs:
     uses: ./.github/workflows/integration-test-rock.yaml
     with:
       tests-dir: ${{ inputs.rock-dir }}
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
@@ -61,6 +59,5 @@ jobs:
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
     with:
-      rock-filename: ${{ needs.build.outputs.rock-filename }}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
       registry: "charmedkubeflow"

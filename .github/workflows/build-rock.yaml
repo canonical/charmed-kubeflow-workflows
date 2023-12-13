@@ -16,9 +16,6 @@ on:
         path-to-rock-file:
           description: "Path to .rock file produced"
           value: ${{ jobs.build-rock.outputs.path-to-rock-file}}
-        rock-filename:
-          description: "Filename of the .rock file produced"
-          value: ${{ jobs.build-rock.outputs.rock-filename}}
         rock-reference:
           description: "Rock reference to be used in order to copy the image to docker cache.
             It consists of <rock-name>:<rock-version>."
@@ -30,7 +27,6 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       path-to-rock-file: ${{ steps.rockcraft.outputs.rock }}
-      rock-filename: ${{ steps.metadata.outputs.rock-filename }}
       rock-reference: ${{ steps.metadata.outputs.rock-reference }}
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
@@ -62,11 +58,12 @@ jobs:
           NAME=$(yq eval ".name" rockcraft.yaml)
           VERSION=$(yq eval ".version" rockcraft.yaml)
           ROCK=$(echo ${{ steps.rockcraft.outputs.rock }} | sed 's:.*/::')
-          echo "rock-filename=$ROCK" >> "$GITHUB_OUTPUT"
-          echo "rock-reference=$NAME:$VERSION" >> "$GITHUB_OUTPUT"
+          ROCK_REFERENCE=$NAME:$VERSION
+          mv $ROCK $ROCK_REFERENCE.rock
+          echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
 
       - uses: actions/upload-artifact@v3
         with:
-          name: artifact (${{ steps.metadata.outputs.rock-filename }})
-          path: ${{ steps.rockcraft.outputs.rock }}
+          name: ${{ steps.metadata.outputs.rock-reference }}
+          path: ${{ inputs.rock-dir }}/${{ steps.metadata.outputs.rock-reference }}

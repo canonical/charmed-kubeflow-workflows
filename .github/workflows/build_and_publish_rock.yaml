@@ -31,6 +31,5 @@ jobs:
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
     with:
-        rock-filename: ${{ needs.build.outputs.rock-filename }}
         rock-reference: ${{ needs.build.outputs.rock-reference }}
         registry: "charmedkubeflow"
