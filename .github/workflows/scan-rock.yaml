@@ -28,7 +28,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.rock-filename }}
+          name: artifact (${{ inputs.rock-filename }})
 
       - name: Export ROCK to Docker
         id: rock_in_docker

@@ -72,5 +72,5 @@ jobs:
 
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ steps.metadata.outputs.rock-filename }}
+          name: artifact (${{ steps.metadata.outputs.rock-filename }})
           path: ${{ steps.rockcraft.outputs.rock }}

@@ -52,7 +52,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.rock-filename }}
+          name: artifact (${{ inputs.rock-filename }})
 
       # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
       # is resolved and applied to all ROCKs repositories

@@ -36,7 +36,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.rock-filename }}
+          name: artifact (${{ inputs.rock-filename }})
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3.0.0
