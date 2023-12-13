@@ -42,8 +42,7 @@ jobs:
     with:
       tests-dir: ${{ inputs.rock-dir }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
-      rock-name: ${{ needs.build.outputs.rock-name }}
-      rock-version: ${{ needs.build.outputs.rock-version }}
+      rock-reference: ${{ needs.build.outputs.rock-reference }}
 
   integration-tests:
     needs: build
@@ -51,8 +50,7 @@ jobs:
     with:
       tests-dir: ${{ inputs.rock-dir }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
-      rock-name: ${{ needs.build.outputs.rock-name }}
-      rock-version: ${{ needs.build.outputs.rock-version }}
+      rock-reference: ${{ needs.build.outputs.rock-reference }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
       python-version: ${{ inputs.python-version }}
@@ -64,6 +62,5 @@ jobs:
     secrets: inherit
     with:
       rock-filename: ${{ needs.build.outputs.rock-filename }}
-      rock-name: ${{ needs.build.outputs.rock-name }}
-      rock-version: ${{ needs.build.outputs.rock-version }}
+      rock-reference: ${{ needs.build.outputs.rock-reference }}
       registry: "charmedkubeflow"
