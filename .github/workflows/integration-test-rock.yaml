@@ -11,12 +11,9 @@ on:
         description: "Filename of the .rock file to be tested"
         required: true
         type: string
-      rock-name:
-        description: "Field name of the rockcraft.yaml file to be tested"
-        required: true
-        type: string
-      rock-version:
-        description: "Field version of the rockcraft.yaml file to be tested"
+      rock-reference:
+        description: "Rock reference to be used in order to copy the image to docker cache.
+          It consists of <rock-name>:<rock-version>."
         required: true
         type: string
       microk8s-channel:
@@ -70,7 +67,7 @@ jobs:
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
-          DOCKER_IMAGE=${{ inputs.rock-name }}:${{ inputs.rock-version }}
+          DOCKER_IMAGE=${{ inputs.rock-reference }}
           sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:$DOCKER_IMAGE
           echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
 

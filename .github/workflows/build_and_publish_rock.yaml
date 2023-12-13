@@ -32,6 +32,5 @@ jobs:
     secrets: inherit
     with:
         rock-filename: ${{ needs.build.outputs.rock-filename }}
-        rock-name: ${{ needs.build.outputs.rock-name }}
-        rock-version: ${{ needs.build.outputs.rock-version }}
+        rock-reference: ${{ needs.build.outputs.rock-reference }}
         registry: "charmedkubeflow"
