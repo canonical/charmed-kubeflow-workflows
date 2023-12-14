@@ -60,7 +60,7 @@ jobs:
       python-version: ${{ inputs.python-version }}
 
   publish:
-    if: ${{ github.event_name }} == 'push'
+    if: ${{ github.event_name == 'push' }}
     needs: [scan, build, sanity-tests, integration-tests]
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
