@@ -36,6 +36,8 @@ jobs:
     outputs:
       rock_paths: ${{ steps.filter.outputs.changes }}
     steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
         id: filter
         with:
