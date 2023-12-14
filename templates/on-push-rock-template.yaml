@@ -1,7 +1,7 @@
 # Meant to be copied over as is in all ROCKs repositories with
 # the name `on_push.yaml` after adjusting microk8s and 
 # juju channels and uncommenting/remove python-version input.
-name: On Pull Request
+name: On Push
 
 on:
   push:
