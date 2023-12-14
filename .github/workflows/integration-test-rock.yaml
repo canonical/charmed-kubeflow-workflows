@@ -7,6 +7,10 @@ on:
         description: "Path to tests directory"
         required: true
         type: string
+      rock-artifact:
+        description: "Name of the artifact from which the ROCK will be downloaded."
+        required: true
+        type: string
       rock-reference:
         description: "Rock reference to be used in order to copy the image to docker cache.
           It consists of <rock-name>:<rock-version>."
@@ -45,7 +49,7 @@ jobs:
 
       - uses: actions/download-artifact@v3
         with:
-          name: ${{ inputs.rock-reference }}
+          name: ${{ inputs.rock-artifact }}
 
       # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
       # is resolved and applied to all ROCKs repositories
