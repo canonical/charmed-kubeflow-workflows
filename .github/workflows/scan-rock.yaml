@@ -52,14 +52,14 @@ jobs:
           scan-type: 'image'
           image-ref: '${{ steps.rock_in_docker.outputs.image }}'
           format: 'json'
-          output: 'trivy-report-${{ inputs.rock-reference }}.json'
+          output: 'trivy-report-${{ inputs.rock-artifact }}.json'
           ignore-unfixed: true
 
       - name: Print vulnerabilities report
-        run: cat trivy-report-${{ inputs.rock-reference }}.json
+        run: cat trivy-report-${{ inputs.rock-artifact }}.json
 
       - name: Upload Trivy reports
         uses: actions/upload-artifact@v3
         with:
-          name: trivy-report-${{ inputs.rock-reference }}
-          path: trivy-report-${{ inputs.rock-reference }}.json
+          name: trivy-report-${{ inputs.rock-artifact }}
+          path: trivy-report-${{ inputs.rock-artifact }}.json
