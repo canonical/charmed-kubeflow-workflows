@@ -60,7 +60,7 @@ jobs:
           ROCK=$(echo ${{ steps.rockcraft.outputs.rock }} | sed 's:.*/::')
           ROCK_REFERENCE=$NAME:$VERSION
           mv $ROCK $ROCK_REFERENCE.rock
-          echo "rock-artifact=$NAME"
+          echo "rock-artifact=$NAME" >> "$GITHUB_OUTPUT"
           echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
 
