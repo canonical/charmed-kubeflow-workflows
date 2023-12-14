@@ -66,4 +66,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.metadata.outputs.rock-reference }}
-          path: ${{ inputs.rock-dir }}/${{ steps.metadata.outputs.rock-reference }}
+          path: ${{ inputs.rock-dir }}/${{ steps.metadata.outputs.rock-reference }}.rock
