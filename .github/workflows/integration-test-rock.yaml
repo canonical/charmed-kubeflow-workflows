@@ -93,10 +93,6 @@ jobs:
           fi
         working-directory: ./${{ inputs.tests-dir }}
 
-      - name: Setup tmate session
-        if: always()
-        uses: mxschmitt/action-tmate@v3
-
       - name: Save debug artifacts
         if: failure() || cancelled()
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
