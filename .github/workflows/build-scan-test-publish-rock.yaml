@@ -36,6 +36,7 @@ jobs:
     with:
       rock-artifact: ${{ needs.build.outputs.rock-artifact}}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
 
   sanity-tests:
     needs: build
@@ -44,6 +45,7 @@ jobs:
       tests-dir: ${{ inputs.rock-dir }}
       rock-artifact: ${{ needs.build.outputs.rock-artifact}}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
 
   integration-tests:
     needs: build
@@ -52,6 +54,7 @@ jobs:
       tests-dir: ${{ inputs.rock-dir }}
       rock-artifact: ${{ needs.build.outputs.rock-artifact}}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
       python-version: ${{ inputs.python-version }}
@@ -64,4 +67,5 @@ jobs:
     with:
       rock-artifact: ${{ needs.build.outputs.rock-artifact}}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
       registry: "charmedkubeflow"

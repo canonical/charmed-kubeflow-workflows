@@ -20,6 +20,9 @@ on:
           description: "Rock reference to be used in order to copy the image to docker cache.
             It consists of <rock-name>:<rock-version>."
           value: ${{ jobs.build-rock.outputs.rock-reference}}
+        rock-filename:
+          description: "Filename of the .rock file produced"
+          value: ${{ jobs.build-rock.outputs.rock-filename}}
 
 jobs:
   build-rock:
@@ -28,6 +31,7 @@ jobs:
     outputs:
       rock-reference: ${{ steps.metadata.outputs.rock-reference }}
       rock-artifact: ${{ steps.metadata.outputs.rock-artifact}}
+      rock-filename: ${{ steps.metadata.outputs.rock-filename}}
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
@@ -59,12 +63,12 @@ jobs:
           VERSION=$(yq eval ".version" rockcraft.yaml)
           ROCK=$(echo ${{ steps.rockcraft.outputs.rock }} | sed 's:.*/::')
           ROCK_REFERENCE=$NAME:$VERSION
-          mv $ROCK $ROCK_REFERENCE.rock
           echo "rock-artifact=$NAME" >> "$GITHUB_OUTPUT"
           echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
+          echo "rock-filename=$ROCK" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
 
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.metadata.outputs.rock-artifact }}
-          path: ${{ inputs.rock-dir }}/${{ steps.metadata.outputs.rock-reference }}.rock
+          path: ${{ inputs.rock-dir }}/${{ steps.metadata.outputs.rock-filename }}

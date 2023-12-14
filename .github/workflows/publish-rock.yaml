@@ -12,6 +12,10 @@ on:
           It consists of <rock-name>:<rock-version>."
         required: true
         type: string
+      rock-filename:
+        description: "Filename of the .rock file"
+        required: true
+        type: string
       registry:
         description: "Registry where the image will be published"
         required: true
@@ -46,7 +50,7 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse --short HEAD)
           DOCKER_IMAGE=${{ inputs.rock-reference }}-$COMMIT_ID
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-reference }}.rock docker-daemon:${{ inputs.registry }}/$DOCKER_IMAGE
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }}.rock docker-daemon:${{ inputs.registry }}/$DOCKER_IMAGE
           echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
 
       - name: Publish to dockerhub
