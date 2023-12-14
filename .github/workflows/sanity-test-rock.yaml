@@ -42,7 +42,7 @@ jobs:
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}}.rock docker-daemon:${{ inputs.rock-reference }}
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:${{ inputs.rock-reference }}
           echo "image=${{ inputs.rock-reference}}" >> "$GITHUB_OUTPUT"
 
       - name: Install tox
