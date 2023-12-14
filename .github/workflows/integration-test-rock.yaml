@@ -92,3 +92,41 @@ jobs:
             tox -e integration
           fi
         working-directory: ./${{ inputs.tests-dir }}
+
+      - name: Save debug artifacts
+        if: failure() || cancelled()
+        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
+
+      - name: Setup Debug Artifact Collection
+        if: failure() || cancelled()
+        run: mkdir tmp
+
+      - name: Collect charmcraft logs
+        if: failure() || cancelled()
+        run: |
+          cat /home/runner/.local/state/charmcraft/log/charmcraft-*.log | tee tmp/charmcraft.log
+
+      - name: Collect Juju status
+        if: failure() || cancelled()
+        run: juju status | tee tmp/juju-status.txt
+
+      - name: Collect Juju log
+        if: failure() || cancelled()
+        run: juju debug-log --replay --no-tail | tee tmp/juju-status.txt
+
+      - name: Collect Kube status
+        if: failure() || cancelled()
+        run: |
+          kubectl get all -A | tee tmp/kube-summary.txt
+          kubectl describe pods -A | tee tmp/kube-pods.txt
+          kubectl describe virtualservices -A | tee tmp/kube-virtualservices.txt
+          kubectl describe gateways -A | tee tmp/kube-gateways.txt
+          kubectl describe deployments -A | tee tmp/kube-deployments.txt
+          kubectl describe replicasets -A | tee tmp/kubectl-replicasets.txt
+
+      - name: Upload debug artifacts
+        if: failure() || cancelled()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-run-artifacts
+          path: tmp
