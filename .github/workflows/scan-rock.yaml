@@ -1,0 +1,65 @@
+name: Scan
+
+on:
+  workflow_call:
+    inputs:
+      rock-artifact:
+        description: "Name of the artifact from which the ROCK will be downloaded."
+        required: true
+        type: string
+      rock-reference:
+        description: "Rock reference to be used in order to copy the image to docker cache.
+          It consists of <rock-name>:<rock-version>."
+        required: true
+        type: string
+      rock-filename:
+        description: "Filename of the .rock file"
+        required: true
+        type: string
+jobs:
+  scan:
+    name: Scan ${{ inputs.rock-reference }}
+    runs-on: ubuntu-22.04
+    steps:
+      # Ideally we'd use self-hosted runners, but this effort is still not stable.
+      # This action will remove unused software (dotnet, haskell, android libs, codeql,
+      # and docker images) from the GH runner, which will liberate around 60 GB of storage
+      # distributed in 40GB for root and around 20 for a mnt point.
+      # We need it to avoid cases where scanning fails due to "no space left on device". 
+      - name: Maximise GH runner space
+        uses: easimon/maximize-build-space@v7
+        with:
+          root-reserve-mb: 40960
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-android: 'true'
+          remove-codeql: 'true'
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.rock-artifact }}
+
+      - name: Export ROCK to Docker
+        id: rock_in_docker
+        run: |
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag
+          echo "image=rock:tag" >> "$GITHUB_OUTPUT"
+
+      - name: Scan for vulnerabilities
+        id: scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'image'
+          image-ref: '${{ steps.rock_in_docker.outputs.image }}'
+          format: 'json'
+          output: 'trivy-report-${{ inputs.rock-artifact }}.json'
+          ignore-unfixed: true
+
+      - name: Print vulnerabilities report
+        run: cat trivy-report-${{ inputs.rock-artifact }}.json
+
+      - name: Upload Trivy reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-report-${{ inputs.rock-artifact }}
+          path: trivy-report-${{ inputs.rock-artifact }}.json

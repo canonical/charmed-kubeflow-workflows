@@ -1,0 +1,74 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      rock-dir:
+        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
+        required: true
+        type: string
+      source-branch:
+        description: Github branch to checkout. If blank, it will use default values.
+        default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
+        required: false
+        type: string
+    outputs:
+        rock-artifact:
+          description: "Name of the artifact that the built ROCK has been uploaded to."
+          value: ${{ jobs.build-rock.outputs.rock-artifact}}
+        rock-reference:
+          description: "Rock reference to be used in order to copy the image to docker cache.
+            It consists of <rock-name>:<rock-version>."
+          value: ${{ jobs.build-rock.outputs.rock-reference}}
+        rock-filename:
+          description: "Filename of the .rock file produced"
+          value: ${{ jobs.build-rock.outputs.rock-filename}}
+
+jobs:
+  build-rock:
+    name: Build ${{ inputs.rock-dir }}
+    runs-on: ubuntu-22.04
+    outputs:
+      rock-reference: ${{ steps.metadata.outputs.rock-reference }}
+      rock-artifact: ${{ steps.metadata.outputs.rock-artifact}}
+      rock-filename: ${{ steps.metadata.outputs.rock-filename}}
+    steps:
+      # Ideally we'd use self-hosted runners, but this effort is still not stable.
+      # This action will remove unused software (dotnet, haskell, android libs, codeql,
+      # and docker images) from the GH runner, which will liberate around 60 GB of storage
+      # distributed in 40GB for root and around 20 for a mnt point.
+      - name: Maximise GH runner space
+        uses: easimon/maximize-build-space@v7
+        with:
+          root-reserve-mb: 40960
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-android: 'true'
+          remove-codeql: 'true'
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source-branch }}
+
+      - uses: canonical/craft-actions/rockcraft-pack@main
+        id: rockcraft
+        with:
+          path: ./${{ inputs.rock-dir }}
+
+      - name: Output rock filename
+        id: metadata
+        run: |
+          NAME=$(yq eval ".name" rockcraft.yaml)
+          VERSION=$(yq eval ".version" rockcraft.yaml)
+          ROCK=$(echo ${{ steps.rockcraft.outputs.rock }} | sed 's:.*/::')
+          ROCK_REFERENCE=$NAME:$VERSION
+          echo "rock-artifact=$NAME" >> "$GITHUB_OUTPUT"
+          echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
+          echo "rock-filename=$ROCK" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ inputs.rock-dir }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ steps.metadata.outputs.rock-artifact }}
+          path: ${{ inputs.rock-dir }}/${{ steps.metadata.outputs.rock-filename }}

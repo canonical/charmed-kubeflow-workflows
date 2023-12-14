@@ -1,0 +1,54 @@
+name: Integration tests
+
+on:
+  workflow_call:
+    inputs:
+      tests-dir:
+        description: "Path to tests directory"
+        required: true
+        type: string
+      rock-artifact:
+        description: "Name of the artifact from which the ROCK will be downloaded."
+        required: true
+        type: string
+      rock-reference:
+        description: "Rock reference to be used in order to copy the image to docker cache.
+          It consists of <rock-name>:<rock-version>."
+        required: true
+        type: string
+      rock-filename:
+        description: "Filename of the .rock file"
+        required: true
+        type: string
+      source-branch:
+        description: Github branch to checkout. If blank, it will use default values.
+        default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
+        required: false
+        type: string
+jobs:
+  tests:
+    name: Sanity test ${{ inputs.rock-reference }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source-branch }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.rock-artifact }}
+
+      - name: Export ROCK to Docker
+        id: rock_in_docker
+        run: |
+          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:${{ inputs.rock-reference }}
+          echo "image=${{ inputs.rock-reference}}" >> "$GITHUB_OUTPUT"
+
+      - name: Install tox
+        run: pip install tox
+
+      - name: Sanity tests
+        run: |
+          tox -e sanity
+        working-directory: ./${{ inputs.tests-dir }}
