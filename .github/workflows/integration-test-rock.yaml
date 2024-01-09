@@ -46,6 +46,16 @@ jobs:
     name: Test ${{ inputs.rock-reference }}
     runs-on: ubuntu-22.04
     steps:
+      - name: Maximise GH runner space
+        uses: easimon/maximize-build-space@v7
+        with:
+          root-reserve-mb: 40960
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-android: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -73,6 +83,9 @@ jobs:
         run: |
           sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.rock-reference }}
           echo "image=${{ inputs.rock-reference }}" >> "$GITHUB_OUTPUT"
+
+      - name: Clean up .rock file
+        run: rm ${{ inputs.rock-filename }}
 
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
