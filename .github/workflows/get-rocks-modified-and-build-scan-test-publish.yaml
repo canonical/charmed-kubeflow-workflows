@@ -3,6 +3,11 @@ name: Get ROCKs modified and build-scan-test-publish them
 on:
   workflow_call:
     inputs:
+      rockcraft-channel:
+        description: "Rockcraft channel e.g. latest/stable"
+        required: false
+        default: "latest/stable"
+        type: string
       microk8s-channel:
         description: "Microk8s channel e.g. 1.26/stable"
         required: true
@@ -36,4 +41,5 @@ jobs:
       rock-dir: ${{ matrix.rock-dir }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
       python-version: ${{ inputs.python-version }}

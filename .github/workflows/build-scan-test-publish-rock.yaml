@@ -7,6 +7,11 @@ on:
         description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
         required: true
         type: string
+      rockcraft-channel:
+        description: "Rockcraft channel e.g. latest/stable"
+        required: true
+        default: "latest/stable"
+        type: string
       microk8s-channel:
         description: "Microk8s channel e.g. 1.26/stable"
         required: true
@@ -28,6 +33,7 @@ jobs:
     uses: ./.github/workflows/build-rock.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
   scan:
     needs: build
