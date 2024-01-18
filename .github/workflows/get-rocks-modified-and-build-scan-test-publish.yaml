@@ -10,12 +10,12 @@ on:
         type: string
       microk8s-channel:
         description: "Microk8s channel e.g. 1.26/stable"
-        required: true
+        required: false
         default: "1.26/stable"
         type: string
       juju-channel:
         description: "Juju channel e.g. 3.1/stable"
-        required: true
+        required: false
         default: "3.1/stable"
         type: string
       python-version:
