@@ -54,6 +54,7 @@ jobs:
           format: 'json'
           output: 'trivy-report-${{ inputs.rock-artifact }}.json'
           ignore-unfixed: true
+          timeout: '50m0s'
 
       - name: Print vulnerabilities report
         run: cat trivy-report-${{ inputs.rock-artifact }}.json
