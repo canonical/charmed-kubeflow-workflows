@@ -43,7 +43,9 @@ jobs:
         id: rock_in_docker
         run: |
           sudo snap install skopeo --edge --devmode
+          sudo snap install docker
           which skopeo
+          which docker
           skopeo --version
           /snap/bin/skopeo --version
           docker version
