@@ -38,6 +38,11 @@ jobs:
       rock-artifact: ${{ steps.metadata.outputs.rock-artifact}}
       rock-filename: ${{ steps.metadata.outputs.rock-filename}}
     steps:
+      - name: Versions
+        id: versions
+        run: |
+          skopeo --version
+          docker version
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
       # and docker images) from the GH runner, which will liberate around 60 GB of storage
