@@ -42,13 +42,10 @@ jobs:
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
+          # Using snaps for skopeo and docker because of this problem https://github.com/canonical/charmed-kubeflow-workflows/issues/53
           sudo snap install skopeo --edge --devmode
           sudo snap install docker
-          which skopeo
-          which docker
-          skopeo --version
-          /snap/bin/skopeo --version
-          docker version
+          
           sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:${{ inputs.rock-reference }}
           echo "image=${{ inputs.rock-reference}}" >> "$GITHUB_OUTPUT"
 

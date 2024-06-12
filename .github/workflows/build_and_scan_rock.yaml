@@ -36,6 +36,11 @@ jobs:
           VERSION=$(yq eval ".version" rockcraft.yaml)
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
+          
+          # Using snaps for skopeo and docker because of this problem https://github.com/canonical/charmed-kubeflow-workflows/issues/53
+          sudo snap install skopeo --edge --devmode
+          sudo snap install docker
+          
           sudo skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
           echo "image=$ROCK:$VERSION" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock }}
