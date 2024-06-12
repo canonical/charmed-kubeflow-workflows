@@ -42,6 +42,11 @@ jobs:
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
+          sudo snap install skopeo --edge --devmode
+          which skopeo
+          skopeo --version
+          /snap/bin/skopeo --version
+          docker version
           sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:${{ inputs.rock-reference }}
           echo "image=${{ inputs.rock-reference}}" >> "$GITHUB_OUTPUT"
 
