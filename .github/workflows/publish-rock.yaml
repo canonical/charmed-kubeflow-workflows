@@ -53,7 +53,6 @@ jobs:
         run: |
           COMMIT_ID=$(git rev-parse --short HEAD)
           DOCKER_IMAGE=${{ inputs.rock-reference }}-$COMMIT_ID
-          
           sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.registry }}/$DOCKER_IMAGE
           echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
 

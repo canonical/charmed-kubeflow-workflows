@@ -37,7 +37,6 @@ jobs:
           VERSION=$(yq eval ".version" rockcraft.yaml)
           ARCH=$(yq eval ".platforms | keys" rockcraft.yaml | awk -F ' ' '{print $2}')
           ROCK="${NAME}_${VERSION}_${ARCH}"
-          
           sudo rockcraft.skopeo --insecure-policy copy oci-archive:$ROCK.rock docker-daemon:$ROCK:$VERSION
           echo "image=$ROCK:$VERSION" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock }}
