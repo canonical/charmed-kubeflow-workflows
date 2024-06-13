@@ -34,6 +34,9 @@ jobs:
           remove-haskell: 'true'
           remove-android: 'true'
           remove-codeql: 'true'
+      
+      - name: Install Rockcraft
+        run: sudo snap install rockcraft --classic --edge
 
       - uses: actions/download-artifact@v3
         with:
@@ -42,11 +45,7 @@ jobs:
       - name: Export ROCK to Docker
         id: rock_in_docker
         run: |
-          # Using snaps for skopeo and docker because of this problem https://github.com/canonical/charmed-kubeflow-workflows/issues/53
-          sudo snap install skopeo --edge --devmode
-          sudo snap install docker
-          
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag
+          sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag
           echo "image=rock:tag" >> "$GITHUB_OUTPUT"
 
       - name: Scan for vulnerabilities

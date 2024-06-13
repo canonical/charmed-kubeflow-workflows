@@ -34,6 +34,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.source-branch }}
+      
+      - name: Install Rockcraft
+        run: sudo snap install rockcraft --classic --edge
 
       - uses: actions/download-artifact@v3
         with:
@@ -51,11 +54,7 @@ jobs:
           COMMIT_ID=$(git rev-parse --short HEAD)
           DOCKER_IMAGE=${{ inputs.rock-reference }}-$COMMIT_ID
           
-          # Using snaps for skopeo and docker because of this problem https://github.com/canonical/charmed-kubeflow-workflows/issues/53
-          sudo snap install skopeo --edge --devmode
-          sudo snap install docker
-          
-          sudo skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.registry }}/$DOCKER_IMAGE
+          sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.registry }}/$DOCKER_IMAGE
           echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
 
       - name: Publish to dockerhub
