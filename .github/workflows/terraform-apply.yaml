@@ -1,15 +1,11 @@
 # Based on https://github.com/canonical/sunbeam-terraform/blob/9973905d24892903fab19ce691bbc5c28c53df0a/.github/workflows/deploy.yml
 # For usage, refer to templates/terraform-deploy-usage-template.yaml
-name: Deploy Terraform module
+# Applies terraform module and wait for the application to go active or blocked.
+name: Apply Terraform module
 
 on:
   workflow_call:
     inputs:
-      module-directory:
-        description: The directory that stores the Terraform module. Defaults to `./terraform`.
-        required: false
-        type: string
-        default: ./terraform
       model:
         description: The model that the charm is deployed on. Defaults to `testing`.
         required: false
@@ -20,10 +16,15 @@ on:
         required: false
         type: string
         default: latest/stable
+      module-directory:
+        description: The directory that stores the Terraform module. Defaults to `./terraform`.
+        required: false
+        type: string
+        default: ./terraform
 
 jobs:
-  deploy:
-    name: Deploy Terraform
+  apply:
+    name: Apply Terraform
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout

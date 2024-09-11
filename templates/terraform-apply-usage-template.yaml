@@ -1,6 +1,7 @@
+# trigger workflow
 jobs:
-  terraform-deploy:
-    name: Deploy Terraform
+  terraform-apply:
+    name: Apply
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/terraform-deploy.yaml@main
     with:
       # Defaults to "testing"
@@ -9,8 +10,4 @@ jobs:
       channel: latest/edge
       # Add the line below for multi-charm repos. For single-repo repositories, it can be 
       # omitted since the workflow was designed according to CC006 spec file structure conventions.
-      working-directory: charms/<charm-name>/terraform
-      # The following line is useful when there are no dependencies for a charm to go `active`. Otherwise,
-      # setting it to true will cause the workflow to timeout if the unit never goes to `active`.
-      workload-check: true
-      
+      module-directory: charms/<charm-name>/terraform
