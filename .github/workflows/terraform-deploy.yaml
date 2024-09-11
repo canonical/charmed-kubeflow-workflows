@@ -5,7 +5,7 @@ name: Deploy Terraform module
 on:
   workflow_call:
     inputs:
-      working-directory:
+      module-directory:
         description: The directory that stores the Terraform module. Defaults to `./terraform`.
         required: false
         type: string
@@ -20,11 +20,6 @@ on:
         required: false
         type: string
         default: latest/stable
-      workload-check:
-        description: If true, pass `-w` as an argument to juju-wait. This means it will wait for the unit to go to active. It defaults to false since most of kubeflow charms have other depenndencies required in order for them to be active.
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   deploy:
@@ -44,22 +39,18 @@ jobs:
       - name: Install dependencies
         run: |
           sudo snap install --classic terraform
-          sudo snap install --classic juju-wait
       - name: Create juju model
         run: juju add-model ${{ inputs.model }}
       - name: Apply terraform
+        working-directory: ${{ inputs.module-directory }}
         run: |
-          cd ${{ inputs.working-directory }}
           terraform init
           terraform apply -var "channel=${{ inputs.channel }}" -var "model_name=${{ inputs.model }}" --auto-approve
-          if [ "${{ inputs.workload-check }}" = false ]; then
-            juju-wait -v -m ${{ inputs.model }} -t 3600
-          else
-            juju-wait -vw -m ${{ inputs.model }} -t 3600
-          fi
-
-      - name: Collect juju status
-        if: always()
+      - name: Wait for the application to be active or blocked
         run: |
-          juju status -m ${{ inputs.model }}
-          juju debug-log -m ${{ inputs.model }} --replay
+          juju wait-for model ${{ inputs.model }} --query='forEach(applications, app => (app.status == "active" || app.status == "blocked") )'
+      - name: Juju status
+        run: juju status
+      - name: Dump logs
+        if: failure()
+        uses: canonical/charming-actions/dump-logs
