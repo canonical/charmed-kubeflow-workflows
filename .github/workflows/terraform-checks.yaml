@@ -1,0 +1,48 @@
+# reusable workflow triggered by other actions
+name: CI
+
+on:
+  workflow_call:
+    secrets:
+      CHARMCRAFT_CREDENTIALS:
+        required: true
+    inputs:
+      charm-path:
+        required: true
+        type: string
+      model:
+        description: The model that the charm is deployed on. Defaults to `testing`.
+        required: false
+        type: string
+        default: testing
+      channel:
+        description: The channel that the charm is deployed from. Defaults to `latest/stable`.
+        required: false
+        type: string
+        default: latest/stable
+jobs:
+  apply:
+    name: Apply
+    # To be updated once https://github.com/canonical/charmed-kubeflow-workflows/pull/59 is merged
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/terraform-apply.yaml@orfeas-k-add-terraform-reusable-workflow
+    with:
+      model: ${{ inputs.model }}
+      channel: ${{ inputs.channel }}
+      module-directory: ${{ inputs.charm-path }}/terraform
+
+  check:
+    name: Check
+    uses: canonical/sdcore-github-workflows/.github/workflows/terraform.yaml@v1.0.0
+    with:
+      working-directory: ${{ inputs.charm-path }}/terraform
+
+  lint:
+    name: TFlint
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+      - run: python3 -m pip install tox
+      - run: tox -c ${{ inputs.charm-path }} -e tflint
+
