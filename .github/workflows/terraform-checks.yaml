@@ -34,7 +34,7 @@ jobs:
       working-directory: ${{ inputs.charm-path }}/terraform
 
   lint:
-    name: TFlint
+    name: Lint Terraform
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
