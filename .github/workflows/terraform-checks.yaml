@@ -21,10 +21,6 @@ jobs:
   apply:
     name: Apply
     uses: ./.github/workflows/terraform-apply.yaml
-    with:
-      model: ${{ inputs.model }}
-      channel: ${{ inputs.channel }}
-      module-directory: ${{ inputs.charm-path }}/terraform
 
   check:
     name: Check
