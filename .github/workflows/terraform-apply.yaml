@@ -52,3 +52,6 @@ jobs:
           juju wait-for model ${{ inputs.model }} --query='forEach(applications, app => (app.status == "active" || app.status == "blocked") )'
       - name: Juju status
         run: juju status
+      - name: Dump logs
+        if: failure()
+        uses: canonical/charming-actions/dump-logs
