@@ -3,9 +3,6 @@ name: CI
 
 on:
   workflow_call:
-    secrets:
-      CHARMCRAFT_CREDENTIALS:
-        required: true
     inputs:
       charm-path:
         required: true
