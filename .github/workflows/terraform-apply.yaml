@@ -5,7 +5,22 @@ name: Apply Terraform module
 
 on:
   workflow_call:
-
+    inputs:
+      model:
+        description: The model that the charm is deployed on. Defaults to `testing`.
+        required: false
+        type: string
+        default: testing
+      channel:
+        description: The channel that the charm is deployed from. Defaults to `latest/stable`.
+        required: false
+        type: string
+        default: latest/stable
+      module-directory:
+        description: The directory that stores the Terraform module. Defaults to `./terraform`.
+        required: false
+        type: string
+        default: ./terraform
 
 jobs:
   apply:
@@ -26,14 +41,14 @@ jobs:
         run: |
           sudo snap install --classic terraform
       - name: Create juju model
-        run: juju add-model placeholder
+        run: juju add-model ${{ inputs.model }}
       - name: Apply terraform
-        working-directory: placeholder
+        working-directory: ${{ inputs.module-directory }}
         run: |
           terraform init
-          terraform apply -var "channel=placeholder" -var "model_name=placeholder" --auto-approve
+          terraform apply -var "channel=${{ inputs.channel }}" -var "model_name=${{ inputs.model }}" --auto-approve
       - name: Wait for the application to be active or blocked
         run: |
-          juju wait-for model placeholder --query='forEach(applications, app => (app.status == "active" || app.status == "blocked") )'
+          juju wait-for model ${{ inputs.model }} --query='forEach(applications, app => (app.status == "active" || app.status == "blocked") )'
       - name: Juju status
         run: juju status
