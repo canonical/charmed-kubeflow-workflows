@@ -20,8 +20,7 @@ on:
 jobs:
   apply:
     name: Apply
-    # Needs to be updated after https://github.com/canonical/charmed-kubeflow-workflows/pull/59 is merged
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/terraform-apply.yaml@orfeas-k-add-terraform-reusable-workflow
+    uses: ./.github/workflows/terraform-apply.yaml
     with:
       model: ${{ inputs.model }}
       channel: ${{ inputs.channel }}
