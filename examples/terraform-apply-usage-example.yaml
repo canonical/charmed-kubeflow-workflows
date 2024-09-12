@@ -1,0 +1,13 @@
+# trigger workflow
+jobs:
+  terraform-apply:
+    name: Apply
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/terraform-deploy.yaml@main
+    with:
+      # Defaults to "testing"
+      model: kubeflow
+      # Defaults to "latest/stable" due to it being the default channel in most of our charms
+      channel: latest/edge
+      # Add the line below for multi-charm repos. For single-repo repositories, it can be 
+      # omitted since the workflow was designed according to CC006 spec file structure conventions.
+      module-directory: charms/<charm-name>/terraform
