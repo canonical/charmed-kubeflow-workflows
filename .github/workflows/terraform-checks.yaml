@@ -21,7 +21,7 @@ on:
         description: Boolean value that defines if `apply` job runs. Defaults to `True`.
         required: false
         type: boolean
-        default: True
+        default: true
 jobs:
   apply:
     name: Apply
