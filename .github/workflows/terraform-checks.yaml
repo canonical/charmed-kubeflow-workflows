@@ -18,7 +18,7 @@ on:
         type: string
         default: latest/stable
       apply:
-        description: Boolean value that defines if `apply` job runs. Defaults to `True`.
+        description: Boolean value that defines if `apply` job runs. Defaults to `true`.
         required: false
         type: boolean
         default: true
