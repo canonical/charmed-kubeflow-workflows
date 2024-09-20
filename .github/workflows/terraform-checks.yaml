@@ -11,7 +11,7 @@ on:
         description: The model that the charm is deployed on. Defaults to `testing`.
         required: false
         type: string
-        default: testing
+        default: tf-testing
       channel:
         description: The channel that the charm is deployed from. Defaults to `latest/stable`.
         required: false

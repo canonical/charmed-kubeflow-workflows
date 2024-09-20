@@ -8,9 +8,8 @@ on:
     inputs:
       model:
         description: The model that the charm is deployed on. Defaults to `testing`.
-        required: false
+        required: true
         type: string
-        default: testing
       channel:
         description: The channel that the charm is deployed from. Defaults to `latest/stable`.
         required: false
