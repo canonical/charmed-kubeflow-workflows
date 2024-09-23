@@ -13,10 +13,10 @@ on:
         type: string
         default: tf-testing
       channel:
-        description: The channel that the charm is deployed from. Defaults to `latest/stable`.
+        description: The channel that the charm is deployed from. Defaults to `latest/edge`.
         required: false
         type: string
-        default: latest/stable
+        default: latest/edge
       apply:
         description: Boolean value that defines if `apply` job runs. Defaults to `true`.
         required: false
