@@ -1,0 +1,63 @@
+name: Scan
+
+on:
+  workflow_call:
+    inputs:
+      report-vulnerabilities:
+        description: "Whether to report security vulnerabilities through Github issues."
+        required: false
+        default: false
+        type: boolean
+      rock-artifact:
+        description: "Name of the artifact from which the ROCK will be downloaded."
+        required: true
+        type: string
+      rock-reference:
+        description: "Rock reference to be used in order to copy the image to docker cache.
+          It consists of <rock-name>:<rock-version>."
+        required: true
+        type: string
+      rock-filename:
+        description: "Filename of the .rock file"
+        required: true
+        type: string
+      severity:
+        description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
+        required: false
+        type: string
+        default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+jobs:
+  scan:
+    name: Scan ${{ inputs.rock-reference }}
+    runs-on: ubuntu-22.04
+    outputs:
+      image-name: ${{ steps.image-name.outputs.image-name }}
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Maximise GH runner space
+        uses: jlumbroso/free-disk-space@v1.3.1
+      
+      - name: Install Rockcraft
+        run: sudo snap install rockcraft --classic --edge
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.rock-artifact }}
+
+      - name: Generate image name
+        id: image-name
+        run: |
+          IMAGE_NAME=$(echo ${{ inputs.rock-reference }} | sed 's/\:/-/g')
+          echo "image-name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Export ROCK to Docker
+        id: rock_in_docker
+        run: |
+          sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.rock-reference }}
+
+      - name: Scan ${{ inputs.rock-reference }}
+        # DEBUG uses: ./.github/workflows/scan-from-input-and-upload-report.yaml
+        uses: canonical/charmed-kubeflow-workflows/.github/workflows/scan-from-input-and-upload-report.yaml@KF-6331-add-scan-reusable-workflow
+        with:
+          image-name: ${{ inputs.rock-reference }}

@@ -2,25 +2,25 @@ name: Scan
 
 on:
   workflow_call:
+    outputs:
+      image-name-dashes:
+        description: "The image name with format <image-name>-<version>"
+        value: ${{ jobs.scan.outputs.image-name-dashes }}
     inputs:
+      container-registry:
+        description: "The name of the container registry where images are hosted."
+        required: false
+        type: string
+        default: "charmedkubeflow"
+      image-name:
+        description: "The published image name to be scanned."
+        required: true
+        type: string
       report-vulnerabilities:
         description: "Whether to report security vulnerabilities through Github issues."
         required: false
         default: false
         type: boolean
-      rock-artifact:
-        description: "Name of the artifact from which the ROCK will be downloaded."
-        required: true
-        type: string
-      rock-reference:
-        description: "Rock reference to be used in order to copy the image to docker cache.
-          It consists of <rock-name>:<rock-version>."
-        required: true
-        type: string
-      rock-filename:
-        description: "Filename of the .rock file"
-        required: true
-        type: string
       severity:
         description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
         required: false
@@ -28,10 +28,11 @@ on:
         default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 jobs:
   scan:
-    name: Scan ${{ inputs.rock-reference }}
+    name: Scan of ${{ inputs.image-name }}
     runs-on: ubuntu-22.04
     outputs:
       image-name: ${{ steps.image-name.outputs.image-name }}
+      image-name-dashes: ${{ steps.image-name.outputs.image-name-dashes }}
     strategy:
       fail-fast: false
     steps:
@@ -39,7 +40,7 @@ jobs:
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
       # and docker images) from the GH runner, which will liberate around 60 GB of storage
       # distributed in 40GB for root and around 20 for a mnt point.
-      # We need it to avoid cases where scanning fails due to "no space left on device". 
+      # We need it to avoid cases where scanning fails due to "no space left on device".
       - name: Maximise GH runner space
         uses: easimon/maximize-build-space@v7
         with:
@@ -48,19 +49,9 @@ jobs:
           remove-haskell: 'true'
           remove-android: 'true'
           remove-codeql: 'true'
-      
-      - name: Install Rockcraft
-        run: sudo snap install rockcraft --classic --edge
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: ${{ inputs.rock-artifact }}
-
-      - name: Export ROCK to Docker
-        id: rock_in_docker
-        run: |
-          sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag
-          echo "image=rock:tag" >> "$GITHUB_OUTPUT"
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Set up inputs for scan
         id: set-up-inputs
@@ -73,8 +64,10 @@ jobs:
       - name: Generate image name
         id: image-name
         run: |
-          IMAGE_NAME=$(echo ${{ inputs.rock-reference }} | sed 's/\:/-/g')
+          IMAGE_NAME=$(echo ${{ inputs.image-name }} | rev | cut -f2- -d"-" | rev)
+          IMAGE_NAME_DASHES=$(echo $IMAGE_NAME | sed 's/\:/-/g')
           echo "image-name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+          echo "image-name-dashes=${IMAGE_NAME_DASHES}" >> "$GITHUB_OUTPUT"
 
       - name: Scan for vulnerabilities
         id: scan
@@ -85,9 +78,9 @@ jobs:
           TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1
         with:
           scan-type: 'image'
-          image-ref: '${{ steps.rock_in_docker.outputs.image }}'
+          image-ref: '${{ inputs.container-registry }}/${{ inputs.image-name }}'
           format: 'table'
-          output: 'trivy-report-${{ steps.image-name.outputs.image-name }}.txt'
+          output: 'trivy-report-${{ steps.image-name.outputs.image-name-dashes }}.txt'
           ignore-unfixed: true
           timeout: '50m0s'
           exit-code: ${{ steps.set-up-inputs.outputs.exit-code }}
@@ -99,7 +92,7 @@ jobs:
       - name: Print vulnerabilities report
         # The report should be printed regardless of the success of the previous step
         if: success() || failure()
-        run: cat trivy-report-${{ steps.image-name.outputs.image-name }}.txt
+        run: cat trivy-report-${{ steps.image-name.outputs.image-name-dashes }}.txt
 
       - name: Upload Trivy reports
         # The report should be uploaded regardless of the success of the previous steps
@@ -107,5 +100,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           compression-level: 0
-          name: trivy-report-${{ steps.image-name.outputs.image-name }}
-          path: trivy-report-${{ steps.image-name.outputs.image-name }}.txt
+          name: trivy-report-${{ steps.image-name.outputs.image-name-dashes }}
+          path: trivy-report-${{ steps.image-name.outputs.image-name-dashes }}.txt

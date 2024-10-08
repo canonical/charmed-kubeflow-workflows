@@ -12,7 +12,7 @@ jobs:
     name: Get all rockcraft.yaml paths
     runs-on: ubuntu-22.04
     outputs:
-      paths: ${{ steps.find.outputs.paths}}
+      paths: ${{ steps.find.outputs.paths }}
     steps:
       - name: Checkout repository code
         uses: actions/checkout@v3

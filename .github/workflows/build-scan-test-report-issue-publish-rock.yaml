@@ -55,14 +55,15 @@ jobs:
       report-vulnerabilities: ${{ inputs.report-vulnerabilities }}
       severity: ${{ inputs.severity }}
 
+  # Leaving it here in case we ever want to enable scan and reports on_merge
   report-vulnerability:
     needs: [scan, build]
     uses: ./.github/workflows/report-vulnerability-in-gh.yaml
     secrets: inherit
-    if: ${{ always() && (needs.scan.result == 'failure' && needs.build.result == 'success') }}
+    if: ${{ always() && (needs.scan.result == 'failure' && needs.build.result == 'success')  && (inputs.report-vulnerabilities == 'true') }}
     with:
       issue-title: 'Vulnerabilities found for'
-      rock-reference: ${{ needs.build.outputs.rock-reference }}
+      image-name: ${{ needs.build.outputs.rock-reference }}
 
   sanity-tests:
     needs: build
