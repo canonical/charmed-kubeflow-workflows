@@ -3,6 +3,11 @@ name: Scan
 on:
   workflow_call:
     inputs:
+      report-vulnerabilities:
+        description: "Whether to report security vulnerabilities through Github issues."
+        required: false
+        default: false
+        type: boolean
       rock-artifact:
         description: "Name of the artifact from which the ROCK will be downloaded."
         required: true
@@ -16,10 +21,19 @@ on:
         description: "Filename of the .rock file"
         required: true
         type: string
+      severity:
+        description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
+        required: false
+        type: string
+        default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 jobs:
   scan:
     name: Scan ${{ inputs.rock-reference }}
     runs-on: ubuntu-22.04
+    outputs:
+      image-name: ${{ steps.image-name.outputs.image-name }}
+    strategy:
+      fail-fast: false
     steps:
       # Ideally we'd use self-hosted runners, but this effort is still not stable.
       # This action will remove unused software (dotnet, haskell, android libs, codeql,
@@ -38,7 +52,7 @@ jobs:
       - name: Install Rockcraft
         run: sudo snap install rockcraft --classic --edge
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.rock-artifact }}
 
@@ -48,22 +62,50 @@ jobs:
           sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag
           echo "image=rock:tag" >> "$GITHUB_OUTPUT"
 
+      - name: Set up inputs for scan
+        id: set-up-inputs
+        run: |
+          echo "exit-code=1" >> "$GITHUB_OUTPUT"
+          if ${{ inputs.report-vulnerabilities == 'false' }}; then
+            echo "exit-code=0" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate image name
+        id: image-name
+        run: |
+          IMAGE_NAME=$(echo ${{ inputs.rock-reference }} | sed 's/\:/-/g')
+          echo "image-name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
+
       - name: Scan for vulnerabilities
         id: scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.25.0
+        # Workaround for https://github.com/aquasecurity/trivy-action/issues/389
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1
         with:
           scan-type: 'image'
           image-ref: '${{ steps.rock_in_docker.outputs.image }}'
-          format: 'json'
-          output: 'trivy-report-${{ inputs.rock-artifact }}.json'
+          format: 'table'
+          output: 'trivy-report-${{ steps.image-name.outputs.image-name }}.txt'
           ignore-unfixed: true
           timeout: '50m0s'
+          exit-code: ${{ steps.set-up-inputs.outputs.exit-code }}
+          severity: ${{ inputs.severity }}
+          # NOTE: pebble is flagged with a HIGH vuln because of golang.org/x/crypto
+          # CVE-2021-43565, CVE-2022-27191
+          skip-files: '/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'
 
       - name: Print vulnerabilities report
-        run: cat trivy-report-${{ inputs.rock-artifact }}.json
+        # The report should be printed regardless of the success of the previous step
+        if: success() || failure()
+        run: cat trivy-report-${{ steps.image-name.outputs.image-name }}.txt
 
       - name: Upload Trivy reports
-        uses: actions/upload-artifact@v3
+        # The report should be uploaded regardless of the success of the previous steps
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
         with:
-          name: trivy-report-${{ inputs.rock-artifact }}
-          path: trivy-report-${{ inputs.rock-artifact }}.json
+          compression-level: 0
+          name: trivy-report-${{ steps.image-name.outputs.image-name }}
+          path: trivy-report-${{ steps.image-name.outputs.image-name }}.txt
