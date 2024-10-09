@@ -1,0 +1,37 @@
+name: Get ROCKs modified and build-scan-test-publish them
+
+on:
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        required: true
+    inputs:
+      report-vulnerabilities:
+        description: "Whether to report security vulnerabilities through Github issues."
+        required: false
+        default: false
+        type: boolean
+      severity:
+        description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
+        required: false
+        type: string
+        default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+
+
+jobs:
+  get-published-images-names:
+    name: Get published images names
+    uses: ./.github/workflows/get-published-image-names.yaml
+
+  scan-report-vulnerability:
+    needs: get-published-images-names
+    strategy:
+      fail-fast: false
+      matrix:
+        image-name: ${{ fromJson(needs.get-published-images-names.outputs.images-names) }}
+    uses: ./.github/workflows/scan-from-dockerhub-report-issue.yaml
+    secrets: inherit
+    with:
+      image-name: ${{ matrix.image-name }}
+      report-vulnerabilities: ${{ inputs.report-vulnerabilities }}
+      severity: ${{ inputs.severity }}

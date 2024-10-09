@@ -1,0 +1,41 @@
+name: Get oci-images names from Dockerhub
+
+on:
+  workflow_call:
+    outputs:
+      images-names:
+        description: A JSON array of images that Paths in this repository where rockcraft projects are stored
+        value: ${{ jobs.get-images-names.outputs.images-names }}
+
+jobs:
+  get-images-names:
+    name: Get all rockcraft.yaml paths
+    runs-on: ubuntu-22.04
+    outputs:
+      images-names: ${{ steps.get-images.outputs.images-names }}
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install tools
+        run: |
+          sudo snap install yq
+          sudo apt install jq
+
+      - name: Get images names
+        id: get-images
+        run: |
+          set -xeu
+          IMAGES_NAMES=()
+          paths=$(find ./ -name "rockcraft.yaml" | sed 's/\.\///g')
+          for d in $paths
+          do
+            short_hash=$(git log -n 1 --pretty=%h -- ${d})
+            image_name=$(cat ${d} | yq -r '.name')
+            image_version=$(cat ${d} | yq -r '.version')
+            IMAGES_NAMES+=(${image_name}:${image_version}-${short_hash})
+          done
+          IMAGES_ARRAY=$(jq -c -n '$ARGS.positional' --args "${IMAGES_NAMES[@]}")
+          echo "images-names=${IMAGES_ARRAY}" >> "$GITHUB_OUTPUT"
