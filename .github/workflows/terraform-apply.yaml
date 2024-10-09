@@ -1,5 +1,5 @@
 # Based on https://github.com/canonical/sunbeam-terraform/blob/9973905d24892903fab19ce691bbc5c28c53df0a/.github/workflows/deploy.yml
-# For usage, refer to templates/terraform-deploy-usage-template.yaml
+# For usage, refer to examples/terraform-apply-usage-template.yaml
 # Applies terraform module and wait for the application to go active or blocked.
 name: Apply Terraform module
 
