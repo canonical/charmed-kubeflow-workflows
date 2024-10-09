@@ -2,7 +2,15 @@ name: Get ROCKs modified and build-scan-test-publish them
 
 on:
   workflow_call:
+    secrets:
+      GH_TOKEN:
+        required: true
     inputs:
+      report-vulnerabilities:
+        description: "Whether to report security vulnerabilities through Github issues."
+        required: false
+        default: false
+        type: boolean
       rockcraft-channel:
         description: "Rockcraft channel e.g. latest/stable"
         required: false
@@ -23,6 +31,12 @@ on:
         default: ""
         required: false
         type: string
+      severity:
+        description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
+        required: false
+        type: string
+        default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+
 
 jobs:
   get-rock-paths-modified:
@@ -35,11 +49,13 @@ jobs:
       fail-fast: false
       matrix:
         rock-dir: ${{ fromJson(needs.get-rock-paths-modified.outputs.paths) }}
-    uses: ./.github/workflows/build-scan-test-publish-rock.yaml
+    uses: ./.github/workflows/build-scan-test-report-issue-publish-rock.yaml
     secrets: inherit
     with:
+      report-vulnerabilities: ${{ inputs.report-vulnerabilities }}
       rock-dir: ${{ matrix.rock-dir }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
       python-version: ${{ inputs.python-version }}
+      severity: ${{ inputs.severity }}
