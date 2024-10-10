@@ -3,9 +3,9 @@ name: Scan
 on:
   workflow_call:
     outputs:
-      image-name-dashes:
-        description: "The image name with format <image-name>-<version>"
-        value: ${{ jobs.scan.outputs.image-name-dashes }}
+      vulnerability-report-artefact-name:
+        description: "The name of the artefact that contains the vulnerability report."
+        value: ${{ jobs.scan.outputs.vulnerability-report-artefact-name }}
     inputs:
       container-registry:
         description: "The name of the container registry where images are hosted."
@@ -16,11 +16,6 @@ on:
         description: "The published image name to be scanned."
         required: true
         type: string
-      report-vulnerabilities:
-        description: "Whether to report security vulnerabilities through Github issues."
-        required: false
-        default: false
-        type: boolean
       severity:
         description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
         required: false
@@ -31,8 +26,7 @@ jobs:
     name: Scan of ${{ inputs.image-name }}
     runs-on: ubuntu-22.04
     outputs:
-      image-name: ${{ steps.image-name.outputs.image-name }}
-      image-name-dashes: ${{ steps.image-name.outputs.image-name-dashes }}
+      vulnerability-report-artefact-name: ${{ steps.report-name.outputs.report-name }}
     strategy:
       fail-fast: false
     steps:
@@ -53,21 +47,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up inputs for scan
-        id: set-up-inputs
-        run: |
-          echo "exit-code=1" >> "$GITHUB_OUTPUT"
-          if ${{ inputs.report-vulnerabilities == false }}; then
-            echo "exit-code=0" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Generate image name
-        id: image-name
+      - name: Generate report name
+        id: report-name
         run: |
           IMAGE_NAME=$(echo ${{ inputs.image-name }} | rev | cut -f2- -d"-" | rev)
           IMAGE_NAME_DASHES=$(echo $IMAGE_NAME | sed 's/\:/-/g')
-          echo "image-name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
-          echo "image-name-dashes=${IMAGE_NAME_DASHES}" >> "$GITHUB_OUTPUT"
+          echo "report-name='trivy-report-${IMAGE_NAME_DASHES}'" >> "$GITHUB_OUTPUT"
 
       - name: Scan for vulnerabilities
         id: scan
@@ -80,10 +65,10 @@ jobs:
           scan-type: 'image'
           image-ref: '${{ inputs.container-registry }}/${{ inputs.image-name }}'
           format: 'table'
-          output: 'trivy-report-${{ steps.image-name.outputs.image-name-dashes }}.txt'
+          output: '${{ steps.report-name.outputs.report-name }}.txt'
           ignore-unfixed: true
           timeout: '50m0s'
-          exit-code: ${{ steps.set-up-inputs.outputs.exit-code }}
+          exit-code: 1
           severity: ${{ inputs.severity }}
           # NOTE: pebble is flagged with a HIGH vuln because of golang.org/x/crypto
           # CVE-2021-43565, CVE-2022-27191
@@ -92,7 +77,7 @@ jobs:
       - name: Print vulnerabilities report
         # The report should be printed regardless of the success of the previous step
         if: success() || failure()
-        run: cat trivy-report-${{ steps.image-name.outputs.image-name-dashes }}.txt
+        run: cat ${{ steps.report-name.outputs.report-name }}.txt
 
       - name: Upload Trivy reports
         # The report should be uploaded regardless of the success of the previous steps
@@ -100,5 +85,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           compression-level: 0
-          name: trivy-report-${{ steps.image-name.outputs.image-name-dashes }}
-          path: trivy-report-${{ steps.image-name.outputs.image-name-dashes }}.txt
+          name: ${{ steps.report-name.outputs.report-name }}
+          path: ${{ steps.report-name.outputs.report-name }}.txt

@@ -1,4 +1,4 @@
-name: Get ROCKs modified and build-scan-test-publish them
+name: Get image names and report vulnerabilties in Github
 
 on:
   workflow_call:
@@ -6,11 +6,6 @@ on:
       GH_TOKEN:
         required: true
     inputs:
-      report-vulnerabilities:
-        description: "Whether to report security vulnerabilities through Github issues."
-        required: false
-        default: false
-        type: boolean
       severity:
         description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
         required: false
@@ -20,11 +15,12 @@ on:
 
 jobs:
   get-published-images-names:
-    name: Get published images names
-    uses: ./.github/workflows/get-published-image-names.yaml
+    name: Get images names from rockcraft
+    uses: ./.github/workflows/get-image-names-from-rockcraft.yaml
 
   scan-report-vulnerability:
     needs: get-published-images-names
+    name: Scan and report
     strategy:
       fail-fast: false
       matrix:
@@ -33,5 +29,4 @@ jobs:
     secrets: inherit
     with:
       image-name: ${{ matrix.image-name }}
-      report-vulnerabilities: ${{ inputs.report-vulnerabilities }}
       severity: ${{ inputs.severity }}

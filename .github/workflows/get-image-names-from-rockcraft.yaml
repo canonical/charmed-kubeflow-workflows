@@ -1,15 +1,15 @@
-name: Get oci-images names from Dockerhub
+name: Get oci-images names from rockcraft files
 
 on:
   workflow_call:
     outputs:
       images-names:
-        description: A JSON array of images that Paths in this repository where rockcraft projects are stored
+        description: "A JSON array of all images that have their rockcraft project stored in this repository"
         value: ${{ jobs.get-images-names.outputs.images-names }}
 
 jobs:
   get-images-names:
-    name: Get all rockcraft.yaml paths
+    name: Get image names
     runs-on: ubuntu-22.04
     outputs:
       images-names: ${{ steps.get-images.outputs.images-names }}

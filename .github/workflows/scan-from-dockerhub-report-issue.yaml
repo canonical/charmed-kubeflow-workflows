@@ -1,4 +1,4 @@
-name: Scan from published image and report vulnerabilities
+name: Scan published image and report vulnerabilities
 
 on:
   workflow_call:
@@ -7,11 +7,6 @@ on:
         description: "The published image name to be scanned."
         required: true
         type: string
-      report-vulnerabilities:
-        description: "Whether to report security vulnerabilities through Github issues."
-        required: false
-        default: false
-        type: boolean
       severity:
         description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
         required: false
@@ -19,15 +14,12 @@ on:
         default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
 jobs:
   scan:
-    # uses: canonical/charmed-kubeflow-workflows/.github/workflows/scan-from-published-image.yaml@KF-6331-add-scan-reusable-workflow
     uses: ./.github/workflows/scan-from-published-image.yaml
     secrets: inherit
     with:
       image-name: ${{ inputs.image-name }}
-      report-vulnerabilities: ${{ inputs.report-vulnerabilities }}
       severity: ${{ inputs.severity }}
 
-  # Leaving it here in case we ever want to enable scan and reports on_merge
   report-vulnerability:
     needs: scan
     uses: ./.github/workflows/report-vulnerability-in-gh.yaml
@@ -35,4 +27,5 @@ jobs:
     if: ${{ always() && (needs.scan.result == 'failure') }}
     with:
       issue-title: 'Vulnerabilities found for'
-      image-name: ${{ needs.scan.outputs.image-name-dashes }}
+      image-name: ${{ inputs.image-name }}
+      vulnerability-report-artefact: ${{ needs.scan.outputs.vulnerability-report-artefact-name }}
