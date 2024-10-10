@@ -52,7 +52,7 @@ jobs:
         run: |
           IMAGE_NAME=$(echo ${{ inputs.image-name }} | rev | cut -f2- -d"-" | rev)
           IMAGE_NAME_DASHES=$(echo $IMAGE_NAME | sed 's/\:/-/g')
-          echo "report-name='trivy-report-${IMAGE_NAME_DASHES}'" >> "$GITHUB_OUTPUT"
+          echo "report-name=trivy-report-${IMAGE_NAME_DASHES}" >> "$GITHUB_OUTPUT"
 
       - name: Scan for vulnerabilities
         id: scan
