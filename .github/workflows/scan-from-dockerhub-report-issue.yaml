@@ -1,0 +1,31 @@
+name: Scan published image and report vulnerabilities
+
+on:
+  workflow_call:
+    inputs:
+      image-name:
+        description: "The published image name to be scanned."
+        required: true
+        type: string
+      severity:
+        description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
+        required: false
+        type: string
+        default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+jobs:
+  scan:
+    uses: ./.github/workflows/scan-from-published-image.yaml
+    secrets: inherit
+    with:
+      image-name: ${{ inputs.image-name }}
+      severity: ${{ inputs.severity }}
+
+  report-vulnerability:
+    needs: scan
+    uses: ./.github/workflows/report-vulnerability-in-gh.yaml
+    secrets: inherit
+    if: ${{ always() && (needs.scan.result == 'failure') }}
+    with:
+      issue-title: 'Vulnerabilities found for'
+      image-name: ${{ inputs.image-name }}
+      vulnerability-report-artefact: ${{ needs.scan.outputs.vulnerability-report-artefact-name }}
