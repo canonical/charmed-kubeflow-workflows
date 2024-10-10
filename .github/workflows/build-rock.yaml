@@ -74,7 +74,7 @@ jobs:
           echo "rock-filename=$ROCK" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.metadata.outputs.rock-artifact }}
           path: ${{ inputs.rock-dir }}/${{ steps.metadata.outputs.rock-filename }}
