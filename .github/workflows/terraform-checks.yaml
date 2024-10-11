@@ -42,7 +42,7 @@ jobs:
     name: Lint Terraform
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
       - run: python3 -m pip install tox

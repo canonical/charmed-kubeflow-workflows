@@ -18,7 +18,7 @@ jobs:
     name: Build and scan ROCK
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install tools
@@ -68,7 +68,7 @@ jobs:
           tar zcvf trivy-report-${{ inputs.rock }}.tar.gz trivy-report-${{ inputs.rock }}.json
         working-directory: ${{ inputs.rock }}
       - name: Upload Trivy reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-report-${{ inputs.rock }}
           path: ${{ inputs.rock }}/trivy-report-${{ inputs.rock }}.tar.gz
