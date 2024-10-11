@@ -5,7 +5,7 @@ on:
   workflow_call:
     inputs:
       module-path:
-        description: The path to the Terraform module.
+        description: The path to the Terraform solution module.
         required: true
         type: string
 jobs:
