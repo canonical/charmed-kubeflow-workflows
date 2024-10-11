@@ -1,0 +1,32 @@
+name: Get image names and report vulnerabilties in Github
+
+on:
+  workflow_call:
+    secrets:
+      GH_TOKEN:
+        required: true
+    inputs:
+      severity:
+        description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
+        required: false
+        type: string
+        default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+
+
+jobs:
+  get-published-images-names:
+    name: Get images names from rockcraft
+    uses: ./.github/workflows/get-image-names-from-rockcraft.yaml
+
+  scan-report-vulnerability:
+    needs: get-published-images-names
+    name: Scan and report
+    strategy:
+      fail-fast: false
+      matrix:
+        image-name: ${{ fromJson(needs.get-published-images-names.outputs.images-names) }}
+    uses: ./.github/workflows/scan-from-dockerhub-report-issue.yaml
+    secrets: inherit
+    with:
+      image-name: ${{ matrix.image-name }}
+      severity: ${{ inputs.severity }}

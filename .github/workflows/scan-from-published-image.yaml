@@ -1,0 +1,89 @@
+name: Scan
+
+on:
+  workflow_call:
+    outputs:
+      vulnerability-report-artefact-name:
+        description: "The name of the artefact that contains the vulnerability report."
+        value: ${{ jobs.scan.outputs.vulnerability-report-artefact-name }}
+    inputs:
+      container-registry:
+        description: "The name of the container registry where images are hosted."
+        required: false
+        type: string
+        default: "charmedkubeflow"
+      image-name:
+        description: "The published image name to be scanned."
+        required: true
+        type: string
+      severity:
+        description: "Comma separated list of severities of vulnerabilities to scanned for and displayed"
+        required: false
+        type: string
+        default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
+jobs:
+  scan:
+    name: Scan of ${{ inputs.image-name }}
+    runs-on: ubuntu-22.04
+    outputs:
+      vulnerability-report-artefact-name: ${{ steps.report-name.outputs.report-name }}
+    strategy:
+      fail-fast: false
+    steps:
+      # Ideally we'd use self-hosted runners, but this effort is still not stable.
+      # This action will remove unused software (dotnet, haskell, android libs, codeql,
+      # and docker images) from the GH runner, which will liberate around 60 GB of storage
+      # distributed in 40GB for root and around 20 for a mnt point.
+      # We need it to avoid cases where scanning fails due to "no space left on device".
+      - name: Maximise GH runner space
+        uses: easimon/maximize-build-space@v7
+        with:
+          root-reserve-mb: 29696
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-android: 'true'
+          remove-codeql: 'true'
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate report name
+        id: report-name
+        run: |
+          IMAGE_NAME=$(echo ${{ inputs.image-name }} | rev | cut -f2- -d"-" | rev)
+          IMAGE_NAME_DASHES=$(echo $IMAGE_NAME | sed 's/\:/-/g')
+          echo "report-name=trivy-report-${IMAGE_NAME_DASHES}" >> "$GITHUB_OUTPUT"
+
+      - name: Scan for vulnerabilities
+        id: scan
+        uses: aquasecurity/trivy-action@0.25.0
+        # Workaround for https://github.com/aquasecurity/trivy-action/issues/389
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1
+        with:
+          scan-type: 'image'
+          image-ref: '${{ inputs.container-registry }}/${{ inputs.image-name }}'
+          format: 'table'
+          output: '${{ steps.report-name.outputs.report-name }}.txt'
+          ignore-unfixed: true
+          timeout: '50m0s'
+          exit-code: 1
+          severity: ${{ inputs.severity }}
+          # NOTE: pebble is flagged with a HIGH vuln because of golang.org/x/crypto
+          # CVE-2021-43565, CVE-2022-27191
+          skip-files: '/bin/pebble,/usr/bin/pebble,usr/bin/pebble,bin/pebble'
+
+      - name: Print vulnerabilities report
+        # The report should be printed regardless of the success of the previous step
+        if: success() || failure()
+        run: cat ${{ steps.report-name.outputs.report-name }}.txt
+
+      - name: Upload Trivy reports
+        # The report should be uploaded regardless of the success of the previous steps
+        if: success() || failure()
+        uses: actions/upload-artifact@v4
+        with:
+          compression-level: 0
+          name: ${{ steps.report-name.outputs.report-name }}
+          path: ${{ steps.report-name.outputs.report-name }}.txt
