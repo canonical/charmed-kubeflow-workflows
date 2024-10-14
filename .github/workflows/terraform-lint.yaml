@@ -1,0 +1,20 @@
+name: Lint Terraform module
+
+on:
+  workflow_call:
+    inputs:
+      module-path:
+        description: The path to the Terraform module. Requires a `tflint` tox environment to be present there.
+        required: true
+        type: string
+
+jobs:
+  lint:
+    name: Lint Terraform
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup TFLint
+        uses: terraform-linters/setup-tflint@v4
+      - run: python3 -m pip install tox
+      - run: tox -c ${{ inputs.module-path }} -e tflint
