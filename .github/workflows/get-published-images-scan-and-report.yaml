@@ -11,12 +11,16 @@ on:
         required: false
         type: string
         default: "UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL"
-
+      branch:
+        required: false
+        type: string
 
 jobs:
   get-published-images-names:
     name: Get images names from rockcraft
     uses: ./.github/workflows/get-image-names-from-rockcraft.yaml
+    with:
+      branch: ${{ inputs.branch }}
 
   scan-report-vulnerability:
     needs: get-published-images-names
