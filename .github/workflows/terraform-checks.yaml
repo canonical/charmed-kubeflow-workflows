@@ -1,5 +1,5 @@
 # reusable workflow triggered by other actions
-name: CI
+name: Terraform checks for charm modules
 
 on:
   workflow_call:
@@ -39,12 +39,7 @@ jobs:
       working-directory: ${{ inputs.charm-path }}/terraform
 
   lint:
-    name: Lint Terraform
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
-      - run: python3 -m pip install tox
-      - run: tox -c ${{ inputs.charm-path }} -e tflint
-
+    name: Lint
+    uses: ./.github/workflows/terraform-lint.yaml
+    with:
+      module-path: ${{ inputs.charm-path }}
