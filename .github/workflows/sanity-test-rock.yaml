@@ -38,7 +38,7 @@ jobs:
       - name: Install Rockcraft
         run: sudo snap install rockcraft --classic --edge
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.rock-artifact }}
 
