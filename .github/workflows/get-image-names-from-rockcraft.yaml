@@ -34,12 +34,12 @@ jobs:
         run: |
           set -xeu
           IMAGES_NAMES=()
-          paths=$(find ./ -name "rockcraft.yaml" | sed 's/\.\///g')
+          paths=$(find ./ -name "rockcraft.yaml")
           for d in $paths
           do
-            short_hash=$(git log -n 1 --pretty=%h -- ${d})
-            image_name=$(cat ${d} | yq -r '.name')
-            image_version=$(cat ${d} | yq -r '.version')
+            short_hash=$(git log -n 1 --pretty=%h -- $(dirname ${d}))
+            image_name=$(yq -r '.name' ${d})
+            image_version=$(yq -r '.version' ${d})
             IMAGES_NAMES+=(${image_name}:${image_version}-${short_hash})
           done
           IMAGES_ARRAY=$(jq -c -n '$ARGS.positional' --args "${IMAGES_NAMES[@]}")
