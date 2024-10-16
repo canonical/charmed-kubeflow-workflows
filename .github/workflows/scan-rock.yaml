@@ -51,6 +51,10 @@ jobs:
       - name: Scan for vulnerabilities
         id: scan
         uses: aquasecurity/trivy-action@master
+        # Workaround for https://github.com/aquasecurity/trivy-action/issues/389
+        env:
+          TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
+          TRIVY_JAVA_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-java-db:1
         with:
           scan-type: 'image'
           image-ref: '${{ steps.rock_in_docker.outputs.image }}'
