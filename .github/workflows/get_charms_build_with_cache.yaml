@@ -1,0 +1,32 @@
+name: Get charms and build with cache (common)
+
+on:
+  workflow_call:
+
+jobs:
+
+  get-charm-paths:
+    name: Generate the Charm Matrix content
+    runs-on: ubuntu-latest
+    outputs:
+      charm_paths: ${{ steps.get-charm-paths.outputs.charm-paths }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get paths for all charms in this repo
+        id: get-charm-paths
+        uses: canonical/kubeflow-ci/actions/get-charm-paths@main
+
+  build:
+    name: Build charms
+    uses: canonical/data-platform-workflows/.github/workflows/build_charm.yaml@v21.0.0
+    needs: get-charm-paths
+    strategy:
+      fail-fast: false
+      matrix:
+        charm: ${{ fromJson(needs.get-charm-paths.outputs.charm_paths) }}
+    with:
+      cache: true 
+      charmcraft-snap-channel: 3.x/edge
+      path-to-charm-directory: ./${{ matrix.charm }}
