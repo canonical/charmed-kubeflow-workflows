@@ -1,4 +1,4 @@
-name: Get charms and build with cache (common)
+name: Build charms with cache
 
 on:
   workflow_call:
@@ -28,5 +28,5 @@ jobs:
         charm: ${{ fromJson(needs.get-charm-paths.outputs.charm_paths) }}
     with:
       cache: true 
-      charmcraft-snap-channel: 3.x/edge
+      charmcraft-snap-channel: 3.x/stable
       path-to-charm-directory: ./${{ matrix.charm }}
