@@ -49,6 +49,7 @@ jobs:
           terraform apply -var "channel=${{ inputs.channel }}" -var "model_name=${{ inputs.model }}" --auto-approve
       - name: Wait for the application to be active or blocked
         run: |
+          # Check status of the unit instead of application due to https://github.com/juju/juju/issues/18625
           juju wait-for model ${{ inputs.model }} --query="forEach(units, unit => (unit.workload-status == 'active' || unit.workload-status == 'blocked'))"
       - name: Juju status
         run: juju status
