@@ -22,6 +22,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           charm-path: "${{ inputs.charm-path }}"
+          charmcraft-channel: latest/candidate # TODO: remove after charmcraft 3.3 stable release
 
   lint:
     name: Lint
