@@ -47,6 +47,19 @@
             "automerge": true
         }
     ],
+    "customManagers": [
+        {
+            "customType": "regex",
+            "fileMatch": [
+                "^charmcraft\\.yaml$"
+            ],
+            "matchStrings": [
+                "==(?<currentValue>[^ ]+) +# renovate: charmcraft-pip-latest"
+            ],
+            "depNameTemplate": "pip",
+            "datasourceTemplate": "pypi"
+        }
+    ],
     "schedule": [
         "on the 2nd and 4th day instance on sunday"
     ]
