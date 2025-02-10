@@ -58,6 +58,18 @@
             ],
             "depNameTemplate": "pip",
             "datasourceTemplate": "pypi"
+        },
+        {
+            "customType": "regex",
+            "fileMatch": [
+                "^charmcraft\\.yaml$"
+            ],
+            "matchStrings": [
+                " (?<currentValue>[^ ]+) +# renovate: charmcraft-rust-latest"
+            ],
+            "packageNameTemplate": "rust-lang/rust",
+            "datasourceTemplate": "github-releases",
+            "versioningTemplate": "semver"
         }
     ],
     "schedule": [
