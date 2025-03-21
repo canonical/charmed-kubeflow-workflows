@@ -9,9 +9,9 @@ on:
         default: "latest/stable"
         type: string
       microk8s-channel:
-        description: "Microk8s channel e.g. 1.31/stable"
+        description: "Microk8s channel e.g. 1.32/stable"
         required: true
-        default: "1.31/stable"
+        default: "1.32/stable"
         type: string
       juju-channel:
         description: "Juju channel e.g. 3.6/stable"
