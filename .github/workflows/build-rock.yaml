@@ -9,7 +9,7 @@ on:
         type: string
       rockcraft-channel:
         description: "Rockcraft channel e.g. latest/stable"
-        required: true
+        required: false
         default: "latest/stable"
         type: string
       source-branch:
