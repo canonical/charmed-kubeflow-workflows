@@ -16,7 +16,7 @@ on:
         description: The channel that the charm is deployed from. Defaults to `latest/edge`.
         required: false
         type: string
-        default: latest/edge
+        default: null
       apply:
         description: Boolean value that defines if `apply` job runs. Defaults to `true`.
         required: false
