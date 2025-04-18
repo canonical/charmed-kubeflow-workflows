@@ -51,12 +51,12 @@ jobs:
 
           if [ -n "${{ inputs.channel }}" ]
           then
-            ARGS="${ARGS} -var \"channel=${{ inputs.channel }}\""
+            ARGS="${ARGS} -var channel=${{ inputs.channel }}"
           fi
 
           if [ -n "${{ inputs.model }}" ]
           then
-            ARGS="${ARGS} -var \"model_name=${{ inputs.model }}\""
+            ARGS="${ARGS} -var model_name=${{ inputs.model }}"
           fi
 
           echo "Arguments to be fed to apply command: ${ARGS}"
