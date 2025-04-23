@@ -12,7 +12,7 @@ on:
         type: string
         default: tf-testing
       channel:
-        description: The channel that the charm is deployed from. If not provided, no channel is specified and it is used the default value in the terraform module (which may depend on the specific TF module commit/branch).
+        description: The channel that the charm is deployed from. If not provided, no channel is specified and it is using the default value in the terraform module (which may depend on the specific TF module commit/branch).
         required: false
         type: string
       module-directory:
