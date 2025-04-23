@@ -15,7 +15,6 @@ on:
         description: The channel that the charm is deployed from. Defaults to `latest/stable`.
         required: false
         type: string
-        default: null
       module-directory:
         description: The directory that stores the Terraform module. Defaults to `./terraform`.
         required: false
@@ -47,16 +46,11 @@ jobs:
         run: |
           terraform init
 
-          ARGS=""
+          ARGS=" -var model_name=${{ inputs.model }} "
 
           if [ -n "${{ inputs.channel }}" ]
           then
             ARGS="${ARGS} -var channel=${{ inputs.channel }}"
-          fi
-
-          if [ -n "${{ inputs.model }}" ]
-          then
-            ARGS="${ARGS} -var model_name=${{ inputs.model }}"
           fi
 
           echo "Arguments to be fed to apply command: ${ARGS}"
