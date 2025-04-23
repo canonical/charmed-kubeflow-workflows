@@ -8,15 +8,14 @@ on:
         required: true
         type: string
       model:
-        description: The model that the charm is deployed on. Defaults to `testing`.
+        description: The model that the charm is deployed on. Defaults to `tf-testing`.
         required: false
         type: string
         default: tf-testing
       channel:
-        description: The channel that the charm is deployed from. Defaults to `latest/edge`.
+        description: The channel that the charm is deployed from. If not provided, no channel is specified and it is used the default value in the terraform module (which may depend on the specific TF module commit/branch).
         required: false
         type: string
-        default: null
       apply:
         description: Boolean value that defines if `apply` job runs. Defaults to `true`.
         required: false
