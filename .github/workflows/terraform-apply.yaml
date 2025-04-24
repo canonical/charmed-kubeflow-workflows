@@ -7,15 +7,14 @@ on:
   workflow_call:
     inputs:
       model:
-        description: The model that the charm is deployed on. Defaults to `testing`.
+        description: The model that the charm is deployed on. Defaults to `tf-testing`.
         required: false
         type: string
         default: tf-testing
       channel:
-        description: The channel that the charm is deployed from. Defaults to `latest/stable`.
+        description: The channel that the charm is deployed from. If not provided, no channel is specified and it uses the default value in the terraform module (which may depend on the specific TF module commit/branch).
         required: false
         type: string
-        default: latest/stable
       module-directory:
         description: The directory that stores the Terraform module. Defaults to `./terraform`.
         required: false
@@ -46,7 +45,17 @@ jobs:
         working-directory: ${{ inputs.module-directory }}
         run: |
           terraform init
-          terraform apply -var "channel=${{ inputs.channel }}" -var "model_name=${{ inputs.model }}" --auto-approve
+
+          ARGS=" -var model_name=${{ inputs.model }} "
+
+          if [ -n "${{ inputs.channel }}" ]
+          then
+            ARGS="${ARGS} -var channel=${{ inputs.channel }}"
+          fi
+
+          echo "Arguments to be fed to apply command: ${ARGS}"
+
+          terraform apply ${ARGS} --auto-approve
       - name: Wait for the application to be active or blocked
         run: |
           # Check status of the unit instead of application due to https://github.com/juju/juju/issues/18625
