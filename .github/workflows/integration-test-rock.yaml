@@ -68,18 +68,14 @@ jobs:
         with:
           name: ${{ inputs.rock-artifact }}
 
-      # Remove once https://github.com/canonical/bundle-kubeflow/issues/761
-      # is resolved and applied to all ROCKs repositories
-      - name: Install python version from input
-        if: ${{ inputs.python-version }}
-        run: |
-          sudo add-apt-repository ppa:deadsnakes/ppa -y
-          sudo apt update -y
-          VERSION=${{ inputs.python-version }}
-          sudo apt install python${{ inputs.python-version }} python${{ inputs.python-version }}-distutils python${{ inputs.python-version }}-venv -y
-          wget https://bootstrap.pypa.io/get-pip.py
-          python${{ inputs.python-version }} get-pip.py
-          python${{ inputs.python-version }} -m pip install tox
+    - name: Set up Python version from input
+      if: ${{ inputs.python-version }}
+      uses: actions/setup-python@v5.3.0
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install dependencies
+      run: pip install tox
 
       - name: Export ROCK to Docker
         id: rock_in_docker
