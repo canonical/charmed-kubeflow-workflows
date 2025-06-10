@@ -1,0 +1,36 @@
+name: Install (and set up) tox, either via uv or via pip
+
+on:
+  workflow_call:
+    inputs:
+      tox-uv:
+        description: Whether to install `tox` via `uv` with its `tox-uv` plugin and to run it from `uv`'s environments. The alternative (when false) is simply installing `tox` via `pip` and running `tox` standalone.
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  install-tox:
+    name: Install tox
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Setup tox via pip
+        if: ${{ ! inputs.tox-uv }}
+        run: python3 -m pip install tox
+
+      - name: Setup tox via uv
+        if: ${{ inputs.tox-uv }}
+        run: |
+          # installing uv - see:
+          # https://docs.astral.sh/uv/getting-started/installation/
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+
+          # installing tox via uv together with the plugin to manage tox
+          # environments via uv itself - see:
+          # - https://tox.wiki/en/latest/installation.html
+          # - https://github.com/tox-dev/tox-uv
+          uv tool install tox --with tox-uv
+    
+          # making sure the specific tox managed by uv is found by default:
+          uv tool update-shell
