@@ -19,7 +19,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - uses: canonical/charmed-kubeflow-workflows/.github/actions/install-tox@feat/tox-uv-support
+      - name: Install tox
+        uses: canonical/charmed-kubeflow-workflows/.github/actions/install-tox@feat/tox-uv-support
         with:
           tox-uv: ${{ inputs.tox-uv }}
       - run: tox -e ${{ inputs.charm-name }}-unit

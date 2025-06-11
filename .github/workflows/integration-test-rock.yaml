@@ -79,7 +79,7 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
 
-      - name: Install dependencies
+      - name: Install tox
         uses: canonical/charmed-kubeflow-workflows/.github/actions/install-tox@feat/tox-uv-support
         with:
           tox-uv: ${{ inputs.tox-uv }}
