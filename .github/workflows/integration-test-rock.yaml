@@ -80,7 +80,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Install dependencies
-        uses: canonical/data-platform-workflows/.github/actions/install-tox.yaml@feat/tox-uv-support
+        uses: canonical/charmed-kubeflow-workflows/.github/actions/install-tox.yaml@feat/tox-uv-support
         with:
           tox-uv: ${{ inputs.tox-uv }}
 
