@@ -54,7 +54,7 @@ jobs:
           echo "image=${{ inputs.rock-reference}}" >> "$GITHUB_OUTPUT"
 
       - name: Install tox
-        uses: canonical/charmed-kubeflow-workflows/.github/workflows/_install-tox.yaml
+        uses: ./.github/workflows/_install-tox.yaml
         with:
           tox-uv: ${{ inputs.tox-uv }}
 
