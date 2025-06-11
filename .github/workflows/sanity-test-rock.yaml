@@ -54,7 +54,7 @@ jobs:
           echo "image=${{ inputs.rock-reference}}" >> "$GITHUB_OUTPUT"
 
       - name: Install tox
-        uses: canonical/data-platform-workflows/.github/actions/install-tox.yaml
+        uses: canonical/data-platform-workflows/.github/actions/install-tox.yaml@feat/tox-uv-support
         with:
           tox-uv: ${{ inputs.tox-uv }}
 
