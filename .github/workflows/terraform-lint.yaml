@@ -18,10 +18,10 @@ jobs:
     name: Lint Terraform
     runs-on: ubuntu-24.04
     steps:
+      - uses: actions/checkout@v3
       - name: Setup TFLint
         uses: terraform-linters/setup-tflint@v4
       - uses: ./.github/workflows/_install-tox.yaml
         with:
           tox-uv: ${{ inputs.tox-uv }}
-      - uses: actions/checkout@v3
       - run: tox -c ${{ inputs.module-path }} -e tflint
