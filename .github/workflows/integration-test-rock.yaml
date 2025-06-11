@@ -80,7 +80,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
 
       - name: Install dependencies
-        uses: ./.github/workflows/_install-tox.yaml
+        uses: canonical/data-platform-workflows/.github/actions/install-tox.yaml
         with:
           tox-uv: ${{ inputs.tox-uv }}
 
