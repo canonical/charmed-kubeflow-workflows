@@ -12,10 +12,12 @@ runs:
   steps:
     - name: Setup tox via pip
       if: ${{ ! inputs.tox-uv }}
+      shell: bash
       run: python3 -m pip install tox
 
     - name: Setup tox via uv
       if: ${{ inputs.tox-uv }}
+      shell: bash
       run: |
         # installing uv - see:
         # https://docs.astral.sh/uv/getting-started/installation/
