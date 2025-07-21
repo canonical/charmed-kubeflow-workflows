@@ -9,18 +9,9 @@ on:
       event-name:
         required: true
         type: string
-      published-image:
-        description: "Full image reference published to registry (used for merged PRs)"
-        required: false
-        type: string
-      rock-reference:
-        description: "Rock reference in <name>:<version> form (used in PRs)"
-        required: false
-        type: string
-      registry:
-        description: "Docker registry base (used in PRs)"
-        required: false
-        default: "docker.io/charmedkubeflow"
+      full-image-tag:
+        description: "Full image reference to the built and pushed rock image"
+        required: true
         type: string
 
   workflow_dispatch:
@@ -38,23 +29,14 @@ on:
         required: false
         default: true
         type: boolean
-      published-image:
+      full-image-tag:
         description: "Full image reference from Docker registry"
-        required: false
+        required: true
         type: string
-      rock-reference:
-        description: "Rock reference (e.g. api-server:2.5.0)"
-        required: false
-        type: string
-      registry:
-        description: "Docker registry base (e.g. docker.io/charmedkubeflow)"
-        required: false
-        type: string
-        default: "docker.io/charmedkubeflow"
 
 jobs:
   integrate-rock:
-    name: Integrate ${{ inputs.rock-reference }}
+    name: Integrate ROCK from ${{ inputs.full-image-tag }}
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -68,23 +50,6 @@ jobs:
 
       - name: Install yq
         run: sudo snap install yq
-
-      - name: Determine image tag
-        id: tag
-        run: |
-          if [[ -n "${{ inputs.published-image }}" ]]; then
-            echo "Using published image: ${{ inputs.published-image }}"
-            echo "final_tag=${{ inputs.published-image }}" >> $GITHUB_OUTPUT
-          elif [[ -n "${{ inputs.rock-reference }}" ]]; then
-            echo "Constructing image tag from rock-reference and registry"
-            COMMIT_ID=$(git rev-parse --short HEAD)
-            FINAL_TAG="${{ inputs.registry }}/${{ inputs.rock-reference }}-${COMMIT_ID}"
-            echo "Generated image tag: $FINAL_TAG"
-            echo "final_tag=$FINAL_TAG" >> $GITHUB_OUTPUT
-          else
-            echo "❌ Error: Neither 'published-image' nor 'rock-reference' provided"
-            exit 1
-          fi
 
       - name: Determine target branch and dry-run
         id: params
@@ -132,6 +97,6 @@ jobs:
           chaci integrate-rock \
             "${{ inputs.rock-dir }}/rock-ci-metadata.yaml" \
             "${{ steps.params.outputs.target_branch }}" \
-            "${{ steps.tag.outputs.final_tag }}" \
+            "${{ inputs.full-image-tag }}" \
             ${{ steps.params.outputs.dry_run }} \
             $([[ -n "${{ steps.triggering_pr.outputs.url }}" ]] && echo "--triggering-pr ${{ steps.triggering_pr.outputs.url }}")
