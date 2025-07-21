@@ -59,22 +59,21 @@ jobs:
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
 
-  # integration-tests:
-  #   needs: [build, resolve-image-tag]
-  #   uses: ./.github/workflows/integration-test-rock.yaml
-  #   with:
-  #     tests-dir: ${{ inputs.rock-dir }}
-  #     rock-artifact: ${{ needs.build.outputs.rock-artifact }}
-  #     rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
-  #     rock-filename: ${{ needs.build.outputs.rock-filename }}
-  #     microk8s-channel: ${{ inputs.microk8s-channel }}
-  #     juju-channel: ${{ inputs.juju-channel }}
-  #     python-version: ${{ inputs.python-version }}
+  integration-tests:
+    needs: [build, resolve-image-tag]
+    uses: ./.github/workflows/integration-test-rock.yaml
+    with:
+      tests-dir: ${{ inputs.rock-dir }}
+      rock-artifact: ${{ needs.build.outputs.rock-artifact }}
+      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      microk8s-channel: ${{ inputs.microk8s-channel }}
+      juju-channel: ${{ inputs.juju-channel }}
+      python-version: ${{ inputs.python-version }}
 
   publish:
     if: ${{ github.event_name == 'push' }}
-    # needs: [scan, build, sanity-tests, integration-tests, resolve-image-tag]
-    needs: [scan, build, sanity-tests, resolve-image-tag]
+    needs: [scan, build, sanity-tests, integration-tests, resolve-image-tag]
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
     with:
