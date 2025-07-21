@@ -39,7 +39,7 @@ jobs:
     name: Integrate ${{ inputs.full-image-tag }}
     runs-on: ubuntu-24.04
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
     steps:
       - name: Checkout repo
