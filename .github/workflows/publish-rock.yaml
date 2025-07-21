@@ -29,6 +29,8 @@ jobs:
   publish-rock:
     name: Publish ${{ inputs.rock-reference }}
     runs-on: ubuntu-22.04
+    outputs:
+      published-image: ${{ steps.rock_in_docker.outputs.image }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

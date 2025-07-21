@@ -75,3 +75,21 @@ jobs:
       rock-reference: ${{ needs.build.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       registry: "charmedkubeflow"
+
+  integrate-on-pr:
+    if: ${{ github.event_name == 'pull_request' }}
+    uses: ./.github/workflows/integrate-rock.yaml
+    with:
+      rock-dir: ${{ inputs.rock-dir }}
+      event-name: ${{ github.event_name }}
+    secrets: inherit
+
+  integrate-on-merge:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: publish
+    uses: ./.github/workflows/integrate-rock.yaml
+    with:
+      rock-dir: ${{ inputs.rock-dir }}
+      event-name: ${{ github.event_name }}
+      image-tag: ${{ needs.publish.outputs.published-image }}
+    secrets: inherit

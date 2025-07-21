@@ -1,0 +1,117 @@
+name: Integrate ROCK into charm
+
+on:
+  workflow_call:
+    inputs:
+      rock-dir:
+        required: true
+        type: string
+      event-name:
+        required: true
+        type: string
+      image-tag:
+        description: "Full image tag (e.g. my-rock/1.2.3-commitid)"
+        required: false
+        type: string
+
+  workflow_dispatch:
+    inputs:
+      rock-dir:
+        description: "Path to the rock directory (e.g. rocks/my-rock)"
+        required: true
+        type: string
+      target-branch:
+        description: "Branch to integrate into"
+        required: true
+        type: string
+      dry-run:
+        description: "Run in dry-run mode?"
+        required: false
+        default: true
+        type: boolean
+      image-tag:
+        description: "Full rock image tag (e.g. my-rock/1.2.3-commitid)"
+        required: true
+        type: string
+
+jobs:
+  integrate-rock:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install charmed-analytics-ci
+        run: pip install charmed-analytics-ci
+
+      - name: Install yq
+        run: sudo snap install yq
+
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ -n "${{ inputs.image-tag }}" ]]; then
+            echo "Using provided image tag: ${{ inputs.image-tag }}"
+            echo "final_tag=${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
+          else
+            ROCKCRAFT_YAML="${{ inputs.rock-dir }}/rockcraft.yaml"
+            IMAGE_NAME=$(yq '.name' "$ROCKCRAFT_YAML")
+            IMAGE_VERSION=$(yq '.version' "$ROCKCRAFT_YAML")
+            COMMIT_ID=$(git rev-parse --short HEAD)
+            echo "Generated image tag: $IMAGE_NAME/$IMAGE_VERSION-$COMMIT_ID"
+            echo "final_tag=$IMAGE_NAME/$IMAGE_VERSION-$COMMIT_ID" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine target branch and dry-run
+        id: params
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "target_branch=${{ inputs.target-branch }}" >> $GITHUB_OUTPUT
+            if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+              echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
+            else
+              echo "dry_run=" >> $GITHUB_OUTPUT
+            fi
+          else
+            if [[ "${{ inputs.event-name }}" == "pull_request" ]]; then
+              echo "target_branch=main" >> $GITHUB_OUTPUT
+              echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
+            else
+              echo "target_branch=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+              echo "dry_run=" >> $GITHUB_OUTPUT
+            fi
+          fi
+      
+      - name: Determine triggering PR (if merged)
+        id: triggering_pr
+        run: |
+          if [[ "${{ inputs.event-name }}" != "pull_request" ]]; then
+            sudo apt update && sudo apt install -y gh
+
+            pr_number=$(gh pr list --state merged --search "$(git rev-parse --short HEAD)" --json number --jq '.[0].number' || true)
+
+            if [[ -n "$pr_number" ]]; then
+              pr_url="https://github.com/${{ github.repository }}/pull/$pr_number"
+              echo "Found triggering PR: $pr_url"
+              echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+            else
+              echo "No triggering PR found."
+              echo "url=" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "PR event — skipping triggering PR detection."
+            echo "url=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run chaci integrate-rock
+        run: |
+          chaci integrate-rock \
+            "${{ inputs.rock-dir }}/rock-ci-metadata.yaml" \
+            "${{ steps.params.outputs.target_branch }}" \
+            "${{ steps.tag.outputs.final_tag }}" \
+            ${{ steps.params.outputs.dry_run }} \
+            $([[ -n "${{ steps.triggering_pr.outputs.url }}" ]] && echo "--triggering-pr ${{ steps.triggering_pr.outputs.url }}")
+
