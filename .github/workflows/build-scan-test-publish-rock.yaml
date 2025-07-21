@@ -30,6 +30,12 @@ on:
 
 jobs:
 
+  resolve-image-tag:
+    uses: ./.github/workflows/resolve-image-tag.yaml
+    with:
+      rock-dir: ${{ inputs.rock-dir }}
+      registry: "docker.io/charmedkubeflow"
+
   build:
     uses: ./.github/workflows/build-rock.yaml
     with:
@@ -37,41 +43,34 @@ jobs:
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
   scan:
-    needs: build
+    needs: [build, resolve-image-tag]
     uses: ./.github/workflows/scan-rock.yaml
     secrets: inherit
     with:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
-      rock-reference: ${{ needs.build.outputs.rock-reference }}
+      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
 
   sanity-tests:
-    needs: build
+    needs: [build, resolve-image-tag]
     uses: ./.github/workflows/sanity-test-rock.yaml
     with:
       tests-dir: ${{ inputs.rock-dir }}
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
-      rock-reference: ${{ needs.build.outputs.rock-reference }}
+      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
 
   integration-tests:
-    needs: build
+    needs: [build, resolve-image-tag]
     uses: ./.github/workflows/integration-test-rock.yaml
     with:
       tests-dir: ${{ inputs.rock-dir }}
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
-      rock-reference: ${{ needs.build.outputs.rock-reference }}
+      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
       python-version: ${{ inputs.python-version }}
-  
-  resolve-image-tag:
-    needs: build
-    uses: ./.github/workflows/resolve-image-tag.yaml
-    with:
-      rock-reference: ${{ needs.build.outputs.rock-reference }}
-      registry: "docker.io/charmedkubeflow"
 
   publish:
     if: ${{ github.event_name == 'push' }}
@@ -81,11 +80,12 @@ jobs:
     with:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
 
   integrate-on-pr:
     if: ${{ github.event_name == 'pull_request' }}
-    needs: [build, resolve-image-tag]
+    needs: [resolve-image-tag]
     uses: ./.github/workflows/integrate-rock.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
