@@ -80,7 +80,6 @@ jobs:
     with:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
-      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
 
   integrate-on-pr:
