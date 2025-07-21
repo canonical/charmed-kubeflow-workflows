@@ -54,6 +54,7 @@ on:
 
 jobs:
   integrate-rock:
+    name: Integrate ${{ inputs.rock-reference }}
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
