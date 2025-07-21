@@ -13,6 +13,10 @@ on:
         description: "Full image tag (e.g. my-rock/1.2.3-commitid)"
         required: false
         type: string
+      image-prefix:
+        required: false
+        type: string
+        default: "docker.io/charmedkubeflow/"
 
   workflow_dispatch:
     inputs:
@@ -33,6 +37,11 @@ on:
         description: "Full rock image tag (e.g. my-rock/1.2.3-commitid)"
         required: true
         type: string
+      image-prefix:
+        description: Rock image prefix used only if no image-tag provided
+        required: false
+        type: string
+        default: "docker.io/charmedkubeflow/"
 
 jobs:
   integrate-rock:
@@ -57,12 +66,15 @@ jobs:
             echo "Using provided image tag: ${{ inputs.image-tag }}"
             echo "final_tag=${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
           else
+            echo "No image-tag provided — constructing from rockcraft.yaml"
             ROCKCRAFT_YAML="${{ inputs.rock-dir }}/rockcraft.yaml"
             IMAGE_NAME=$(yq '.name' "$ROCKCRAFT_YAML")
             IMAGE_VERSION=$(yq '.version' "$ROCKCRAFT_YAML")
             COMMIT_ID=$(git rev-parse --short HEAD)
-            echo "Generated image tag: $IMAGE_NAME/$IMAGE_VERSION-$COMMIT_ID"
-            echo "final_tag=$IMAGE_NAME/$IMAGE_VERSION-$COMMIT_ID" >> $GITHUB_OUTPUT
+            PREFIX="${{ inputs.image-prefix }}"
+            FINAL_TAG="${PREFIX}${IMAGE_NAME}:${IMAGE_VERSION}-${COMMIT_ID}"
+            echo "Generated image tag: $FINAL_TAG"
+            echo "final_tag=$FINAL_TAG" >> $GITHUB_OUTPUT
           fi
 
       - name: Determine target branch and dry-run
