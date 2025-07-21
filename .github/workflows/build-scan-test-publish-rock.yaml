@@ -34,7 +34,6 @@ jobs:
     uses: ./.github/workflows/resolve-image-tag.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
-      registry: "docker.io/charmedkubeflow"
 
   build:
     uses: ./.github/workflows/build-rock.yaml

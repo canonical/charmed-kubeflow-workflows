@@ -7,11 +7,6 @@ on:
         description: "Path to rock directory with rockcraft.yaml"
         required: true
         type: string
-      registry:
-        description: "Image registry prefix"
-        required: false
-        default: "docker.io/charmedkubeflow"
-        type: string
 
     outputs:
       rock-reference:
@@ -23,10 +18,13 @@ on:
 
 jobs:
   resolve:
+    name: Resolve tag ${{ inputs.rock-dir }}
     runs-on: ubuntu-22.04
     outputs:
       rock-reference: ${{ steps.extract.outputs.rock-reference }}
       full-image-tag: ${{ steps.extract.outputs.full-image-tag }}
+    env:
+      REGISTRY: ${{ vars.ROCK_IMAGE_REGISTRY }}
 
     steps:
       - name: Checkout repo
@@ -44,7 +42,7 @@ jobs:
           COMMIT_ID=$(git rev-parse --short HEAD)
 
           ROCK_REFERENCE="${NAME}:${VERSION}"
-          FULL_IMAGE_TAG="${{ inputs.registry }}/${ROCK_REFERENCE}-${COMMIT_ID}"
+          FULL_IMAGE_TAG="${REGISTRY}/${ROCK_REFERENCE}-${COMMIT_ID}"
 
           echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
           echo "full-image-tag=$FULL_IMAGE_TAG" >> "$GITHUB_OUTPUT"

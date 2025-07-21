@@ -36,7 +36,7 @@ on:
 
 jobs:
   integrate-rock:
-    name: Integrate ROCK from ${{ inputs.full-image-tag }}
+    name: Integrate ${{ inputs.full-image-tag }}
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
