@@ -9,14 +9,19 @@ on:
       event-name:
         required: true
         type: string
-      image-tag:
-        description: "Full image tag (e.g. my-rock/1.2.3-commitid)"
+      published-image:
+        description: "Full image reference published to registry (used for merged PRs)"
         required: false
         type: string
-      image-prefix:
+      rock-reference:
+        description: "Rock reference in <name>:<version> form (used in PRs)"
         required: false
         type: string
-        default: "docker.io/charmedkubeflow/"
+      registry:
+        description: "Docker registry base (used in PRs)"
+        required: false
+        default: "docker.io/charmedkubeflow"
+        type: string
 
   workflow_dispatch:
     inputs:
@@ -33,15 +38,19 @@ on:
         required: false
         default: true
         type: boolean
-      image-tag:
-        description: "Full rock image tag (e.g. my-rock/1.2.3-commitid)"
-        required: true
-        type: string
-      image-prefix:
-        description: Rock image prefix used only if no image-tag provided
+      published-image:
+        description: "Full image reference from Docker registry"
         required: false
         type: string
-        default: "docker.io/charmedkubeflow/"
+      rock-reference:
+        description: "Rock reference (e.g. api-server:2.5.0)"
+        required: false
+        type: string
+      registry:
+        description: "Docker registry base (e.g. docker.io/charmedkubeflow)"
+        required: false
+        type: string
+        default: "docker.io/charmedkubeflow"
 
 jobs:
   integrate-rock:
@@ -62,19 +71,18 @@ jobs:
       - name: Determine image tag
         id: tag
         run: |
-          if [[ -n "${{ inputs.image-tag }}" ]]; then
-            echo "Using provided image tag: ${{ inputs.image-tag }}"
-            echo "final_tag=${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
-          else
-            echo "No image-tag provided — constructing from rockcraft.yaml"
-            ROCKCRAFT_YAML="${{ inputs.rock-dir }}/rockcraft.yaml"
-            IMAGE_NAME=$(yq '.name' "$ROCKCRAFT_YAML")
-            IMAGE_VERSION=$(yq '.version' "$ROCKCRAFT_YAML")
+          if [[ -n "${{ inputs.published-image }}" ]]; then
+            echo "Using published image: ${{ inputs.published-image }}"
+            echo "final_tag=${{ inputs.published-image }}" >> $GITHUB_OUTPUT
+          elif [[ -n "${{ inputs.rock-reference }}" ]]; then
+            echo "Constructing image tag from rock-reference and registry"
             COMMIT_ID=$(git rev-parse --short HEAD)
-            PREFIX="${{ inputs.image-prefix }}"
-            FINAL_TAG="${PREFIX}${IMAGE_NAME}:${IMAGE_VERSION}-${COMMIT_ID}"
+            FINAL_TAG="${{ inputs.registry }}/${{ inputs.rock-reference }}-${COMMIT_ID}"
             echo "Generated image tag: $FINAL_TAG"
             echo "final_tag=$FINAL_TAG" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Error: Neither 'published-image' nor 'rock-reference' provided"
+            exit 1
           fi
 
       - name: Determine target branch and dry-run
@@ -96,7 +104,7 @@ jobs:
               echo "dry_run=" >> $GITHUB_OUTPUT
             fi
           fi
-      
+
       - name: Determine triggering PR (if merged)
         id: triggering_pr
         run: |
@@ -126,4 +134,3 @@ jobs:
             "${{ steps.tag.outputs.final_tag }}" \
             ${{ steps.params.outputs.dry_run }} \
             $([[ -n "${{ steps.triggering_pr.outputs.url }}" ]] && echo "--triggering-pr ${{ steps.triggering_pr.outputs.url }}")
-

@@ -27,6 +27,7 @@ on:
         default: ""
         required: false
         type: string
+
 jobs:
 
   build:
@@ -40,7 +41,7 @@ jobs:
     uses: ./.github/workflows/scan-rock.yaml
     secrets: inherit
     with:
-      rock-artifact: ${{ needs.build.outputs.rock-artifact}}
+      rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
 
@@ -49,7 +50,7 @@ jobs:
     uses: ./.github/workflows/sanity-test-rock.yaml
     with:
       tests-dir: ${{ inputs.rock-dir }}
-      rock-artifact: ${{ needs.build.outputs.rock-artifact}}
+      rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
 
@@ -58,7 +59,7 @@ jobs:
     uses: ./.github/workflows/integration-test-rock.yaml
     with:
       tests-dir: ${{ inputs.rock-dir }}
-      rock-artifact: ${{ needs.build.outputs.rock-artifact}}
+      rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       microk8s-channel: ${{ inputs.microk8s-channel }}
@@ -71,10 +72,10 @@ jobs:
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
     with:
-      rock-artifact: ${{ needs.build.outputs.rock-artifact}}
+      rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.build.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
-      registry: "charmedkubeflow"
+      registry: "docker.io/charmedkubeflow"
 
   integrate-on-pr:
     if: ${{ github.event_name == 'pull_request' }}
@@ -82,6 +83,8 @@ jobs:
     with:
       rock-dir: ${{ inputs.rock-dir }}
       event-name: ${{ github.event_name }}
+      rock-reference: ${{ needs.build.outputs.rock-reference }}
+      registry: "docker.io/charmedkubeflow"
     secrets: inherit
 
   integrate-on-merge:
@@ -91,5 +94,5 @@ jobs:
     with:
       rock-dir: ${{ inputs.rock-dir }}
       event-name: ${{ github.event_name }}
-      image-tag: ${{ needs.publish.outputs.published-image }}
+      published-image: ${{ needs.publish.outputs.published-image }}
     secrets: inherit
