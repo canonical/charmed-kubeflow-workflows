@@ -1,0 +1,48 @@
+name: Resolve image tag
+
+on:
+  workflow_call:
+    inputs:
+      rock-dir:
+        description: "Path to rock directory with rockcraft.yaml"
+        required: true
+        type: string
+
+    outputs:
+      rock-reference:
+        description: "<rock-name>:<version> format"
+        value: ${{ jobs.resolve.outputs.rock-reference }}
+      full-image-tag:
+        description: "Fully qualified image tag"
+        value: ${{ jobs.resolve.outputs.full-image-tag }}
+
+jobs:
+  resolve:
+    name: Resolve tag ${{ inputs.rock-dir }}
+    runs-on: ubuntu-24.04
+    outputs:
+      rock-reference: ${{ steps.extract.outputs.rock-reference }}
+      full-image-tag: ${{ steps.extract.outputs.full-image-tag }}
+    env:
+      REGISTRY: ${{ vars.ROCK_IMAGE_REGISTRY }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: sudo snap install yq
+
+      - name: Extract and construct image tag
+        id: extract
+        working-directory: ${{ inputs.rock-dir }}
+        run: |
+          NAME=$(yq '.name' rockcraft.yaml)
+          VERSION=$(yq '.version' rockcraft.yaml)
+          COMMIT_ID=$(git rev-parse --short HEAD)
+
+          ROCK_REFERENCE="${NAME}:${VERSION}"
+          FULL_IMAGE_TAG="${REGISTRY}/${ROCK_REFERENCE}-${COMMIT_ID}"
+
+          echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
+          echo "full-image-tag=$FULL_IMAGE_TAG" >> "$GITHUB_OUTPUT"

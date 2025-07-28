@@ -7,36 +7,34 @@ on:
         description: "Name of the artifact from which the ROCK will be downloaded."
         required: true
         type: string
-      rock-reference:
-        description: "Rock reference to be used in order to copy the image to docker cache.
-          It consists of <rock-name>:<rock-version>."
-        required: true
-        type: string
       rock-filename:
         description: "Filename of the .rock file"
         required: true
         type: string
-      registry:
-        description: "Registry where the image will be published"
+      full-image-tag:
+        description: "Full image tag to publish (e.g. docker.io/org/rock:version-commit)"
         required: true
         type: string
       source-branch:
-        description: Github branch to checkout. If blank, it will use default values.
-        default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
+        description: "GitHub branch to checkout. If blank, it will use the default branch of the repository."
+        default: ''
         required: false
         type: string
+
 jobs:
   publish-rock:
-    name: Publish ${{ inputs.rock-reference }}
-    runs-on: ubuntu-22.04
+    name: Publish ${{ inputs.full-image-tag }}
+    runs-on: ubuntu-24.04
+    outputs:
+      published-image: ${{ steps.push.outputs.image }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.source-branch }}
-      
+
       - name: Install Rockcraft
-        run: sudo snap install rockcraft --classic --edge
+        run: sudo snap install rockcraft --classic
 
       - uses: actions/download-artifact@v4
         with:
@@ -49,22 +47,25 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Export ROCK to Docker
-        id: rock_in_docker
         run: |
-          COMMIT_ID=$(git rev-parse --short HEAD)
-          DOCKER_IMAGE=${{ inputs.rock-reference }}-$COMMIT_ID
-          sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.registry }}/$DOCKER_IMAGE
-          echo "image=$DOCKER_IMAGE" >> "$GITHUB_OUTPUT"
+          echo "Exporting image to Docker: ${{ inputs.full-image-tag }}"
+          sudo rockcraft.skopeo --insecure-policy copy \
+            oci-archive:${{ inputs.rock-filename }} \
+            docker-daemon:${{ inputs.full-image-tag }}
 
-      - name: Publish to dockerhub
+      - name: Publish to Docker Hub
+        id: push
         run: |
-          # Check if image already exists on dockerhub and publish
-          # Returns 0 if exists, 1 if it doesn't
-          IMAGE_EXISTS=$(docker manifest inspect ${{ inputs.registry }}/${{ steps.rock_in_docker.outputs.image }} > /dev/null ; echo $?)
-          if [[ "$IMAGE_EXISTS" == "0" ]]
-          then
-            echo "Image ${{ steps.rock_in_docker.outputs.image }} already exists in dockerhub registry ${{ inputs.registry }}"
+          IMAGE="${{ inputs.full-image-tag }}"
+          echo "Checking if image exists: $IMAGE"
+          IMAGE_EXISTS=$(docker manifest inspect "$IMAGE" > /dev/null 2>&1 ; echo $?)
+
+          if [[ "$IMAGE_EXISTS" == "0" ]]; then
+            echo "Image $IMAGE already exists in Docker Hub — skipping push."
             exit 1
           else
-            docker push ${{ inputs.registry }}/${{ steps.rock_in_docker.outputs.image }}
+            echo "Pushing image to Docker Hub: $IMAGE"
+            docker push "$IMAGE"
           fi
+
+          echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
