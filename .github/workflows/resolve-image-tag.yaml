@@ -19,7 +19,7 @@ on:
 jobs:
   resolve:
     name: Resolve tag ${{ inputs.rock-dir }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       rock-reference: ${{ steps.extract.outputs.rock-reference }}
       full-image-tag: ${{ steps.extract.outputs.full-image-tag }}

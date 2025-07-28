@@ -16,7 +16,7 @@ on:
         required: true
         type: string
       source-branch:
-        description: "GitHub branch to checkout. If blank, it will use default values."
+        description: "GitHub branch to checkout. If blank, it will use the default branch of the repository."
         default: ''
         required: false
         type: string
@@ -24,7 +24,7 @@ on:
 jobs:
   publish-rock:
     name: Publish ${{ inputs.full-image-tag }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       published-image: ${{ steps.push.outputs.image }}
     steps:
@@ -34,7 +34,7 @@ jobs:
           ref: ${{ inputs.source-branch }}
 
       - name: Install Rockcraft
-        run: sudo snap install rockcraft --classic --edge
+        run: sudo snap install rockcraft --classic
 
       - uses: actions/download-artifact@v4
         with:
