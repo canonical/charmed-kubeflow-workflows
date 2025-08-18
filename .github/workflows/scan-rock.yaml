@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       rock-artifact:
-        description: "Name of the artifact from which the ROCK will be downloaded."
+        description: "Name of the artifact from which the rock will be downloaded."
         required: true
         type: string
       rock-reference:
@@ -42,7 +42,7 @@ jobs:
         with:
           name: ${{ inputs.rock-artifact }}
 
-      - name: Export ROCK to Docker
+      - name: Export rock to Docker
         id: rock_in_docker
         run: |
           sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:rock:tag

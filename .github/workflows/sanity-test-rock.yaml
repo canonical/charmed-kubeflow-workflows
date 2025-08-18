@@ -1,4 +1,4 @@
-name: Integration tests
+name: Sanity tests
 
 on:
   workflow_call:
@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       rock-artifact:
-        description: "Name of the artifact from which the ROCK will be downloaded."
+        description: "Name of the artifact from which the rock will be downloaded."
         required: true
         type: string
       rock-reference:
@@ -26,7 +26,7 @@ on:
         required: false
         type: string
 jobs:
-  tests:
+  sanity-tests:
     name: Sanity test ${{ inputs.rock-reference }}
     runs-on: ubuntu-22.04
     steps:
@@ -42,7 +42,7 @@ jobs:
         with:
           name: ${{ inputs.rock-artifact }}
 
-      - name: Export ROCK to Docker
+      - name: Export rock to Docker
         id: rock_in_docker
         run: |
           sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename}} docker-daemon:${{ inputs.rock-reference }}

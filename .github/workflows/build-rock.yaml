@@ -21,13 +21,13 @@ on:
     outputs:
       rock-artifact:
         description: "Name of the artifact that the built rock has been uploaded to."
-        value: ${{ jobs.build-rock.outputs.rock-artifact }}
+        value: ${{ jobs.build.outputs.rock-artifact }}
       rock-filename:
         description: "Filename of the .rock file produced"
-        value: ${{ jobs.build-rock.outputs.rock-filename }}
+        value: ${{ jobs.build.outputs.rock-filename }}
 
 jobs:
-  build-rock:
+  build:
     name: Build ${{ inputs.rock-dir }}
     runs-on: ubuntu-24.04
     outputs:
