@@ -9,7 +9,7 @@ on:
 
 jobs:
   get-all-rock-paths:
-    name: All rockcraft paths
+    name: Get rockcraft.yaml paths
     runs-on: ubuntu-22.04
     outputs:
       paths: ${{ steps.find.outputs.paths}}
@@ -27,7 +27,7 @@ jobs:
           echo "${paths}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
   rock-dirs-with-changes:
-    name: Rockcraft paths modified
+    name: Filter modified paths
     needs: get-all-rock-paths
     runs-on: ubuntu-22.04
     permissions:
