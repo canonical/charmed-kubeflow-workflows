@@ -1,4 +1,4 @@
-name: Get ROCKs modified and build-scan-test-publish them
+name: Get rocks modified and build-scan-test-publish them
 
 on:
   workflow_call:
@@ -30,6 +30,7 @@ jobs:
     uses: ./.github/workflows/get-rocks-modified.yaml
 
   build-scan-test-publish-rock:
+    name: CI
     needs: get-rock-paths-modified
     strategy:
       fail-fast: false

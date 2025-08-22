@@ -35,7 +35,7 @@ on:
         type: string
 
 jobs:
-  integrate-rock:
+  integrate:
     name: Integrate ${{ inputs.full-image-tag }}
     runs-on: ubuntu-24.04
     env:

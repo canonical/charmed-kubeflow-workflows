@@ -14,7 +14,6 @@ on:
 jobs:
 
   on-push:
-    name: Get ROCKs modified and build-scan-test-publish them
     uses: canonical/charmed-kubeflow-workflows/.github/workflows/get-rocks-modified-and-build-scan-test-publish.yaml@main
     permissions:
       pull-requests: read

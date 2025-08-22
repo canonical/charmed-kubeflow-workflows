@@ -1,15 +1,15 @@
-name: Get ROCKs modified
+name: Get rocks modified
 
 on:
   workflow_call:
     outputs:
       paths:
-        description: Get paths for ROCKs modified
+        description: Get paths for rocks modified
         value: ${{ jobs.rock-dirs-with-changes.outputs.rock_paths }}
 
 jobs:
   get-all-rock-paths:
-    name: Get all rockcraft.yaml paths
+    name: Get rockcraft.yaml paths
     runs-on: ubuntu-22.04
     outputs:
       paths: ${{ steps.find.outputs.paths}}
@@ -27,7 +27,7 @@ jobs:
           echo "${paths}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
   rock-dirs-with-changes:
-    name: Get paths for ROCKs modified by PR
+    name: Filter modified paths
     needs: get-all-rock-paths
     runs-on: ubuntu-22.04
     permissions:

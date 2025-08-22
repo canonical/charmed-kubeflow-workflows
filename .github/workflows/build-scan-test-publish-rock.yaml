@@ -1,4 +1,4 @@
-name: Build, scan, and test ROCK
+name: Build, scan, and test rock
 
 on:
   workflow_call:

@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       rock-artifact:
-        description: "Name of the artifact from which the ROCK will be downloaded."
+        description: "Name of the artifact from which the rock will be downloaded."
         required: true
         type: string
       rock-reference:
@@ -42,7 +42,7 @@ on:
         type: string
 
 jobs:
-  tests:
+  integration-tests:
     name: Test ${{ inputs.rock-reference }}
     runs-on: ubuntu-22.04
     steps:
@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: pip install tox
 
-      - name: Export ROCK to Docker
+      - name: Export rock to Docker
         id: rock_in_docker
         run: |
           sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.rock-reference }}
