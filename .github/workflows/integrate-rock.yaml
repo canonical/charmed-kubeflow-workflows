@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install charmed-analytics-ci
-        run: pipx install charmed-analytics-ci==1.1.0
+        run: pipx install charmed-analytics-ci==1.2.0
 
       - name: Install yq
         run: sudo snap install yq
