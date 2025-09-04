@@ -26,22 +26,21 @@ on:
         type: string
 
 jobs:
-  get-charm-paths:    
+  get-charm-paths:
     # forks don't have access to keyrings and cannot publish, we just skip these jobs from forks
     if: github.event.pull_request.head.repo.fork == false
-    
-    name: Generate the Charm Matrix content (bash)
-    runs-on: ubuntu-latest
+
+    name: Generate the Charm Matrix content
+    runs-on: ubuntu-24.04
     outputs:
       charm_paths: ${{ steps.get-charm-paths.outputs.charm-paths }}
     steps:
-      - uses: actions/checkout@v4
-        with: 
+      - uses: actions/checkout@v5
+        with:
           fetch-depth: 0
       - name: Get paths for all charms in this repo
         id: get-charm-paths
-        uses: ca-scribner/github-actions-recipes/get-charm-paths@master
-
+        uses: canonical/kubeflow-ci/actions/get-charm-paths@main
 
   publish-charm:
     name: Publish Charm
