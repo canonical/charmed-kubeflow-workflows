@@ -40,6 +40,11 @@ on:
         default: ""
         required: false
         type: string
+      tox-uv:
+        description: Whether to install `tox` via `uv` with its `tox-uv` plugin and to run it from `uv`'s environments. The alternative (when false) is simply installing `tox` via `pip` and running `tox` standalone.
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   integration-tests:
@@ -74,8 +79,10 @@ jobs:
         with:
           python-version: ${{ inputs.python-version }}
 
-      - name: Install dependencies
-        run: pip install tox
+      - name: Install tox
+        uses: canonical/charmed-kubeflow-workflows/.github/actions/install-tox@feat/tox-uv-support
+        with:
+          tox-uv: ${{ inputs.tox-uv }}
 
       - name: Export rock to Docker
         id: rock_in_docker
