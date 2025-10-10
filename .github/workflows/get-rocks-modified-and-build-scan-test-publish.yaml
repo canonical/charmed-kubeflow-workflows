@@ -23,11 +23,18 @@ on:
         default: ""
         required: false
         type: string
+      base-branch:
+        description: Branch, tag, or commit SHA against which the changes will be detected.
+        required: false
+        default: main
+        type: string
 
 jobs:
   get-rock-paths-modified:
     name: Get rockcraft paths modified
     uses: ./.github/workflows/get-rocks-modified.yaml
+    with:
+      base-branch: ${{ inputs.base-branch }}
 
   build-scan-test-publish-rock:
     name: CI
