@@ -2,6 +2,12 @@ name: Get rocks modified
 
 on:
   workflow_call:
+    inputs:
+      base-ref:
+        description: Branch, tag, or commit SHA against which the changes will be detected.
+        required: false
+        default: main
+        type: string
     outputs:
       paths:
         description: Get paths for rocks modified
@@ -42,3 +48,4 @@ jobs:
         id: filter
         with:
           filters: ${{ needs.get-all-rock-paths.outputs.paths}}
+          base: ${{ inputs.base-ref }}
