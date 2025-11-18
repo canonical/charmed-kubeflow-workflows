@@ -35,6 +35,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
+          echo "GH_TOKEN: ${GH_TOKEN}"
           tracks=$(yq '.automatic_backport_tracks[]' ${{ inputs.track_file_path }})
           for track in $tracks; do
             echo "Found track ${track}..."
