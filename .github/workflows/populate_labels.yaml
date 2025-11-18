@@ -26,16 +26,18 @@ on:
 jobs:
   populate-labels:
     runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           ref: ${{ inputs.source-branch }}
+      - name: Install yq
+        run: sudo snap install yq
       - name: Add labels to PR
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          echo "GH_TOKEN: ${GH_TOKEN}"
+          # echo "GH_TOKEN: ${GH_TOKEN}"
           tracks=$(yq '.automatic_backport_tracks[]' ${{ inputs.track_file_path }})
           for track in $tracks; do
             echo "Found track ${track}..."
