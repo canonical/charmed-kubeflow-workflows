@@ -26,12 +26,9 @@ jobs:
           git_config_global: true
           git_user_signingkey: true
           git_commit_gpgsign: true
-      # This forces GPG to read the password from the script, not a popup window.
-      # - name: Configure GPG for non-interactive mode
-      #   run: |
-      #     echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-      #     gpg-connect-agent reloadagent /bye
-      #     echo "GPG_TTY=$(tty)" >> $GITHUB_ENV
+      - name: Test phrase
+        run: |
+          echo ${{ secrets.CHACI_GPG_PASSPHRASE }}
       - name: Create backport pull requests
         uses: korthout/backport-action@v3
         with:
