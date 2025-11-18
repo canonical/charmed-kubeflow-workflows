@@ -1,0 +1,43 @@
+name: Populate Labels
+
+on:
+  workflow_call:
+    inputs:
+      track_file_path:
+        description: "Path to the .yaml file containing the tracks to populate the labels"
+        required: true
+        type: string
+      label_prefix:
+        description: "Prefix to add to each label"
+        required: false
+        default: ""
+        type: string
+      label_suffix:
+        description: "Suffix to add to each label"
+        required: false
+        default: ""
+        type: string
+      source-branch:
+        description: "GitHub branch to checkout. If blank, it will use default values."
+        default: ''
+        required: false
+        type: string
+
+jobs:
+  populate-labels:
+    - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.source-branch }}
+    - name: Add labels to PR
+      env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        tracks=$(yq '.automatic_backport_tracks[]' ${{ inputs.track_file_path }})
+        for track in $tracks; do
+          echo "Found track ${track}..."
+          full_label="${{ inputs.label_prefix }}${track}${{ inputs.label_suffix }}"
+
+          gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
+          echo "Added label ${full_label}!"
+        done
