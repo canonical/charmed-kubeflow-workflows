@@ -17,9 +17,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
-      - name: Import and configure the GPG key for chaci
+      - name: Import and configure the GPG key
         id: import-gpg
-        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec
+        uses: crazy-max/ghaction-import-gpg@v6.3.0
         with:
           gpg_private_key: ${{ secrets.CHACI_GPG_PRIVATE }}
           passphrase: ${{ secrets.CHACI_GPG_PASSPHRASE }}
@@ -30,7 +30,7 @@ jobs:
       - name: Configure GPG for non-interactive mode
         run: |
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
-          echo RELOADAGENT | gpg-connect-agent
+          gpg-connect-agent reloadagent /bye
           echo "GPG_TTY=$(tty)" >> $GITHUB_ENV
       - name: Create backport pull requests
         uses: korthout/backport-action@v3
