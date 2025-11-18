@@ -26,9 +26,9 @@ on:
 jobs:
   populate-labels:
     - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          ref: ${{ inputs.source-branch }}
+      uses: actions/checkout@v5
+      with:
+        ref: ${{ inputs.source-branch }}
     - name: Add labels to PR
       env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
