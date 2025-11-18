@@ -25,6 +25,7 @@ on:
       # We will remove this after the fact
       secrets:
         GH_TOKEN:
+          type: string
           required: true
 
 jobs:
