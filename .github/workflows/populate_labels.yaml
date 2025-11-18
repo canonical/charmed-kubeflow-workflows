@@ -34,12 +34,12 @@ jobs:
       - name: Add labels to PR
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          run: |
-            tracks=$(yq '.automatic_backport_tracks[]' ${{ inputs.track_file_path }})
-            for track in $tracks; do
-              echo "Found track ${track}..."
-              full_label="${{ inputs.label_prefix }}${track}${{ inputs.label_suffix }}"
+        run: |
+          tracks=$(yq '.automatic_backport_tracks[]' ${{ inputs.track_file_path }})
+          for track in $tracks; do
+            echo "Found track ${track}..."
+            full_label="${{ inputs.label_prefix }}${track}${{ inputs.label_suffix }}"
               
-              gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
-              echo "Added label ${full_label}!"
-            done
+            gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
+            echo "Added label ${full_label}!"
+          done
