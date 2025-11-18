@@ -47,7 +47,10 @@ jobs:
           for track in $tracks; do
             echo "Found track ${track}..."
             full_label="${{ inputs.label_prefix }}${track}${{ inputs.label_suffix }}"
-              
+
+            # Create label if it doesn't already exist
+            gh label create "$full_label" --color 05713A --description "Backport to $track" || true
+            
             gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
             echo "Added label ${full_label}!"
           done
