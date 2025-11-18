@@ -96,7 +96,7 @@ jobs:
             fi
           fi
 
-      - name: Import and configure the GPG key for chaci
+      - name: Import and configure the GPG key
         uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec
         with:
           gpg_private_key: ${{ secrets.CHACI_GPG_PRIVATE }}
