@@ -22,11 +22,10 @@ on:
         default: ''
         required: false
         type: string
-      # We will remove this after the fact
-      secrets:
-        GH_TOKEN:
-          type: string
-          required: true
+    # We will remove this after the fact
+    secrets:
+      GH_TOKEN:
+        required: true
 
 jobs:
   populate-labels:
