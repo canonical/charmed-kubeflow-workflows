@@ -1,0 +1,36 @@
+name: Backport PR
+
+on:
+  workflow_call:
+    # We will remove this after the fact
+    secrets:
+      CHACI_GPG_PRIVATE:
+        required: true
+      CHACI_GPG_PASSPHRASE:
+        required: true
+      GH_TOKEN:
+        required: true
+
+jobs:
+  backport-pr:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Import and configure the GPG key
+        id: import-gpg
+        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec
+        with:
+          gpg_private_key: ${{ secrets.CHACI_GPG_PRIVATE }}
+          passphrase: ${{ secrets.CHACI_GPG_PASSPHRASE }}
+          git_config_global: true
+          git_user_signingkey: true
+      - name: Create backport pull requests
+        uses: korthout/backport-action@v3
+        with:
+          copy_assignees: true
+          copy_requested_reviewers: true
+          github_token: ${{ secrets.GH_TOKEN }}
+          experimental: '{"conflict_resolution": "draft_commit_conflicts"}'
+          git_committer_name: ${{ steps.import-gpg.outputs.name }}
+          git_committer_email: ${{ steps.import-gpg.outputs.email }}
