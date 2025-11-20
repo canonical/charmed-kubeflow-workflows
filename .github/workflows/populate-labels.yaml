@@ -53,7 +53,7 @@ jobs:
             gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
             echo "Added label ${full_label}!"
           done
-          echo "Labels were added automatically by \`populate-labels.yaml\`." > comment_body.txt
+          echo "Labels were added automatically by \`populate-labels.yaml\`. When the Pull Request is merged, backports to according to the labels will be automatically created." > comment_body.txt
       - name: Post Comment
         run: |
           export GH_TOKEN=${{ secrets.GH_TOKEN }}
