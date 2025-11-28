@@ -1,0 +1,17 @@
+name: Lint PR title
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+permissions:
+  pull-requests: read
+
+jobs:
+  lint:
+    uses: ./.github/workflows/_pull-request-lint-title.yaml
+    secrets: inherit
