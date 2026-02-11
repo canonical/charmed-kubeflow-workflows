@@ -71,7 +71,7 @@ jobs:
           sudo snap install rockcraft --classic
           
           cd ${{ inputs.rock-dir || '.' }}
-          rockcraft pack ${{ inputs.rockcraft-extra-args }}
+          sudo --user "$USER" rockcraft pack ${{ inputs.rockcraft-extra-args }}
           NAME=$(find . -name "*.rock")
           
           echo "rock=$NAME" >> "$GITHUB_OUTPUT"
