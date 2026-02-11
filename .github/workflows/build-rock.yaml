@@ -49,18 +49,18 @@ jobs:
 
       - uses: canonical/craft-actions/rockcraft-pack@main
         id: rockcraft
-        if: ${{ inputs.rockcraft-extra-args == "" }}
+        if: ${{ inputs.rockcraft-extra-args == '' }}
         with:
           path: ./${{ inputs.rock-dir }}
           rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
       - id: rockcraft-manual
-        if: ${{ inputs.rockcraft-extra-args != "" }}
+        if: ${{ inputs.rockcraft-extra-args != '' }}
         run: |
           
           sudo snap install rockcraft --classic
           
-          cd ${{ inputs.rock-dir || "." }}
+          cd ${{ inputs.rock-dir || '.' }}
           rockcraft pack ${{ inputs.rockcraft-extra-args }}
           NAME=$(find . -name "*.rock")
           
