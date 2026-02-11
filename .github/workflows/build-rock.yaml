@@ -12,6 +12,11 @@ on:
         required: false
         default: "latest/stable"
         type: string
+      rockcraft-extra-args:
+        description: "Extra arguments to be used when packing the rocks"
+        required: false
+        default: ""
+        type: string
       source-branch:
         description: "GitHub branch to checkout. If blank, it will use default values."
         default: ''
@@ -44,15 +49,28 @@ jobs:
 
       - uses: canonical/craft-actions/rockcraft-pack@main
         id: rockcraft
+        if: ${{ inputs.rockcraft-extra-args == "" }}
         with:
           path: ./${{ inputs.rock-dir }}
           rockcraft-channel: ${{ inputs.rockcraft-channel }}
+
+      - id: rockcraft-manual
+        if: ${{ inputs.rockcraft-extra-args != "" }}
+        run: |
+          
+          sudo snap install rockcraft --classic
+          
+          cd ${{ inputs.rock-dir || "." }}
+          rockcraft pack ${{ inputs.rockcraft-extra-args }}
+          NAME=$(find . -name "*.rock")
+          
+          echo "rock=$NAME" >> "$GITHUB_OUTPUT"
 
       - name: Output rock filename
         id: metadata
         run: |
           NAME=$(yq eval ".name" rockcraft.yaml)
-          ROCK=$(echo ${{ steps.rockcraft.outputs.rock }} | sed 's:.*/::')
+          ROCK=$(echo ${{ steps.rockcraft.outputs.rock || steps.rockcraft-manual.outputs.rock }} | sed 's:.*/::')
           echo "rock-artifact=$NAME" >> "$GITHUB_OUTPUT"
           echo "rock-filename=$ROCK" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
