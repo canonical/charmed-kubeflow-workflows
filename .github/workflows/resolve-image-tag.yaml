@@ -26,7 +26,7 @@ jobs:
     outputs:
       rock-reference: ${{ steps.extract.outputs.rock-reference }}
       full-image-tag: ${{ steps.extract.outputs.full-image-tag }}
-      base: $${{ steps.extract.outputs.base }}
+      base: ${{ steps.extract.outputs.base }}
     env:
       REGISTRY: ${{ vars.ROCK_IMAGE_REGISTRY }}
 
@@ -43,7 +43,7 @@ jobs:
         run: |
           NAME=$(yq '.name' rockcraft.yaml)
           VERSION=$(yq '.version' rockcraft.yaml)
-          BASE=$(yq '.name' rockcraft.yaml)
+          BASE=$(yq '.base' rockcraft.yaml)
           COMMIT_ID=$(git rev-parse --short HEAD)
 
           ROCK_REFERENCE="${NAME}:${VERSION}"
