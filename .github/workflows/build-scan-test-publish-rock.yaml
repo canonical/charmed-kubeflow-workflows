@@ -36,10 +36,12 @@ jobs:
       rock-dir: ${{ inputs.rock-dir }}
 
   build:
+    needs: [resolve-image-tag]
     uses: ./.github/workflows/build-rock.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
+      rockcraft-extra-args: ${{ needs.resolve-image-tag.outputs.base == 'ubuntu@20.04' && '--ignore=unmaintained' || '' }}
 
   scan:
     needs: [build, resolve-image-tag]
