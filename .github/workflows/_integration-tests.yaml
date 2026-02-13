@@ -14,20 +14,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@1.1.0
-        with:
-          provider: microk8s
-          channel: 1.32/stable
-          juju-channel: 2.9/stable
-          bootstrap-options: --agent-version="2.9.43"
-          microk8s-addons: "dns storage rbac metallb:'10.64.140.43-10.64.140.49,192.168.0.105-192.168.0.111'"
 
+      - name: Install dependencies
+        run: pipx install tox
 
-      # TODO: Remove once https://bugs.launchpad.net/juju/+bug/2024897 is fixed
-      - name: Refresh Juju snap
+      - name: Setup environment
         run: |
-          sudo snap refresh juju --revision 22345
+          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
+          sudo rm -rf /run/containerd
+          sudo snap install concierge --classic
+          sudo concierge prepare --trace
 
       - name: Run integration test
         run: |
