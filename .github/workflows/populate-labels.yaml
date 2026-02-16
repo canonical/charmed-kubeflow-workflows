@@ -22,7 +22,6 @@ on:
         default: ''
         required: false
         type: string
-    # We will remove this after the fact
     secrets:
       GH_TOKEN:
         required: true
@@ -34,7 +33,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.source-branch }}
       - name: Install yq
@@ -49,14 +48,20 @@ jobs:
 
             # Create label if it doesn't already exist
             gh label create "$full_label" --color 05713A --description "Backport to $track" || true
-            
+
             gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
             echo "Added label ${full_label}!"
           done
-          echo "Labels were added automatically by \`populate-labels.yaml\`. When the Pull Request is merged, backport Pull Requests according to the labels will be automatically created." > comment_body.txt
+          cat <<EOF > comment_body.txt
+          ### 🤖 Backport labels populated
+
+          Labels to this pull request were added automatically by the \`populate-labels.yaml\` action.
+
+          When the PR is merged, backport PRs according to the labels will be automatically created. To skip the backport creation, remove any unneeded labels before merging the PR.
+          EOF
       - name: Post Comment
         run: |
           export GH_TOKEN=${{ secrets.GH_TOKEN }}
-          
+
           # Post the comment using the simplified body file
           gh pr comment "${{ github.event.pull_request.number }}" --body-file comment_body.txt
