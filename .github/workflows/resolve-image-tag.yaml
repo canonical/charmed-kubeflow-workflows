@@ -15,6 +15,9 @@ on:
       full-image-tag:
         description: "Fully qualified image tag"
         value: ${{ jobs.resolve.outputs.full-image-tag }}
+      base:
+        description: "Base of the image"
+        value: ${{ jobs.resolve.outputs.base }}
 
 jobs:
   resolve:
@@ -23,6 +26,7 @@ jobs:
     outputs:
       rock-reference: ${{ steps.extract.outputs.rock-reference }}
       full-image-tag: ${{ steps.extract.outputs.full-image-tag }}
+      base: ${{ steps.extract.outputs.base }}
     env:
       REGISTRY: ${{ vars.ROCK_IMAGE_REGISTRY }}
 
@@ -39,10 +43,12 @@ jobs:
         run: |
           NAME=$(yq '.name' rockcraft.yaml)
           VERSION=$(yq '.version' rockcraft.yaml)
+          BASE=$(yq '.base' rockcraft.yaml)
           COMMIT_ID=$(git rev-parse --short HEAD)
 
           ROCK_REFERENCE="${NAME}:${VERSION}"
           FULL_IMAGE_TAG="${REGISTRY}/${ROCK_REFERENCE}-${COMMIT_ID}"
 
+          echo "base=$BASE" >> "$GITHUB_OUTPUT"
           echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
           echo "full-image-tag=$FULL_IMAGE_TAG" >> "$GITHUB_OUTPUT"

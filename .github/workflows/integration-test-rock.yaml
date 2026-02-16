@@ -44,17 +44,10 @@ on:
 jobs:
   integration-tests:
     name: Test ${{ inputs.rock-reference }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Maximise GH runner space
-        uses: easimon/maximize-build-space@v7
-        with:
-          root-reserve-mb: 29696
-          remove-dotnet: 'true'
-          remove-haskell: 'true'
-          remove-android: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -86,14 +79,15 @@ jobs:
       - name: Clean up .rock file
         run: rm ${{ inputs.rock-filename }}
 
-      - name: Setup operator environment
-        uses: charmed-kubernetes/actions-operator@main
-        with:
-            provider: microk8s
-            channel: ${{ inputs.microk8s-channel }}
-            charmcraft-channel: latest/candidate
-            microk8s-addons: "dns hostpath-storage rbac ingress metallb:10.64.140.43-10.64.140.49"
-            juju-channel: ${{ inputs.juju-channel }}
+      - name: Install dependencies
+        run: pipx install tox
+
+      - name: Setup environment
+        run: |
+          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
+          sudo rm -rf /run/containerd
+          sudo snap install concierge --classic
+          sudo concierge prepare --trace
 
       - name: Integration tests
         run: |
