@@ -1,5 +1,15 @@
 name: Backport PR
 
+# Description:
+#   Automates the creation of backport pull requests to target branches.
+#   This is a reusable workflow designed to be called by a parent workflow
+#   and triggered usually triggered on a PR merge.
+#
+# Inputs:
+#   - GH_TOKEN: A GitHub PAT with repo and workflow scopes.
+#   - CHACI_GPG_PRIVATE: The exported GPG private key used to sign backport commits.
+#   - CHACI_GPG_PASSPHRASE: The passphrase for the provided GPG key.
+
 on:
   workflow_call:
     secrets:

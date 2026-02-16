@@ -1,5 +1,16 @@
 name: Populate Labels
 
+# Description:
+#   Automatically parses a YAML track file and applies backport labels to a PR.
+#
+# Inputs:
+#   - track_file_path: Location of the YAML file defining backport targets.
+#   - label_prefix/suffix: Optional strings to format label names (e.g., "backport/").
+#   - source-branch: The branch to check out to find the track file.
+# Secrets:
+#   - GH_TOKEN: GitHub PAT. Requires 'pull-requests: write' and 'repository-projects: write'
+#     permissions to create labels and post comments.
+
 on:
   workflow_call:
     inputs:
