@@ -5,6 +5,10 @@ on:
     secrets:
       GH_TOKEN:
         required: true
+      CHACI_GPG_PRIVATE:
+        required: true
+      CHACI_GPG_PASSPHRASE:
+        required: true
 
 jobs:
   backport-pr:
