@@ -2,12 +2,7 @@ name: Backport PR
 
 on:
   workflow_call:
-    # We will remove this after the fact
     secrets:
-      CHACI_GPG_PRIVATE:
-        required: true
-      CHACI_GPG_PASSPHRASE:
-        required: true
       GH_TOKEN:
         required: true
 
