@@ -63,16 +63,9 @@ jobs:
             gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
             echo "Added label ${full_label}!"
           done
-          cat <<EOF > comment_body.txt
-          ### 🤖 Backport labels populated
-
-          Labels to this pull request were added automatically by the \`populate-labels.yaml\` action.
-
-          When the PR is merged, backport PRs according to the labels will be automatically created. To skip the backport creation, remove any unneeded labels before merging the PR.
-          EOF
       - name: Post Comment
         run: |
           export GH_TOKEN=${{ secrets.GH_TOKEN }}
 
           # Post the comment using the simplified body file
-          gh pr comment "${{ github.event.pull_request.number }}" --body-file comment_body.txt
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file .github/templates/populate-labels-comment.txt

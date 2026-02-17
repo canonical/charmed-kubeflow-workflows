@@ -1,0 +1,5 @@
+### 🤖 Backport labels populated
+
+Labels to this pull request were added automatically by the `populate-labels.yaml` action.
+
+When the PR is merged, backport PRs according to the labels will be automatically created. To skip the backport creation, remove any unneeded labels before merging the PR.
