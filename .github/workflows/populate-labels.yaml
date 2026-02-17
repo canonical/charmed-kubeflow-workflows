@@ -76,4 +76,4 @@ jobs:
           export GH_TOKEN=${{ secrets.GH_TOKEN }}
 
           # Post the comment using the simplified body file
-          gh pr comment "${{ github.event.pull_request.number }}" --body-file workflow/repository/.github/templates/populate-labels-comment.txt
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file workflow-repository/.github/templates/populate-labels-comment.txt
