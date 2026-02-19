@@ -1,0 +1,80 @@
+name: Populate Labels
+
+# Description:
+#   Automatically parses a YAML track file and applies backport labels to a PR.
+#
+# Inputs:
+#   - track_file_path: Location of the YAML file defining backport targets.
+#   - label_prefix/suffix: Optional strings to format label names (e.g., "backport/").
+#   - source-branch: The branch to check out to find the track file.
+# Secrets:
+#   - GH_TOKEN: GitHub PAT. Requires 'pull-requests: write' and 'repository-projects: write'
+#     permissions to create labels and post comments.
+
+on:
+  workflow_call:
+    inputs:
+      track_file_path:
+        description: "Path to the .yaml file containing the tracks to populate the labels"
+        required: true
+        type: string
+      label_prefix:
+        description: "Prefix to add to each label"
+        required: false
+        default: ""
+        type: string
+      label_suffix:
+        description: "Suffix to add to each label"
+        required: false
+        default: ""
+        type: string
+      source-branch:
+        description: "GitHub branch to checkout. If blank, it will use default values."
+        default: ''
+        required: false
+        type: string
+    secrets:
+      GH_TOKEN:
+        required: true
+
+jobs:
+  populate-labels:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+    steps:
+      - name: Checkout remote repository
+        uses: actions/checkout@v6
+        with:
+          path: remote-repository
+          ref: ${{ inputs.source-branch }}
+      - name: Install yq
+        run: sudo snap install yq
+      - name: Add labels to PR
+        working-directory: remote-repository
+        run: |
+          export GH_TOKEN=${{ secrets.GH_TOKEN }}
+          tracks=$(yq '.automatic_backport_tracks[]' ${{ inputs.track_file_path }})
+          for track in $tracks; do
+            echo "Found track ${track}..."
+            full_label="${{ inputs.label_prefix }}${track}${{ inputs.label_suffix }}"
+
+            # Create label if it doesn't already exist
+            gh label create "$full_label" --color 05713A --description "Backport to $track" || true
+
+            gh pr edit "${{ github.event.pull_request.number }}" --add-label "$full_label"
+            echo "Added label ${full_label}!"
+          done
+      - name: Checkout workflow repository
+        uses: actions/checkout@v6
+        with:
+          repository: canonical/charmed-kubeflow-workflows
+          ref: main
+          path: workflow-repository
+      - name: Post Comment
+        working-directory: remote-repository
+        run: |
+          export GH_TOKEN=${{ secrets.GH_TOKEN }}
+
+          # Post the comment using the simplified body file
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file ../workflow-repository/.github/templates/populate-labels-comment.txt
