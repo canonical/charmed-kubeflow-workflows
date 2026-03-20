@@ -50,7 +50,7 @@ jobs:
 
       - name: Scan for vulnerabilities
         id: scan
-        uses: aquasecurity/trivy-action@0.25.0
+        uses: aquasecurity/trivy-action@0.35.0
         # Workaround for https://github.com/aquasecurity/trivy-action/issues/389
         env:
           TRIVY_DB_REPOSITORY: public.ecr.aws/aquasecurity/trivy-db:2
