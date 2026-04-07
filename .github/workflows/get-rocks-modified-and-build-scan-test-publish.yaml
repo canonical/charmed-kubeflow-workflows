@@ -39,6 +39,7 @@ jobs:
   build-scan-test-publish-rock:
     name: CI
     needs: get-rock-paths-modified
+    if: ${{ needs.get-rock-paths-modified.outputs.paths != '[]' }}
     strategy:
       fail-fast: false
       matrix:
