@@ -41,7 +41,7 @@ jobs:
           copy_assignees: true
           add_author_as_reviewer: true
           pull_title: "${pull_title} (backport #${pull_number})"
-          token: ${{ secret.GH_TOKEN }}
+          token: ${{ secrets.GH_TOKEN }}
           github_token: ${{ secrets.GH_TOKEN }}
           experimental: '{"conflict_resolution": "draft_commit_conflicts"}'
           git_committer_name: ${{ steps.import-gpg.outputs.name }}
