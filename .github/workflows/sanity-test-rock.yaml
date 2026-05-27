@@ -25,6 +25,12 @@ on:
         default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
         required: false
         type: string
+      rockcraft-channel:
+        description: "Rockcraft channel e.g. latest/stable"
+        required: false
+        default: "latest/stable"
+        type: string
+
 jobs:
   sanity-tests:
     name: Sanity test ${{ inputs.rock-reference }}
@@ -36,7 +42,7 @@ jobs:
           ref: ${{ inputs.source-branch }}
       
       - name: Install Rockcraft
-        run: sudo snap install rockcraft --classic --edge
+        run: sudo snap install rockcraft --classic --channel=${{ inputs.rockcraft-channel }}
 
       - uses: actions/download-artifact@v4
         with:

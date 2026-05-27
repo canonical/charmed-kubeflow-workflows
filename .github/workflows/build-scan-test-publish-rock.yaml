@@ -9,17 +9,17 @@ on:
         type: string
       rockcraft-channel:
         description: "Rockcraft channel e.g. latest/stable"
-        required: true
+        required: false
         default: "latest/stable"
         type: string
       microk8s-channel:
         description: "Microk8s channel e.g. 1.32/stable"
-        required: true
+        required: false
         default: "1.32/stable"
         type: string
       juju-channel:
         description: "Juju channel e.g. 3.6/stable"
-        required: true
+        required: false
         default: "3.6/stable"
         type: string
       python-version:
@@ -51,6 +51,7 @@ jobs:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
   sanity-tests:
     needs: [build, resolve-image-tag]
@@ -60,6 +61,7 @@ jobs:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
   integration-tests:
     needs: [build, resolve-image-tag]
@@ -72,6 +74,7 @@ jobs:
       microk8s-channel: ${{ inputs.microk8s-channel }}
       juju-channel: ${{ inputs.juju-channel }}
       python-version: ${{ inputs.python-version }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
   publish:
     if: ${{ github.event_name == 'push' }}
@@ -82,6 +85,7 @@ jobs:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
   integrate-on-pr:
     if: ${{ github.event_name == 'pull_request' }}

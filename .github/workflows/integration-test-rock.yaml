@@ -20,14 +20,19 @@ on:
         description: "Filename of the .rock file"
         required: true
         type: string
+      rockcraft-channel:
+        description: "Rockcraft channel e.g. latest/stable"
+        required: false
+        default: "latest/stable"
+        type: string
       microk8s-channel:
         description: "Microk8s channel e.g. 1.32/stable"
-        required: true
+        required: false
         default: "1.32/stable"
         type: string
       juju-channel:
         description: "Juju channel e.g. 3.6/stable"
-        required: true
+        required: false
         default: "3.6/stable"
         type: string
       source-branch:
@@ -43,7 +48,7 @@ on:
 
 jobs:
   integration-tests:
-    name: Test ${{ inputs.rock-reference }}
+    name: Integration test ${{ inputs.rock-reference }}
     runs-on: ubuntu-24.04
     steps:
       - name: Maximise GH runner space
@@ -55,7 +60,7 @@ jobs:
           ref: ${{ inputs.source-branch }}
 
       - name: Install Rockcraft
-        run: sudo snap install rockcraft --classic --edge
+        run: sudo snap install rockcraft --classic --channel=${{ inputs.rockcraft-channel }}
 
       - uses: actions/download-artifact@v4
         with:
@@ -79,16 +84,6 @@ jobs:
       - name: Clean up .rock file
         run: rm ${{ inputs.rock-filename }}
 
-      - name: Install dependencies
-        run: pipx install tox
-
-      - name: Setup environment
-        run: |
-          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
-          sudo rm -rf /run/containerd
-          sudo snap install concierge --classic
-          sudo concierge prepare --trace
-
       - name: Integration tests
         run: |
           if [[ "${{ inputs.python-version }}" ]]
@@ -98,41 +93,3 @@ jobs:
             tox -e integration
           fi
         working-directory: ./${{ inputs.tests-dir }}
-
-      - name: Save debug artifacts
-        if: failure() || cancelled()
-        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
-
-      - name: Setup Debug Artifact Collection
-        if: failure() || cancelled()
-        run: mkdir tmp
-
-      - name: Collect charmcraft logs
-        if: failure() || cancelled()
-        run: |
-          cat /home/runner/.local/state/charmcraft/log/charmcraft-*.log | tee tmp/charmcraft.log
-
-      - name: Collect Juju status
-        if: failure() || cancelled()
-        run: juju status | tee tmp/juju-status.txt
-
-      - name: Collect Juju log
-        if: failure() || cancelled()
-        run: juju debug-log --replay --no-tail | tee tmp/juju-status.txt
-
-      - name: Collect Kube status
-        if: failure() || cancelled()
-        run: |
-          kubectl get all -A | tee tmp/kube-summary.txt
-          kubectl describe pods -A | tee tmp/kube-pods.txt
-          kubectl describe virtualservices -A | tee tmp/kube-virtualservices.txt
-          kubectl describe gateways -A | tee tmp/kube-gateways.txt
-          kubectl describe deployments -A | tee tmp/kube-deployments.txt
-          kubectl describe replicasets -A | tee tmp/kubectl-replicasets.txt
-
-      - name: Upload debug artifacts
-        if: failure() || cancelled()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-run-artifacts
-          path: tmp
