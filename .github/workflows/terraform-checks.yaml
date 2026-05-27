@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: true
+      tox-uv:
+        description: Whether to install `tox` via `uv` with its `tox-uv` plugin and to run it from `uv`'s environments. The alternative (when false) is simply installing `tox` via `pip` and running `tox` standalone.
+        required: false
+        type: boolean
+        default: false
 jobs:
   apply:
     name: Apply
@@ -42,3 +47,4 @@ jobs:
     uses: ./.github/workflows/terraform-lint.yaml
     with:
       module-path: ${{ inputs.charm-path }}
+      tox-uv: ${{ inputs.tox-uv }}

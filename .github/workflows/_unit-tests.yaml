@@ -7,6 +7,11 @@ on:
       charm-name:
         required: true
         type: string
+      tox-uv:
+        description: Whether to install `tox` via `uv` with its `tox-uv` plugin and to run it from `uv`'s environments. The alternative (when false) is simply installing `tox` via `pip` and running `tox` standalone.
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   unit:
@@ -14,5 +19,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - run: python3 -m pip install tox
+      - name: Install tox
+        uses: canonical/charmed-kubeflow-workflows/.github/actions/install-tox@feat/tox-uv-support
+        with:
+          tox-uv: ${{ inputs.tox-uv }}
       - run: tox -e ${{ inputs.charm-name }}-unit
