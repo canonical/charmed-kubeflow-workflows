@@ -37,14 +37,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.source-branch }}
-      
+          persist-credentials: false
+
       - name: Install Rockcraft
         run: sudo snap install rockcraft --classic --channel=${{ inputs.rockcraft-channel }}
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.rock-artifact }}
 

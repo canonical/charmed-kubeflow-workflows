@@ -55,20 +55,21 @@ jobs:
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.source-branch }}
+          persist-credentials: false
 
       - name: Install Rockcraft
         run: sudo snap install rockcraft --classic --channel=${{ inputs.rockcraft-channel }}
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.rock-artifact }}
 
       - name: Set up Python version from input
         if: ${{ inputs.python-version }}
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ inputs.python-version }}
 
