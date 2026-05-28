@@ -20,21 +20,6 @@ on:
         description: "Filename of the .rock file"
         required: true
         type: string
-      rockcraft-channel:
-        description: "Rockcraft channel e.g. latest/stable"
-        required: false
-        default: "latest/stable"
-        type: string
-      microk8s-channel:
-        description: "Microk8s channel e.g. 1.32/stable"
-        required: false
-        default: "1.32/stable"
-        type: string
-      juju-channel:
-        description: "Juju channel e.g. 3.6/stable"
-        required: false
-        default: "3.6/stable"
-        type: string
       source-branch:
         description: "Github branch to checkout. If blank, it will use default values."
         default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
@@ -47,8 +32,31 @@ on:
         type: string
 
 jobs:
+  check-integration-tests:
+    name: Check for integration test files
+    runs-on: ubuntu-24.04
+    outputs:
+      has-integration-tests: ${{ steps.check.outputs.has-integration-tests }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source-branch }}
+          persist-credentials: false
+
+      - name: Check for integration test files
+        id: check
+        run: |
+          if find "${{ inputs.tests-dir }}" -name '*integration*' | grep -q .; then
+            echo "has-integration-tests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-integration-tests=false" >> "$GITHUB_OUTPUT"
+          fi
+
   integration-tests:
-    name: Integration test ${{ inputs.rock-reference }}
+    name: Integration tests
+    needs: check-integration-tests
+    if: needs.check-integration-tests.outputs.has-integration-tests == 'true'
     runs-on: ubuntu-24.04
     steps:
       - name: Maximise GH runner space
@@ -60,9 +68,6 @@ jobs:
           ref: ${{ inputs.source-branch }}
           persist-credentials: false
 
-      - name: Install Rockcraft
-        run: sudo snap install rockcraft --classic --channel=${{ inputs.rockcraft-channel }}
-
       - uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.rock-artifact }}
@@ -72,6 +77,13 @@ jobs:
         uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ inputs.python-version }}
+
+      - name: Setup environment
+        run: |
+          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
+          sudo rm -rf /run/containerd
+          sudo snap install concierge --classic
+          sudo concierge prepare --trace
 
       - name: Install dependencies
         run: pip install tox

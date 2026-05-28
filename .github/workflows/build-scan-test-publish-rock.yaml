@@ -71,10 +71,7 @@ jobs:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
-      microk8s-channel: ${{ inputs.microk8s-channel }}
-      juju-channel: ${{ inputs.juju-channel }}
       python-version: ${{ inputs.python-version }}
-      rockcraft-channel: ${{ inputs.rockcraft-channel }}
 
   publish:
     if: ${{ github.event_name == 'push' }}
