@@ -20,16 +20,6 @@ on:
         description: "Filename of the .rock file"
         required: true
         type: string
-      microk8s-channel:
-        description: "Microk8s channel e.g. 1.32/stable"
-        required: true
-        default: "1.32/stable"
-        type: string
-      juju-channel:
-        description: "Juju channel e.g. 3.6/stable"
-        required: true
-        default: "3.6/stable"
-        type: string
       source-branch:
         description: "Github branch to checkout. If blank, it will use default values."
         default: '' # For default behaviour, see https://github.com/actions/checkout/tree/v4/#usage
@@ -42,30 +32,58 @@ on:
         type: string
 
 jobs:
+  check-integration-tests:
+    name: Check for integration test files
+    runs-on: ubuntu-24.04
+    outputs:
+      has-integration-tests: ${{ steps.check.outputs.has-integration-tests }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.source-branch }}
+          persist-credentials: false
+
+      - name: Check for integration test files
+        id: check
+        run: |
+          if find "${{ inputs.tests-dir }}" -name '*integration*' | grep -q .; then
+            echo "has-integration-tests=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has-integration-tests=false" >> "$GITHUB_OUTPUT"
+          fi
+
   integration-tests:
-    name: Test ${{ inputs.rock-reference }}
+    name: Integration tests
+    needs: check-integration-tests
+    if: needs.check-integration-tests.outputs.has-integration-tests == 'true'
     runs-on: ubuntu-24.04
     steps:
       - name: Maximise GH runner space
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.source-branch }}
+          persist-credentials: false
 
-      - name: Install Rockcraft
-        run: sudo snap install rockcraft --classic --edge
-
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.rock-artifact }}
 
       - name: Set up Python version from input
         if: ${{ inputs.python-version }}
-        uses: actions/setup-python@v5.3.0
+        uses: actions/setup-python@v6.2.0
         with:
           python-version: ${{ inputs.python-version }}
+
+      - name: Setup environment
+        run: |
+          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
+          sudo rm -rf /run/containerd
+          sudo snap install concierge --classic
+          sudo concierge prepare --trace
 
       - name: Install dependencies
         run: pip install tox
@@ -79,16 +97,6 @@ jobs:
       - name: Clean up .rock file
         run: rm ${{ inputs.rock-filename }}
 
-      - name: Install dependencies
-        run: pipx install tox
-
-      - name: Setup environment
-        run: |
-          sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
-          sudo rm -rf /run/containerd
-          sudo snap install concierge --classic
-          sudo concierge prepare --trace
-
       - name: Integration tests
         run: |
           if [[ "${{ inputs.python-version }}" ]]
@@ -99,40 +107,10 @@ jobs:
           fi
         working-directory: ./${{ inputs.tests-dir }}
 
+      - name: Get Juju status
+        if: always()
+        run: juju status --relations
+
       - name: Save debug artifacts
-        if: failure() || cancelled()
+        if: failure()
         uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
-
-      - name: Setup Debug Artifact Collection
-        if: failure() || cancelled()
-        run: mkdir tmp
-
-      - name: Collect charmcraft logs
-        if: failure() || cancelled()
-        run: |
-          cat /home/runner/.local/state/charmcraft/log/charmcraft-*.log | tee tmp/charmcraft.log
-
-      - name: Collect Juju status
-        if: failure() || cancelled()
-        run: juju status | tee tmp/juju-status.txt
-
-      - name: Collect Juju log
-        if: failure() || cancelled()
-        run: juju debug-log --replay --no-tail | tee tmp/juju-status.txt
-
-      - name: Collect Kube status
-        if: failure() || cancelled()
-        run: |
-          kubectl get all -A | tee tmp/kube-summary.txt
-          kubectl describe pods -A | tee tmp/kube-pods.txt
-          kubectl describe virtualservices -A | tee tmp/kube-virtualservices.txt
-          kubectl describe gateways -A | tee tmp/kube-gateways.txt
-          kubectl describe deployments -A | tee tmp/kube-deployments.txt
-          kubectl describe replicasets -A | tee tmp/kubectl-replicasets.txt
-
-      - name: Upload debug artifacts
-        if: failure() || cancelled()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-run-artifacts
-          path: tmp

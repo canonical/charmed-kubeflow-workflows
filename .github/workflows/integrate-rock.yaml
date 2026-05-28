@@ -44,7 +44,9 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Install charmed-analytics-ci
         run: pipx install charmed-analytics-ci==1.2.0
@@ -64,10 +66,10 @@ jobs:
             fi
           else
             if [[ "${{ inputs.event-name }}" == "pull_request" ]]; then
-              echo "target_branch=main" >> $GITHUB_OUTPUT
+              echo "target_branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
               echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
             else
-              echo "target_branch=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+              echo "target_branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
               echo "dry_run=" >> $GITHUB_OUTPUT
             fi
           fi
@@ -97,7 +99,7 @@ jobs:
           fi
 
       - name: Import and configure the GPG key for chaci
-        uses: crazy-max/ghaction-import-gpg@e89d40939c28e39f97cf32126055eeae86ba74ec
+        uses: crazy-max/ghaction-import-gpg@92a10f995fd20944e1cae9a2e86e62dafe4f6171
         with:
           gpg_private_key: ${{ secrets.CHACI_GPG_PRIVATE }}
           passphrase: ${{ secrets.CHACI_GPG_PASSPHRASE }}
