@@ -66,10 +66,10 @@ jobs:
             fi
           else
             if [[ "${{ inputs.event-name }}" == "pull_request" ]]; then
-              echo "target_branch=main" >> $GITHUB_OUTPUT
+              echo "target_branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
               echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
             else
-              echo "target_branch=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+              echo "target_branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
               echo "dry_run=" >> $GITHUB_OUTPUT
             fi
           fi
