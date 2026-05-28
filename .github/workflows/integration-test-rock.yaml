@@ -106,3 +106,11 @@ jobs:
             tox -e integration
           fi
         working-directory: ./${{ inputs.tests-dir }}
+
+      - name: Get Juju status
+        if: always()
+        run: juju status --relations
+
+      - name: Save debug artifacts
+        if: failure()
+        uses: canonical/kubeflow-ci/actions/dump-charm-debug-artifacts@main
