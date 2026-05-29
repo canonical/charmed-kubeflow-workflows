@@ -19,8 +19,9 @@ jobs:
       images-names: ${{ steps.get-images.outputs.images-names }}
     steps:
       - name: Checkout repository code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
+          persist-credentials: false
           fetch-depth: 0
           ref: ${{ inputs.branch }}
 

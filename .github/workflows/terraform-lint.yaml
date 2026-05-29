@@ -17,6 +17,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Setup TFLint
-        uses: terraform-linters/setup-tflint@v4
+        uses: terraform-linters/setup-tflint@v6
       - run: python3 -m pip install tox
       - run: tox -c ${{ inputs.module-path }} -e tflint

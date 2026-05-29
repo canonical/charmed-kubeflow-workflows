@@ -39,7 +39,9 @@ jobs:
         uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Generate report name
         id: report-name
@@ -76,7 +78,7 @@ jobs:
       - name: Upload Trivy reports
         # The report should be uploaded regardless of the success of the previous steps
         if: success() || failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           compression-level: 0
           name: ${{ steps.report-name.outputs.report-name }}
