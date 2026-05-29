@@ -1,0 +1,52 @@
+# Copyright 2026 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: Check Terraform Module
+
+on:
+  workflow_call:
+    inputs:
+      branch-name:
+        description: Name of the branch to checkout
+        required: false
+        type: string
+        default: ${{ github.ref }}
+      working-directory:
+        description: The directory that stores the Terraform modules
+        required: false
+        default: ./terraform
+        type: string
+
+jobs:
+  check-terraform:
+    name: Check Terraform
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          ref: ${{ inputs.branch-name }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Initialize Terraform Module
+        run: terraform init
+
+      - name: Validate Terraform Module
+        run: terraform validate -no-color
+
+      - name: Validate terraform fmt
+        run: |
+          set +e 
+          terraform fmt -recursive -check -diff
+          FMT_STATUS="$?"
+          if [[ "$FMT_STATUS" -ne 0 ]]; then
+            echo "❌ terraform fmt failed" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit "$FMT_STATUS"
