@@ -33,7 +33,7 @@ jobs:
 
   check:
     name: Check
-    uses: canonical/sdcore-github-workflows/.github/workflows/terraform.yaml@v1.0.0
+    uses: ./.github/workflows/terraform-checks-module.yaml
     with:
       working-directory: ${{ inputs.charm-path }}/terraform
 

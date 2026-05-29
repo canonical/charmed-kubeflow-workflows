@@ -27,7 +27,9 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - name: Setup environment
         run: |
           sudo apt-get remove -y docker-ce docker-ce-cli containerd.io
