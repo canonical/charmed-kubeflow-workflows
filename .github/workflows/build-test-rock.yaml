@@ -1,0 +1,64 @@
+name: Build and test rock
+
+on:
+  workflow_call:
+    inputs:
+      rock-dir:
+        description: "Path to rock directory, i.e. directory containing rockcraft.yaml"
+        required: true
+        type: string
+      rockcraft-channel:
+        description: "Rockcraft channel e.g. latest/stable"
+        required: false
+        default: "latest/stable"
+        type: string
+      microk8s-channel:
+        description: "Microk8s channel e.g. 1.32/stable"
+        required: false
+        default: "1.32/stable"
+        type: string
+      juju-channel:
+        description: "Juju channel e.g. 3.6/stable"
+        required: false
+        default: "3.6/stable"
+        type: string
+      python-version:
+        description: "Version of python to use for integration tests. If empty, it will use machine's default"
+        default: ""
+        required: false
+        type: string
+
+jobs:
+
+  resolve-image-tag:
+    uses: ./.github/workflows/resolve-image-tag.yaml
+    with:
+      rock-dir: ${{ inputs.rock-dir }}
+
+  build:
+    needs: [resolve-image-tag]
+    uses: ./.github/workflows/build-rock.yaml
+    with:
+      rock-dir: ${{ inputs.rock-dir }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
+      rockcraft-extra-args: ${{ needs.resolve-image-tag.outputs.base == 'ubuntu@20.04' && '--ignore=unmaintained' || '' }}
+
+  sanity-tests:
+    needs: [build, resolve-image-tag]
+    uses: ./.github/workflows/sanity-test-rock.yaml
+    with:
+      tests-dir: ${{ inputs.rock-dir }}
+      rock-artifact: ${{ needs.build.outputs.rock-artifact }}
+      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      rockcraft-channel: ${{ inputs.rockcraft-channel }}
+
+  integration-tests:
+    needs: [build, resolve-image-tag]
+    uses: ./.github/workflows/integration-test-rock.yaml
+    with:
+      tests-dir: ${{ inputs.rock-dir }}
+      rock-artifact: ${{ needs.build.outputs.rock-artifact }}
+      rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
+      rock-filename: ${{ needs.build.outputs.rock-filename }}
+      python-version: ${{ inputs.python-version }}
