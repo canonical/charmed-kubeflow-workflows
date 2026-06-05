@@ -1,10 +1,10 @@
-name: Get all rocks and build-test them
+name: Get all rocks and build-scan-test-publish them
 
 on:
   workflow_call:
     inputs:
       base-ref:
-        description: "Branch, tag, or commit SHA to discover, build and test rocks from. If empty, the workflow's default ref is used."
+        description: "Branch, tag, or commit SHA to discover, build, test and publish rocks from. If empty, the workflow's default ref is used."
         required: false
         default: ''
         type: string
@@ -16,7 +16,7 @@ jobs:
     with:
       base-ref: ${{ inputs.base-ref }}
 
-  build-test:
+  build-scan-test-publish:
     name: CI (${{ matrix.rock-dir }})
     needs: get-all-rock-paths
     if: ${{ needs.get-all-rock-paths.outputs.paths != '[]' }}
@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         rock-dir: ${{ fromJson(needs.get-all-rock-paths.outputs.paths) }}
-    uses: ./.github/workflows/build-test-rock.yaml
+    uses: ./.github/workflows/build-scan-test-publish-rock.yaml
     secrets: inherit
     with:
       rock-dir: ${{ matrix.rock-dir }}
@@ -32,7 +32,7 @@ jobs:
 
   report-failures:
     name: Report failure (${{ matrix.rock-dir }})
-    needs: [get-all-rock-paths, build-test]
+    needs: [get-all-rock-paths, build-scan-test-publish]
     if: ${{ always() && needs.get-all-rock-paths.outputs.paths != '[]' }}
     runs-on: ubuntu-22.04
     permissions:
@@ -49,7 +49,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ROCK_DIR: ${{ matrix.rock-dir }}
         run: |
-          # The build-test matrix leg above is named "CI (<rock-dir>)".
+          # The build-scan-test-publish matrix leg above is named "CI (<rock-dir>)".
           # Because it `uses:` a reusable workflow, the actual GitHub jobs in
           # this run are named "CI (<rock-dir>) / <inner-job>". Match any of
           # those and aggregate their conclusions.
@@ -69,7 +69,7 @@ jobs:
         if: steps.check.outputs.failed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: ${{ github.ref_name }}
+          BRANCH: ${{ inputs.base-ref }}
           ROCK_DIR: ${{ matrix.rock-dir }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |

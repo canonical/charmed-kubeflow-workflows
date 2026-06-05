@@ -27,6 +27,11 @@ on:
         default: ""
         required: false
         type: string
+      base-ref:
+        description: "Branch, tag, or commit SHA to checkout, build, test and publish. If empty, the workflow's default ref is used."
+        required: false
+        default: ''
+        type: string
 
 jobs:
 
@@ -34,6 +39,7 @@ jobs:
     uses: ./.github/workflows/resolve-image-tag.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
+      base-ref: ${{ inputs.base-ref }}
 
   build:
     needs: [resolve-image-tag]
@@ -42,6 +48,7 @@ jobs:
       rock-dir: ${{ inputs.rock-dir }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
       rockcraft-extra-args: ${{ needs.resolve-image-tag.outputs.base == 'ubuntu@20.04' && '--ignore=unmaintained' || '' }}
+      source-branch: ${{ inputs.base-ref }}
 
   scan:
     needs: [build, resolve-image-tag]
@@ -62,6 +69,7 @@ jobs:
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
+      source-branch: ${{ inputs.base-ref }}
 
   integration-tests:
     needs: [build, resolve-image-tag]
@@ -72,9 +80,10 @@ jobs:
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       python-version: ${{ inputs.python-version }}
+      source-branch: ${{ inputs.base-ref }}
 
   publish:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
     needs: [scan, build, sanity-tests, integration-tests, resolve-image-tag]
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
@@ -83,6 +92,7 @@ jobs:
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
+      source-branch: ${{ inputs.base-ref }}
 
   integrate-on-pr:
     if: ${{ github.event_name == 'pull_request' }}
@@ -95,7 +105,17 @@ jobs:
     secrets: inherit
 
   integrate-on-merge:
-    if: ${{ github.event_name != 'pull_request' }}
+    if: ${{ github.event_name == 'push' }}
+    needs: [publish, resolve-image-tag]
+    uses: ./.github/workflows/integrate-rock.yaml
+    with:
+      rock-dir: ${{ inputs.rock-dir }}
+      event-name: ${{ github.event_name }}
+      full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
+    secrets: inherit
+
+  integrate-on-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     needs: [publish, resolve-image-tag]
     uses: ./.github/workflows/integrate-rock.yaml
     with:

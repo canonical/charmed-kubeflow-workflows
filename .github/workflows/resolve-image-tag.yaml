@@ -53,9 +53,11 @@ jobs:
           VERSION=$(yq '.version' rockcraft.yaml)
           BASE=$(yq '.base' rockcraft.yaml)
           COMMIT_ID=$(git rev-parse --short HEAD)
+          # Build-time timestamp (UTC), format: YYYYMMDDhhmmss.
+          TIMESTAMP=$(date -u +'%Y%m%d%H%M%S')
 
           ROCK_REFERENCE="${NAME}:${VERSION}"
-          FULL_IMAGE_TAG="${REGISTRY}/${ROCK_REFERENCE}-${COMMIT_ID}"
+          FULL_IMAGE_TAG="${REGISTRY}/${ROCK_REFERENCE}-${COMMIT_ID}-${TIMESTAMP}"
 
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
           echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"

@@ -9,9 +9,8 @@
 # Runs once a month and on manual dispatch. The `on-schedule` job is
 # matrixed over `main` plus every ref listed under `automatic_backport_tracks`.
 # For each ref, every rock in the repository (i.e. every directory containing
-# a rockcraft.yaml) is built and tested. Publishing is skipped automatically
-# (the reusable workflow gates publish on push events). On failure, a GitHub
-# issue is opened (or commented on) per failing rock.
+# a rockcraft.yaml) is built, scanned, tested and published. On failure, a
+# GitHub issue is opened (or commented on) per failing rock.
 name: On Schedule
 
 on:
@@ -22,7 +21,7 @@ on:
 jobs:
   list-refs:
     name: Compute ref matrix
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       refs: ${{ steps.compute.outputs.refs }}
     steps:
@@ -54,7 +53,7 @@ jobs:
       fail-fast: false
       matrix:
         ref: ${{ fromJson(needs.list-refs.outputs.refs) }}
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/get-all-rocks-and-build-test.yaml@main
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/get-all-rocks-and-build-scan-test-publish.yaml@main
     permissions:
       contents: read
       issues: write
