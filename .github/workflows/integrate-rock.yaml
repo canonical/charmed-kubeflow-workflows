@@ -13,6 +13,11 @@ on:
         description: "Full image reference to the built and pushed rock image"
         required: true
         type: string
+      base-ref:
+        description: "Branch, tag, or commit SHA being built. Used as the target branch for workflow_dispatch / schedule triggered runs."
+        required: false
+        default: ''
+        type: string
 
   workflow_dispatch:
     inputs:
@@ -57,21 +62,25 @@ jobs:
       - name: Determine target branch and dry-run
         id: params
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "target_branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
+            echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.target-branch }}" ]]; then
+            # Direct workflow_dispatch trigger on this workflow.
             echo "target_branch=${{ inputs.target-branch }}" >> $GITHUB_OUTPUT
             if [[ "${{ inputs.dry-run }}" == "true" ]]; then
               echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
             else
               echo "dry_run=" >> $GITHUB_OUTPUT
             fi
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "schedule" ]]; then
+            # Called from a workflow_dispatch / schedule triggered chain: the
+            # ref being built is the one to integrate into.
+            echo "target_branch=${{ inputs.base-ref }}" >> $GITHUB_OUTPUT
+            echo "dry_run=" >> $GITHUB_OUTPUT
           else
-            if [[ "${{ inputs.event-name }}" == "pull_request" ]]; then
-              echo "target_branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
-              echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
-            else
-              echo "target_branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-              echo "dry_run=" >> $GITHUB_OUTPUT
-            fi
+            echo "target_branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+            echo "dry_run=" >> $GITHUB_OUTPUT
           fi
 
       - name: Determine triggering PR (if merged)
@@ -80,7 +89,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "Workflow dispatch — skipping triggering PR detection."
             echo "url=" >> "$GITHUB_OUTPUT"
-          elif [[ "${{ inputs.event-name }}" == "pull_request" ]]; then
+          elif [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "PR event — skipping triggering PR detection."
             echo "url=" >> "$GITHUB_OUTPUT"
           else

@@ -112,6 +112,7 @@ jobs:
       rock-dir: ${{ inputs.rock-dir }}
       event-name: ${{ github.event_name }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
+      base-ref: ${{ inputs.base-ref }}
     secrets: inherit
 
   integrate-on-dispatch:
@@ -122,4 +123,5 @@ jobs:
       rock-dir: ${{ inputs.rock-dir }}
       event-name: ${{ github.event_name }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
+      base-ref: ${{ inputs.base-ref }}
     secrets: inherit
