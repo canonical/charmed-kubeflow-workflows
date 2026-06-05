@@ -2,6 +2,12 @@ name: Get all rocks
 
 on:
   workflow_call:
+    inputs:
+      base-ref:
+        description: "Branch, tag, or commit SHA to discover rocks from. If empty, the workflow's default ref is used."
+        required: false
+        default: ''
+        type: string
     outputs:
       paths:
         description: JSON array of all rock directories (those containing a rockcraft.yaml)
@@ -17,6 +23,7 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.base-ref }}
           persist-credentials: false
 
       - name: Find all rockcraft.yaml paths

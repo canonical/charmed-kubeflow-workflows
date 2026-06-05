@@ -27,6 +27,11 @@ on:
         default: ""
         required: false
         type: string
+      base-ref:
+        description: "Branch, tag, or commit SHA to checkout and test. If empty, the workflow's default ref is used."
+        required: false
+        default: ''
+        type: string
 
 jobs:
 
@@ -34,6 +39,7 @@ jobs:
     uses: ./.github/workflows/resolve-image-tag.yaml
     with:
       rock-dir: ${{ inputs.rock-dir }}
+      base-ref: ${{ inputs.base-ref }}
 
   build:
     needs: [resolve-image-tag]
@@ -42,6 +48,7 @@ jobs:
       rock-dir: ${{ inputs.rock-dir }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
       rockcraft-extra-args: ${{ needs.resolve-image-tag.outputs.base == 'ubuntu@20.04' && '--ignore=unmaintained' || '' }}
+      source-branch: ${{ inputs.base-ref }}
 
   sanity-tests:
     needs: [build, resolve-image-tag]
@@ -52,6 +59,7 @@ jobs:
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
+      source-branch: ${{ inputs.base-ref }}
 
   integration-tests:
     needs: [build, resolve-image-tag]
@@ -62,3 +70,4 @@ jobs:
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       python-version: ${{ inputs.python-version }}
+      source-branch: ${{ inputs.base-ref }}

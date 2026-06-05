@@ -2,11 +2,19 @@ name: Get all rocks and build-test them
 
 on:
   workflow_call:
+    inputs:
+      base-ref:
+        description: "Branch, tag, or commit SHA to discover, build and test rocks from. If empty, the workflow's default ref is used."
+        required: false
+        default: ''
+        type: string
 
 jobs:
   get-all-rock-paths:
     name: Get all rockcraft paths
     uses: ./.github/workflows/get-all-rocks.yaml
+    with:
+      base-ref: ${{ inputs.base-ref }}
 
   build-test:
     name: CI (${{ matrix.rock-dir }})
@@ -20,6 +28,7 @@ jobs:
     secrets: inherit
     with:
       rock-dir: ${{ matrix.rock-dir }}
+      base-ref: ${{ inputs.base-ref }}
 
   report-failures:
     name: Report failure (${{ matrix.rock-dir }})

@@ -7,6 +7,11 @@ on:
         description: "Path to rock directory with rockcraft.yaml"
         required: true
         type: string
+      base-ref:
+        description: "Branch, tag, or commit SHA to resolve the tag from. If empty, the workflow's default ref is used."
+        required: false
+        default: ''
+        type: string
 
     outputs:
       rock-reference:
@@ -34,6 +39,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.base-ref }}
           persist-credentials: false
 
       - name: Install yq
