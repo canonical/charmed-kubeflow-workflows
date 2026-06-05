@@ -12,21 +12,6 @@ on:
         required: false
         default: "latest/stable"
         type: string
-      microk8s-channel:
-        description: "Microk8s channel e.g. 1.32/stable"
-        required: false
-        default: "1.32/stable"
-        type: string
-      juju-channel:
-        description: "Juju channel e.g. 3.6/stable"
-        required: false
-        default: "3.6/stable"
-        type: string
-      python-version:
-        description: "Version of python to use for integration tests. If empty, it will use machine's default"
-        default: ""
-        required: false
-        type: string
       base-ref:
         description: "Branch, tag, or commit SHA to checkout and test. If empty, the workflow's default ref is used."
         required: false
@@ -69,5 +54,4 @@ jobs:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-reference: ${{ needs.resolve-image-tag.outputs.rock-reference }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
-      python-version: ${{ inputs.python-version }}
       source-branch: ${{ inputs.base-ref }}
