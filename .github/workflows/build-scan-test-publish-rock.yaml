@@ -116,7 +116,7 @@ jobs:
     secrets: inherit
 
   integrate-on-dispatch:
-    if: ${{ github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     needs: [publish, resolve-image-tag]
     uses: ./.github/workflows/integrate-rock.yaml
     with:
