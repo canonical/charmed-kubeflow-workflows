@@ -83,7 +83,7 @@ jobs:
       source-branch: ${{ inputs.base-ref }}
 
   publish:
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     needs: [scan, build, sanity-tests, integration-tests, resolve-image-tag]
     uses: ./.github/workflows/publish-rock.yaml
     secrets: inherit
