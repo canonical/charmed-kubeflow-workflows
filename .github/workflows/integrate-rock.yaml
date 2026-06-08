@@ -51,6 +51,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.base-ref }}
           persist-credentials: false
 
       - name: Install charmed-analytics-ci
