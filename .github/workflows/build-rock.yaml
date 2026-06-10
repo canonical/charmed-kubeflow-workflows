@@ -81,8 +81,10 @@ jobs:
         id: metadata
         run: |
           NAME=$(yq eval ".name" rockcraft.yaml)
+          VERSION=$(yq eval ".version" rockcraft.yaml)
+          UUID=$(uuidgen)
           ROCK=$(echo ${{ steps.rockcraft.outputs.rock || steps.rockcraft-manual.outputs.rock }} | sed 's:.*/::')
-          echo "rock-artifact=$NAME" >> "$GITHUB_OUTPUT"
+          echo "rock-artifact=$NAME-$VERSION-$UUID" >> "$GITHUB_OUTPUT"
           echo "rock-filename=$ROCK" >> "$GITHUB_OUTPUT"
         working-directory: ${{ inputs.rock-dir }}
 
