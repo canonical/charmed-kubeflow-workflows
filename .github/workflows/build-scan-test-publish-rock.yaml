@@ -28,7 +28,7 @@ on:
         required: false
         type: string
       base-ref:
-        description: "Branch, tag, or commit SHA to checkout, build, test and publish. If empty, the workflow's default ref is used."
+        description: "Branch, tag, or commit SHA to checkout, build, test and publish. If empty, the repository's default ref is used."
         required: false
         default: ''
         type: string

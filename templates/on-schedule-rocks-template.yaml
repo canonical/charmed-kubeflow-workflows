@@ -1,4 +1,4 @@
-# Meant to be copied over as is in all ROCKs repositories with
+# Meant to be copied over as is in all rocks repositories with
 # the name `on_schedule.yaml`. Assumes the consumer repo has a
 # `.github/automatic_backport_tracks.yaml` file with the form:
 #

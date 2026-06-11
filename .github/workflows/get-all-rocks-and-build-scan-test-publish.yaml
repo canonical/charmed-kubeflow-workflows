@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       base-ref:
-        description: "Branch, tag, or commit SHA to discover, build, test and publish rocks from. If empty, the workflow's default ref is used."
+        description: "Branch, tag, or commit SHA to discover, build, test and publish rocks from. If empty, the repository's default ref is used."
         required: false
         default: ''
         type: string
@@ -73,7 +73,11 @@ jobs:
           ROCK_DIR: ${{ matrix.rock-dir }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          title="Scheduled build failed: ${ROCK_DIR} on ${BRANCH}"
+          # Include the current year-month in the title so that, once an issue
+          # is closed, a later failure opens a fresh issue instead of being
+          # silently suppressed by an already-closed one.
+          month=$(date -u +'%Y-%m')
+          title="Scheduled build failed: ${ROCK_DIR} on ${BRANCH} (${month})"
           body=$(printf 'Scheduled build of `%s` failed on branch `%s`.\n\nRun: %s\n' \
             "${ROCK_DIR}" "${BRANCH}" "${RUN_URL}")
           existing=$(gh issue list --repo "${{ github.repository }}" \
