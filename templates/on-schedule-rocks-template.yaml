@@ -6,12 +6,12 @@
 #     - track/X
 #     - track/Y
 #
-# Runs once a month and on manual dispatch. The `on-schedule` job is
+# Runs once a month and on manual dispatch. The `build-scan-test-publish` job is
 # matrixed over `main` plus every ref listed under `automatic_backport_tracks`.
 # For each ref, every rock in the repository (i.e. every directory containing
 # a rockcraft.yaml) is built, scanned, tested and published. On failure, a
 # GitHub issue is opened (or commented on) per failing rock.
-name: On Schedule
+name: Scheduled rebuild rocks
 
 on:
   schedule:
@@ -46,8 +46,8 @@ jobs:
           echo "Refs: ${refs}"
           echo "refs=${refs}" >> "$GITHUB_OUTPUT"
 
-  on-schedule:
-    name: On Schedule (${{ matrix.ref }})
+  build-scan-test-publish:
+    name: Build, scan, test and publish rocks (${{ matrix.ref }})
     needs: list-refs
     strategy:
       fail-fast: false
