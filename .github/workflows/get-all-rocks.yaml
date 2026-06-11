@@ -16,7 +16,7 @@ on:
 jobs:
   get-all-rock-paths:
     name: Get rockcraft.yaml paths
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       paths: ${{ steps.find.outputs.paths }}
     steps:
