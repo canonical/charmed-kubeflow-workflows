@@ -1,0 +1,39 @@
+name: Get all rocks
+
+on:
+  workflow_call:
+    inputs:
+      base-ref:
+        description: "Branch, tag, or commit SHA to discover rocks from. If empty, the repository's default ref is used."
+        required: false
+        default: ''
+        type: string
+    outputs:
+      paths:
+        description: JSON array of all rock directories (those containing a rockcraft.yaml)
+        value: ${{ jobs.get-all-rock-paths.outputs.paths }}
+
+jobs:
+  get-all-rock-paths:
+    name: Get rockcraft.yaml paths
+    runs-on: ubuntu-24.04
+    outputs:
+      paths: ${{ steps.find.outputs.paths }}
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.base-ref }}
+          persist-credentials: false
+
+      - name: Find all rockcraft.yaml paths
+        id: find
+        run: |
+          # Emit a compact JSON array of rock directories (paths containing a rockcraft.yaml),
+          # suitable for consumption as a matrix via fromJson().
+          paths=$(find ./ -name rockcraft.yaml -printf '%h\n' \
+                    | sed 's|^\./||' \
+                    | sort -u \
+                    | jq -R . | jq -sc .)
+          echo "Paths found: ${paths}"
+          echo "paths=${paths}" >> "$GITHUB_OUTPUT"

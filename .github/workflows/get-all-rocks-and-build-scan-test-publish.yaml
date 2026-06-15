@@ -1,0 +1,92 @@
+name: Get all rocks and build-scan-test-publish them
+
+on:
+  workflow_call:
+    inputs:
+      base-ref:
+        description: "Branch, tag, or commit SHA to discover, build, test and publish rocks from. If empty, the repository's default ref is used."
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  get-all-rock-paths:
+    name: Get all rockcraft paths
+    uses: ./.github/workflows/get-all-rocks.yaml
+    with:
+      base-ref: ${{ inputs.base-ref }}
+
+  build-scan-test-publish:
+    name: CI (${{ matrix.rock-dir }})
+    needs: get-all-rock-paths
+    if: ${{ needs.get-all-rock-paths.outputs.paths != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        rock-dir: ${{ fromJson(needs.get-all-rock-paths.outputs.paths) }}
+    uses: ./.github/workflows/build-scan-test-publish-rock.yaml
+    secrets: inherit
+    with:
+      rock-dir: ${{ matrix.rock-dir }}
+      base-ref: ${{ inputs.base-ref }}
+
+  report-failures:
+    name: Report failure (${{ matrix.rock-dir }})
+    needs: [get-all-rock-paths, build-scan-test-publish]
+    if: ${{ always() && needs.get-all-rock-paths.outputs.paths != '[]' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        rock-dir: ${{ fromJson(needs.get-all-rock-paths.outputs.paths) }}
+    steps:
+      - name: Check this rock's CI result
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ROCK_DIR: ${{ matrix.rock-dir }}
+        run: |
+          # The build-scan-test-publish matrix leg above is named "CI (<rock-dir>)".
+          # Because it `uses:` a reusable workflow, the actual GitHub jobs in
+          # this run are named "CI (<rock-dir>) / <inner-job>". Match any of
+          # those and aggregate their conclusions.
+          conclusions=$(gh run view "${{ github.run_id }}" \
+            --repo "${{ github.repository }}" \
+            --json jobs \
+            --jq ".jobs[] | select(.name | contains(\"CI (${ROCK_DIR})\")) | .conclusion" \
+            | sort -u | paste -sd, -)
+          echo "conclusions=${conclusions}"
+          if echo "${conclusions}" | grep -qw failure; then
+            echo "failed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "failed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open or update failure issue for this rock
+        if: steps.check.outputs.failed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ inputs.base-ref }}
+          ROCK_DIR: ${{ matrix.rock-dir }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # Include the current year-month in the title so that, once an issue
+          # is closed, a later failure opens a fresh issue instead of being
+          # silently suppressed by an already-closed one.
+          month=$(date -u +'%Y-%m')
+          title="Scheduled build failed: ${ROCK_DIR} on ${BRANCH} (${month})"
+          body=$(printf 'Scheduled build of `%s` failed on branch `%s`.\n\nRun: %s\n' \
+            "${ROCK_DIR}" "${BRANCH}" "${RUN_URL}")
+          existing=$(gh issue list --repo "${{ github.repository }}" \
+            --state open \
+            --search "in:title \"${title}\"" \
+            --json number --jq '.[0].number')
+          if [ -n "${existing}" ]; then
+            gh issue comment "${existing}" --repo "${{ github.repository }}" --body "${body}"
+          else
+            gh issue create --repo "${{ github.repository }}" \
+              --title "${title}" --body "${body}"
+          fi
