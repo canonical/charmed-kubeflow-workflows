@@ -35,7 +35,7 @@ jobs:
         run: |
           file=.github/automatic_backport_tracks.yaml
           if [ -f "$file" ]; then
-            refs=$(yq -o=json '["main"] + .automatic_backport_tracks' "$file" | jq -c .)
+            refs=$(yq -o=json -I=0 '["main"] + .automatic_backport_tracks' "$file")
           else
             echo "::warning file=${file}::${file} not found; falling back to main only"
             refs='["main"]'
