@@ -30,9 +30,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install yq
-        run: sudo snap install yq
-
       - name: Build ref matrix from automatic_backport_tracks.yaml
         id: compute
         run: |
