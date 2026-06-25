@@ -89,10 +89,16 @@ jobs:
       - name: Install dependencies
         run: pip install tox
 
-      - name: Export rock to Docker
+      - name: Import rock into the cluster's containerd
         id: rock_in_docker
         run: |
-          sudo rockcraft.skopeo --insecure-policy copy oci-archive:${{ inputs.rock-filename }} docker-daemon:${{ inputs.rock-reference }}
+          # Concierge provisions Canonical Kubernetes, which uses containerd (not Docker),
+          # so the rock must be side-loaded into containerd's k8s.io namespace, which is
+          # the one the kubelet/CRI reads images from.
+          sudo rockcraft.skopeo --insecure-policy copy \
+            oci-archive:${{ inputs.rock-filename }} \
+            docker-archive:${{ inputs.rock-artifact }}.tar:${{ inputs.rock-reference }}
+          sudo k8s ctr --namespace k8s.io images import ${{ inputs.rock-artifact }}.tar
           echo "image=${{ inputs.rock-reference }}" >> "$GITHUB_OUTPUT"
 
       - name: Clean up .rock file
