@@ -47,11 +47,12 @@ jobs:
       - name: Check for integration test files
         id: check
         run: |
-          if find "${{ inputs.tests-dir }}" -name '*integration*' | grep -q .; then
+          if find -maxdepth 2 -name '*integration*.py' | grep -q .; then
             echo "has-integration-tests=true" >> "$GITHUB_OUTPUT"
           else
             echo "has-integration-tests=false" >> "$GITHUB_OUTPUT"
           fi
+        working-directory: ./${{ inputs.tests-dir }}
 
   integration-tests:
     name: Integration tests
