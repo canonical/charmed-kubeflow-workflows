@@ -27,4 +27,4 @@ host:
     charmcraft:
       channel: 3.x/stable
     rockcraft:
-      channel: latest/edge
+      channel: latest/stable
