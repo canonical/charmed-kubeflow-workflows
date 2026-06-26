@@ -98,8 +98,7 @@ jobs:
           sudo rockcraft.skopeo --insecure-policy copy \
             oci-archive:${{ inputs.rock-filename }} \
             docker-archive:${{ inputs.rock-artifact }}.tar:${{ inputs.rock-reference }}
-          sudo k8s ctr --namespace k8s.io images import ${{ inputs.rock-artifact }}.tar
-          echo "image=${{ inputs.rock-reference }}" >> "$GITHUB_OUTPUT"
+          sudo /snap/k8s/current/bin/ctr --namespace k8s.io images import ${{ inputs.rock-artifact }}.tar
 
       - name: Clean up .rock file
         run: rm ${{ inputs.rock-filename }}
