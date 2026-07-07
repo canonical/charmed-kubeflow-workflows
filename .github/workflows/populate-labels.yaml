@@ -39,6 +39,7 @@ on:
 
 jobs:
   populate-labels:
+    if: github.event.pull_request && github.event.pull_request.user.login != 'ckfbot'
     runs-on: ubuntu-24.04
     env:
       GH_TOKEN: ${{ secrets.GH_TOKEN }}
