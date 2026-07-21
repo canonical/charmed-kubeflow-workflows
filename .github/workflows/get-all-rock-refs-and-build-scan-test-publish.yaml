@@ -1,6 +1,6 @@
-# Reusable workflow to
-# It uses a `.automatic_backport_tracks` file to find all relevant branches
-# and for each branch found (+ main), builds and publishes rocks
+# Reusable workflow to build, scan, test and publish rocks across all supported refs.
+# It uses the `.github/automatic_backport_tracks.yaml` file (when present) to find relevant branches,
+# and for each branch found (plus `main`), builds and publishes rocks.
 
 name: Build and publish rocks for all refs
 
