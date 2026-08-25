@@ -8,6 +8,11 @@ on:
         required: false
         default: ''
         type: string
+      integration-ref:
+        description: "Charm branch to integrate the built rocks into. If empty, `base-ref` is used."
+        required: false
+        default: ''
+        type: string
 
 jobs:
   get-all-rock-paths:
@@ -29,6 +34,7 @@ jobs:
     with:
       rock-dir: ${{ matrix.rock-dir }}
       base-ref: ${{ inputs.base-ref }}
+      integration-ref: ${{ inputs.integration-ref }}
 
   report-failures:
     name: Report failure (${{ matrix.rock-dir }})

@@ -32,6 +32,11 @@ on:
         required: false
         default: ''
         type: string
+      integration-ref:
+        description: "Charm branch to integrate the built rock into. If empty, `base-ref` is used."
+        required: false
+        default: ''
+        type: string
 
 jobs:
 
@@ -103,6 +108,7 @@ jobs:
       event-name: ${{ github.event_name }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
       base-ref: ${{ inputs.base-ref }}
+      integration-ref: ${{ inputs.integration-ref }}
     secrets: inherit
 
   integrate-on-merge:
@@ -114,6 +120,7 @@ jobs:
       event-name: ${{ github.event_name }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
       base-ref: ${{ inputs.base-ref }}
+      integration-ref: ${{ inputs.integration-ref }}
     secrets: inherit
 
   integrate-on-dispatch:
@@ -125,4 +132,5 @@ jobs:
       event-name: ${{ github.event_name }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
       base-ref: ${{ inputs.base-ref }}
+      integration-ref: ${{ inputs.integration-ref }}
     secrets: inherit

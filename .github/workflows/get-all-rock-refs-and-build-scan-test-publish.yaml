@@ -1,6 +1,22 @@
 # Reusable workflow to build, scan, test and publish rocks across all supported refs.
 # It uses the `.github/automatic_backport_tracks.yaml` file (when present) to find relevant branches,
 # and for each branch found (plus `main`), builds and publishes rocks.
+#
+# The file has the form:
+#
+#   automatic_backport_tracks:
+#     - track/X
+#     - track/Y
+#
+#   # Optional. Maps a rock ref to the charm branch the rock should be
+#   # integrated into. Refs that are not listed here are integrated into the
+#   # charm branch with the same name, which is the previous behaviour.
+#   integration_branch_map:
+#     track/X: track/1.10
+#
+# `integration_branch_map` exists because rock and charm repositories do not
+# always share branch names (e.g. `filebrowser-rock` tracks upstream filebrowser
+# versions, while its consumer charm tracks Kubeflow versions).
 
 name: Build and publish rocks for all refs
 
@@ -27,10 +43,17 @@ jobs:
         run: |
           file=.github/automatic_backport_tracks.yaml
           if [ -f "$file" ]; then
-            refs=$(yq -o=json -I=0 '["main"] + .automatic_backport_tracks' "$file")
+            # Emit one entry per ref, holding both the rock ref to build and the
+            # charm branch to integrate into. The latter defaults to the rock
+            # ref itself when `integration_branch_map` has no entry for it.
+            refs=$(yq -o=json -I=0 --expression \
+              '(.integration_branch_map // {}) as $m
+               | (["main"] + (.automatic_backport_tracks // []))
+               | map(. as $r | {"ref": $r, "integration-ref": (($m[$r]) // $r)})' \
+              "$file")
           else
             echo "::warning file=${file}::${file} not found; falling back to main only"
-            refs='["main"]'
+            refs='[{"ref":"main","integration-ref":"main"}]'
           fi
           echo "Refs: ${refs}"
           echo "refs=${refs}" >> "$GITHUB_OUTPUT"
@@ -41,7 +64,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ref: ${{ fromJson(needs.list-refs.outputs.refs) }}
+        include: ${{ fromJson(needs.list-refs.outputs.refs) }}
     uses: ./.github/workflows/get-all-rocks-and-build-scan-test-publish.yaml
     permissions:
       contents: read
@@ -49,3 +72,4 @@ jobs:
     secrets: inherit
     with:
       base-ref: ${{ matrix.ref }}
+      integration-ref: ${{ matrix.integration-ref }}
