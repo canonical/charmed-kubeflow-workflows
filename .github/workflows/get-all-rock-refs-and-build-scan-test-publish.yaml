@@ -2,21 +2,16 @@
 # It uses the `.github/automatic_backport_tracks.yaml` file (when present) to find relevant branches,
 # and for each branch found (plus `main`), builds and publishes rocks.
 #
-# The file has the form:
+# A user can also specify an optional `integration_branch_map` that maps
+# a wock ref to the charm branch the rock should be integrated into. If empty,
+# the charm branch with the same name is used. Example:
 #
 #   automatic_backport_tracks:
 #     - track/X
 #     - track/Y
-#
-#   # Optional. Maps a rock ref to the charm branch the rock should be
-#   # integrated into. Refs that are not listed here are integrated into the
-#   # charm branch with the same name, which is the previous behaviour.
 #   integration_branch_map:
-#     track/X: track/1.10
+#     track/X: track/Z
 #
-# `integration_branch_map` exists because rock and charm repositories do not
-# always share branch names (e.g. `filebrowser-rock` tracks upstream filebrowser
-# versions, while its consumer charm tracks Kubeflow versions).
 
 name: Build and publish rocks for all refs
 
