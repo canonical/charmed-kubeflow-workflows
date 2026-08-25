@@ -1,20 +1,16 @@
 # Meant to be copied over as is in all rocks repositories with
 # the name `on_schedule.yaml`. Assumes the consumer repo has a
-# `.github/automatic_backport_tracks.yaml` file with the form:
+# `.github/automatic_backport_tracks.yaml` file.
+#
+# A user can also specify an optional `integration_branch_map` that maps
+# a rock ref to the charm branch the rock should be integrated into. If empty,
+# the charm branch with the same name is used. Example:
 #
 #   automatic_backport_tracks:
 #     - track/X
 #     - track/Y
-#
-#   # Optional. Maps a rock ref to the charm branch the rock should be
-#   # integrated into. Refs that are not listed here are integrated into the
-#   # charm branch with the same name.
 #   integration_branch_map:
-#     track/X: track/1.10
-#
-# Use `integration_branch_map` when the rock and charm repositories do not
-# share branch names, e.g. when the rock tracks upstream versions while its
-# consumer charm tracks Kubeflow versions.
+#     track/X: track/Z
 #
 # Runs once a month and on manual dispatch. Rocks are built for `main` plus
 # every ref listed under `automatic_backport_tracks`. For each ref, every rock

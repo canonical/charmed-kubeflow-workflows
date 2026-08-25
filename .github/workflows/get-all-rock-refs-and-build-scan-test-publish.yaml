@@ -3,7 +3,7 @@
 # and for each branch found (plus `main`), builds and publishes rocks.
 #
 # A user can also specify an optional `integration_branch_map` that maps
-# a wock ref to the charm branch the rock should be integrated into. If empty,
+# a rock ref to the charm branch the rock should be integrated into. If empty,
 # the charm branch with the same name is used. Example:
 #
 #   automatic_backport_tracks:

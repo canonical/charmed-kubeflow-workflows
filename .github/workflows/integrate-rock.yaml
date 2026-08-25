@@ -70,7 +70,7 @@ jobs:
         run: |
           # The charm branch to integrate into. `integration-ref` lets callers
           # map a rock ref onto a differently named charm branch. If empty, the
-          # the rock ref is used.
+          # rock ref is used.
           integration_ref="${{ inputs.integration-ref }}"
           target_branch="${integration_ref:-${{ inputs.base-ref }}}"
 
