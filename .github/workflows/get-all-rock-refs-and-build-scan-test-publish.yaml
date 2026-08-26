@@ -51,10 +51,8 @@ jobs:
             refs=$(yq -o=json -I=0 \
               '(.integration_branch_map // {}) as $m
                | (["main"] + (.automatic_backport_tracks // []))
-               | map(. as $r
-                     | (($m[$r] // $r) | (select(tag == "!!seq") // [.]))
-                     | map({"ref": $r, "integration-ref": .}))
-               | flatten' \
+               | map({"ref": ., "integration-ref": (($m[.]) // .)})
+               | map({"ref": .ref, "integration-ref": (.integration-ref | (select(tag == "!!seq") // [.]) | .[])})' \
               "$file")
           else
             echo "::warning file=${file}::${file} not found; falling back to main only"
