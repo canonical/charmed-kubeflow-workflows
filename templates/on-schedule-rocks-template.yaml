@@ -3,14 +3,19 @@
 # `.github/automatic_backport_tracks.yaml` file.
 #
 # A user can also specify an optional `integration_branch_map` that maps
-# a rock ref to the charm branch the rock should be integrated into. If empty,
-# the charm branch with the same name is used. Example:
+# a rock ref to the charm branch(es) the rock should be integrated into. If empty,
+# the charm branch with the same name is used. A value can be a single branch or
+# a list of branches, in which case the rock ref is integrated into each of them.
+# Example:
 #
 #   automatic_backport_tracks:
 #     - track/X
 #     - track/Y
 #   integration_branch_map:
 #     track/X: track/Z
+#     track/Y:
+#       - track/W
+#       - track/V
 #
 # Runs once a month and on manual dispatch. Rocks are built for `main` plus
 # every ref listed under `automatic_backport_tracks`. For each ref, every rock

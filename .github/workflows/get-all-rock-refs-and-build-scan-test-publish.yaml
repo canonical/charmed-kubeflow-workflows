@@ -3,14 +3,19 @@
 # and for each branch found (plus `main`), builds and publishes rocks.
 #
 # A user can also specify an optional `integration_branch_map` that maps
-# a rock ref to the charm branch the rock should be integrated into. If empty,
-# the charm branch with the same name is used. Example:
+# a rock ref to the charm branch(es) the rock should be integrated into. If empty,
+# the charm branch with the same name is used. A value can be a single branch or
+# a list of branches, in which case the rock ref is integrated into each of them.
+# Example:
 #
 #   automatic_backport_tracks:
 #     - track/X
 #     - track/Y
 #   integration_branch_map:
 #     track/X: track/Z
+#     track/Y:
+#       - track/W
+#       - track/V
 #
 
 name: Build and publish rocks for all refs
@@ -38,13 +43,18 @@ jobs:
         run: |
           file=.github/automatic_backport_tracks.yaml
           if [ -f "$file" ]; then
-            # Emit one entry per ref, holding both the rock ref to build and the
-            # charm branch to integrate into. The latter defaults to the rock
-            # ref itself when `integration_branch_map` has no entry for it.
+            # Emit one entry per (ref, charm branch) pair, holding both the rock
+            # ref to build and the charm branch to integrate into. The latter
+            # defaults to the rock ref itself when `integration_branch_map` has
+            # no entry for it, and may be a list to integrate a single rock ref
+            # into several charm branches.
             refs=$(yq -o=json -I=0 \
               '(.integration_branch_map // {}) as $m
                | (["main"] + (.automatic_backport_tracks // []))
-               | map({"ref": ., "integration-ref": (($m[.]) // .)})' \
+               | map(. as $r
+                     | (($m[$r] // $r) | (select(tag == "!!seq") // [.]))
+                     | map({"ref": $r, "integration-ref": .}))
+               | flatten' \
               "$file")
           else
             echo "::warning file=${file}::${file} not found; falling back to main only"
@@ -54,7 +64,7 @@ jobs:
           echo "refs=${refs}" >> "$GITHUB_OUTPUT"
 
   build-scan-test-publish:
-    name: Build, scan, test and publish rocks (${{ matrix.ref }})
+    name: Build, scan, test and publish rocks (${{ matrix.ref }} -> ${{ matrix.integration-ref }})
     needs: list-refs
     strategy:
       fail-fast: false
