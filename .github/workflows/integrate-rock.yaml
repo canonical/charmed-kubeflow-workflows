@@ -14,7 +14,7 @@ on:
         required: true
         type: string
       base-ref:
-        description: "Branch, tag, or commit SHA being built. Used as the target branch for workflow_dispatch / schedule triggered runs."
+        description: "Branch, tag, or commit SHA being built. Used as the default target branch when `integration-ref` is empty."
         required: false
         default: ''
         type: string
