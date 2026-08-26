@@ -41,7 +41,7 @@ jobs:
             # Emit one entry per ref, holding both the rock ref to build and the
             # charm branch to integrate into. The latter defaults to the rock
             # ref itself when `integration_branch_map` has no entry for it.
-            refs=$(yq -o=json -I=0 --expression \
+            refs=$(yq -o=json -I=0 \
               '(.integration_branch_map // {}) as $m
                | (["main"] + (.automatic_backport_tracks // []))
                | map(. as $r | {"ref": $r, "integration-ref": (($m[$r]) // $r)})' \

@@ -71,7 +71,7 @@ jobs:
           # The charm branch to integrate into. `integration-ref` lets callers
           # map a rock ref onto a differently named charm branch. If empty, the
           # rock ref is used.
-          integration_ref="${{ inputs['integration-ref'] }}"
+          integration_ref="${{ inputs.integration-ref }}"
           target_branch="${integration_ref:-${{ inputs.base-ref }}}"
 
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
