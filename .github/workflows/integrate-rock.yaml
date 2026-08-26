@@ -14,7 +14,12 @@ on:
         required: true
         type: string
       base-ref:
-        description: "Branch, tag, or commit SHA being built. Used as the target branch for workflow_dispatch / schedule triggered runs."
+        description: "Branch, tag, or commit SHA being built. Used as the default target branch when `integration-ref` is empty."
+        required: false
+        default: ''
+        type: string
+      integration-ref:
+        description: "Charm branch to integrate into. Use when the rock and charm repositories do not share branch names. If empty, `base-ref` is used."
         required: false
         default: ''
         type: string
@@ -63,6 +68,12 @@ jobs:
       - name: Determine target branch and dry-run
         id: params
         run: |
+          # The charm branch to integrate into. `integration-ref` lets callers
+          # map a rock ref onto a differently named charm branch. If empty, the
+          # rock ref is used.
+          integration_ref="${{ inputs.integration-ref }}"
+          target_branch="${integration_ref:-${{ inputs.base-ref }}}"
+
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "target_branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
             echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
@@ -76,8 +87,9 @@ jobs:
             fi
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "schedule" ]]; then
             # Called from a workflow_dispatch / schedule triggered chain: the
-            # ref being built is the one to integrate into.
-            echo "target_branch=${{ inputs.base-ref }}" >> $GITHUB_OUTPUT
+            # ref being built is integrated into `target_branch`.
+            echo "Integrating rock ref '${{ inputs.base-ref }}' into charm branch '${target_branch}'"
+            echo "target_branch=${target_branch}" >> $GITHUB_OUTPUT
             echo "dry_run=" >> $GITHUB_OUTPUT
           else
             echo "target_branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT

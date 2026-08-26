@@ -1,16 +1,22 @@
 # Meant to be copied over as is in all rocks repositories with
 # the name `on_schedule.yaml`. Assumes the consumer repo has a
-# `.github/automatic_backport_tracks.yaml` file with the form:
+# `.github/automatic_backport_tracks.yaml` file.
+#
+# A user can also specify an optional `integration_branch_map` that maps
+# a rock ref to the charm branch the rock should be integrated into. If empty,
+# the charm branch with the same name is used. Example:
 #
 #   automatic_backport_tracks:
 #     - track/X
 #     - track/Y
+#   integration_branch_map:
+#     track/X: track/Z
 #
-# Runs once a month and on manual dispatch. The `build-scan-test-publish` job is
-# matrixed over `main` plus every ref listed under `automatic_backport_tracks`.
-# For each ref, every rock in the repository (i.e. every directory containing
-# a rockcraft.yaml) is built, scanned, tested and published. On failure, a
-# GitHub issue is opened (or commented on) per failing rock.
+# Runs once a month and on manual dispatch. Rocks are built for `main` plus
+# every ref listed under `automatic_backport_tracks`. For each ref, every rock
+# in the repository (i.e. every directory containing a rockcraft.yaml) is
+# built, scanned, tested and published. On failure, a GitHub issue is opened
+# (or commented on) per failing rock.
 name: Scheduled rebuild rocks
 
 on:
@@ -19,41 +25,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  list-refs:
-    name: Compute ref matrix
-    runs-on: ubuntu-24.04
-    outputs:
-      refs: ${{ steps.compute.outputs.refs }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-
-      - name: Build ref matrix from automatic_backport_tracks.yaml
-        id: compute
-        run: |
-          file=.github/automatic_backport_tracks.yaml
-          if [ -f "$file" ]; then
-            refs=$(yq -o=json -I=0 '["main"] + .automatic_backport_tracks' "$file")
-          else
-            echo "::warning file=${file}::${file} not found; falling back to main only"
-            refs='["main"]'
-          fi
-          echo "Refs: ${refs}"
-          echo "refs=${refs}" >> "$GITHUB_OUTPUT"
-
   build-scan-test-publish:
-    name: Build, scan, test and publish rocks (${{ matrix.ref }})
-    needs: list-refs
-    strategy:
-      fail-fast: false
-      matrix:
-        ref: ${{ fromJson(needs.list-refs.outputs.refs) }}
-    uses: canonical/charmed-kubeflow-workflows/.github/workflows/get-all-rocks-and-build-scan-test-publish.yaml@main
+    name: Build, scan, test and publish rocks
+    uses: canonical/charmed-kubeflow-workflows/.github/workflows/get-all-rock-refs-and-build-scan-test-publish.yaml@main
     permissions:
       contents: read
       issues: write
     secrets: inherit
-    with:
-      base-ref: ${{ matrix.ref }}
