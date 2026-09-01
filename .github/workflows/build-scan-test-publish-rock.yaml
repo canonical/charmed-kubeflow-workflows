@@ -91,9 +91,6 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     needs: [scan, build, sanity-tests, integration-tests, resolve-image-tag]
     uses: ./.github/workflows/publish-rock.yaml
-    permissions:
-      contents: read
-      packages: write
     secrets: inherit
     with:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}

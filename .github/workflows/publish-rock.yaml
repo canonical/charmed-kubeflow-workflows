@@ -16,7 +16,7 @@ on:
         required: true
         type: string
       registry:
-        description: "Registry to publish to (e.g. docker.io/charmedkubeflow, ghcr.io/canonical). GHCR is authenticated with GHCR_USERNAME/GITHUB_TOKEN, any other registry with DOCKER_USERNAME/DOCKER_PASSWORD."
+        description: "Registry to publish to (e.g. docker.io/charmedkubeflow, ghcr.io/canonical). GHCR is authenticated with GHCR_USERNAME/GHCR_TOKEN, any other registry with DOCKER_USERNAME/DOCKER_PASSWORD."
         required: true
         type: string
       source-branch:
@@ -34,9 +34,6 @@ jobs:
   publish:
     name: Publish ${{ inputs.full-image-tag }}
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      packages: write
     outputs:
       published-image: ${{ steps.push.outputs.image }}
     steps:
@@ -66,7 +63,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Export rock to Docker
         run: |
