@@ -62,15 +62,15 @@ jobs:
 
           # A rock may override the default registry by setting `registry` in its
           # rock-ci-metadata.yaml, e.g. to publish to GHCR instead of Docker Hub.
-          if [ -f rock-ci-metadata.yaml ]; then
+          if [[ -f rock-ci-metadata.yaml ]]; then
             REGISTRY_OVERRIDE=$(yq '.registry // ""' rock-ci-metadata.yaml)
-            if [ -n "$REGISTRY_OVERRIDE" ]; then
+            if [[ -n "$REGISTRY_OVERRIDE" ]]; then
               echo "Overriding registry with '${REGISTRY_OVERRIDE}' from rock-ci-metadata.yaml"
               REGISTRY="$REGISTRY_OVERRIDE"
             fi
           fi
 
-          if [ -z "$REGISTRY" ]; then
+          if [[ -z "$REGISTRY" ]]; then
             echo "No registry configured. Set the ROCK_IMAGE_REGISTRY variable or a" \
                  "'registry' entry in ${PWD}/rock-ci-metadata.yaml." >&2
             exit 1
