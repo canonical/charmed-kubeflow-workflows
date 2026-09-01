@@ -91,11 +91,15 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
     needs: [scan, build, sanity-tests, integration-tests, resolve-image-tag]
     uses: ./.github/workflows/publish-rock.yaml
+    permissions:
+      contents: read
+      packages: write
     secrets: inherit
     with:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
+      registry: ${{ needs.resolve-image-tag.outputs.registry }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
       source-branch: ${{ inputs.base-ref }}
 

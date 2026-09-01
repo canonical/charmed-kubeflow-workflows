@@ -23,6 +23,9 @@ on:
       base:
         description: "Base of the image"
         value: ${{ jobs.resolve.outputs.base }}
+      registry:
+        description: "Registry the image will be published to"
+        value: ${{ jobs.resolve.outputs.registry }}
 
 jobs:
   resolve:
@@ -32,6 +35,7 @@ jobs:
       rock-reference: ${{ steps.extract.outputs.rock-reference }}
       full-image-tag: ${{ steps.extract.outputs.full-image-tag }}
       base: ${{ steps.extract.outputs.base }}
+      registry: ${{ steps.extract.outputs.registry }}
     env:
       REGISTRY: ${{ vars.ROCK_IMAGE_REGISTRY }}
 
@@ -56,9 +60,26 @@ jobs:
           # Build-time timestamp (UTC), format: YYYYMMDDhhmmss.
           TIMESTAMP=$(date -u +'%Y%m%d%H%M%S')
 
+          # A rock may override the default registry by setting `registry` in its
+          # rock-ci-metadata.yaml, e.g. to publish to GHCR instead of Docker Hub.
+          if [ -f rock-ci-metadata.yaml ]; then
+            REGISTRY_OVERRIDE=$(yq '.registry // ""' rock-ci-metadata.yaml)
+            if [ -n "$REGISTRY_OVERRIDE" ]; then
+              echo "Overriding registry with '${REGISTRY_OVERRIDE}' from rock-ci-metadata.yaml"
+              REGISTRY="$REGISTRY_OVERRIDE"
+            fi
+          fi
+
+          if [ -z "$REGISTRY" ]; then
+            echo "No registry configured. Set the ROCK_IMAGE_REGISTRY variable or a" \
+                 "'registry' entry in ${PWD}/rock-ci-metadata.yaml." >&2
+            exit 1
+          fi
+
           ROCK_REFERENCE="${NAME}:${VERSION}"
           FULL_IMAGE_TAG="${REGISTRY}/${ROCK_REFERENCE}-${COMMIT_ID}-${TIMESTAMP}"
 
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
+          echo "registry=$REGISTRY" >> "$GITHUB_OUTPUT"
           echo "rock-reference=$ROCK_REFERENCE" >> "$GITHUB_OUTPUT"
           echo "full-image-tag=$FULL_IMAGE_TAG" >> "$GITHUB_OUTPUT"
