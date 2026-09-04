@@ -96,6 +96,7 @@ jobs:
       rock-artifact: ${{ needs.build.outputs.rock-artifact }}
       rock-filename: ${{ needs.build.outputs.rock-filename }}
       full-image-tag: ${{ needs.resolve-image-tag.outputs.full-image-tag }}
+      registry: ${{ needs.resolve-image-tag.outputs.registry }}
       rockcraft-channel: ${{ inputs.rockcraft-channel }}
       source-branch: ${{ inputs.base-ref }}
 
