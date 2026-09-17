@@ -44,7 +44,15 @@ jobs:
         run: |
           terraform init
 
-          ARGS=" -var model_name=${{ inputs.model }} "
+          # Modules built for juju provider 1.x and above take `model_uuid`,
+          # while older ones take `model_name`.
+          if grep -q 'variable "model_uuid"' *.tf
+          then
+            MODEL_UUID=$(juju show-model ${{ inputs.model }} --format json | jq -r '.[]."model-uuid"')
+            ARGS=" -var model_uuid=${MODEL_UUID} "
+          else
+            ARGS=" -var model_name=${{ inputs.model }} "
+          fi
 
           if [ -n "${{ inputs.channel }}" ]
           then
@@ -53,7 +61,7 @@ jobs:
 
           echo "Arguments to be fed to apply command: ${ARGS}"
 
-          terraform apply ${ARGS} --auto-approve
+          terraform apply ${ARGS} -input=false --auto-approve
       - name: Wait for the application to be active or blocked
         run: |
           # Check status of the unit instead of application due to https://github.com/juju/juju/issues/18625
