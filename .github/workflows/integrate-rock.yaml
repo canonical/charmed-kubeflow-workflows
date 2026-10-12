@@ -23,6 +23,16 @@ on:
         required: false
         default: ''
         type: string
+      target-branch:
+        description: "Charm branch to integrate into. When set, it takes precedence over `integration-ref` and `base-ref` (except for `pull_request` events, which always target the PR base branch)."
+        required: false
+        default: ''
+        type: string
+      dry-run:
+        description: "Whether to run `chaci integrate-rock` in dry-run mode or not. `pull_request` events always run in dry-run mode."
+        required: false
+        default: false
+        type: boolean
 
   workflow_dispatch:
     inputs:
@@ -74,26 +84,31 @@ jobs:
           integration_ref="${{ inputs.integration-ref }}"
           target_branch="${integration_ref:-${{ inputs.base-ref }}}"
 
+          # `dry-run` can be set both on direct workflow_dispatch and through
+          # workflow_call (e.g. a caller exposing its own workflow_dispatch).
+          if [[ "${{ inputs.dry-run }}" == "true" ]]; then
+            dry_run="--dry-run"
+          else
+            dry_run=""
+          fi
+
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             echo "target_branch=${{ github.base_ref }}" >> $GITHUB_OUTPUT
             echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "${{ inputs.target-branch }}" ]]; then
-            # Direct workflow_dispatch trigger on this workflow.
+          elif [[ -n "${{ inputs.target-branch }}" ]]; then
+            # Explicit target branch, either from a direct workflow_dispatch
+            # trigger on this workflow or passed in through workflow_call.
             echo "target_branch=${{ inputs.target-branch }}" >> $GITHUB_OUTPUT
-            if [[ "${{ inputs.dry-run }}" == "true" ]]; then
-              echo "dry_run=--dry-run" >> $GITHUB_OUTPUT
-            else
-              echo "dry_run=" >> $GITHUB_OUTPUT
-            fi
+            echo "dry_run=${dry_run}" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event_name }}" == "workflow_dispatch" || "${{ github.event_name }}" == "schedule" ]]; then
             # Called from a workflow_dispatch / schedule triggered chain: the
             # ref being built is integrated into `target_branch`.
             echo "Integrating rock ref '${{ inputs.base-ref }}' into charm branch '${target_branch}'"
             echo "target_branch=${target_branch}" >> $GITHUB_OUTPUT
-            echo "dry_run=" >> $GITHUB_OUTPUT
+            echo "dry_run=${dry_run}" >> $GITHUB_OUTPUT
           else
             echo "target_branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-            echo "dry_run=" >> $GITHUB_OUTPUT
+            echo "dry_run=${dry_run}" >> $GITHUB_OUTPUT
           fi
 
       - name: Determine triggering PR (if merged)
