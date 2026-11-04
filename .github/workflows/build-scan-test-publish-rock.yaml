@@ -37,6 +37,11 @@ on:
         required: false
         default: ''
         type: string
+      report-failures:
+        description: "If true, open (or comment on) a GitHub issue when any job of this workflow fails. Requires the caller to grant `issues: write`."
+        required: false
+        default: false
+        type: boolean
 
 jobs:
 
@@ -135,3 +140,54 @@ jobs:
       base-ref: ${{ inputs.base-ref }}
       integration-ref: ${{ inputs.integration-ref }}
     secrets: inherit
+
+  # No `permissions:` block on purpose: requesting `issues: write` here would make
+  # every caller fail validation unless it grants it, even when this job is skipped.
+  # The token inherits the caller's permissions instead.
+  report-failures:
+    name: Report failure
+    needs:
+      - resolve-image-tag
+      - build
+      - scan
+      - sanity-tests
+      - integration-tests
+      - publish
+      - integrate-on-pr
+      - integrate-on-merge
+      - integrate-on-dispatch
+    if: ${{ always() && inputs.report-failures && contains(needs.*.result, 'failure') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Open or update failure issue for this rock
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ inputs.base-ref }}
+          INTEGRATION_REF: ${{ inputs.integration-ref }}
+          ROCK_DIR: ${{ inputs.rock-dir }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # Include the integration branch when it differs from the rock branch, so that
+          # one rock ref integrated into several charm branches gets distinct issues.
+          target="${BRANCH}"
+          if [ -n "${INTEGRATION_REF}" ] && [ "${INTEGRATION_REF}" != "${BRANCH}" ]; then
+            target="${BRANCH} -> ${INTEGRATION_REF}"
+          fi
+          # Include the current year-month in the title so that, once an issue
+          # is closed, a later failure opens a fresh issue instead of being
+          # silently suppressed by an already-closed one.
+          month=$(date -u +'%Y-%m')
+          title="Scheduled build failed: ${ROCK_DIR} on ${target} (${month})"
+          body=$(printf 'Scheduled build of `%s` failed on branch `%s`.\n\nRun: %s\n' \
+            "${ROCK_DIR}" "${target}" "${RUN_URL}")
+          existing=$(TITLE="${title}" gh issue list --repo "${{ github.repository }}" \
+            --state open \
+            --search "in:title \"${title}\"" \
+            --json number,title \
+            --jq '[.[] | select(.title == env.TITLE)][0].number // empty')
+          if [ -n "${existing}" ]; then
+            gh issue comment "${existing}" --repo "${{ github.repository }}" --body "${body}"
+          else
+            gh issue create --repo "${{ github.repository }}" \
+              --title "${title}" --body "${body}"
+          fi
